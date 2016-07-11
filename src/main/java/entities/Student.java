@@ -13,16 +13,12 @@ import org.neo4j.ogm.annotation.Relationship;
 @NodeEntity
 public class Student extends BaseModel{
 
-
     private String name;
 
     @Relationship(type = "ENROLLED", direction = Relationship.OUTGOING)
     private Set<Course> courses = new HashSet<Course>();
     @Relationship(type = "KNOWS", direction = Relationship.UNDIRECTED)
     private Set<Student> knownStudents = new HashSet<Student>();
-
-
-
 
     public String getName() {
         return name;

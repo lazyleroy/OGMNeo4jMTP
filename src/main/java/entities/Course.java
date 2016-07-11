@@ -7,22 +7,13 @@ package entities;
 import org.neo4j.ogm.annotation.*;
 
 @NodeEntity
-public class Course {
+public class Course extends BaseModel{
 
-    @GraphId
-    private Long id;
 
     private String name;
 
     private float credits;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
