@@ -1,7 +1,7 @@
 package config;
 
 /**
- * Created by Felix on 05.07.2016.
+ * Created by Felix Hambrecht on 05.07.2016.
  */
 import org.neo4j.ogm.authentication.Credentials;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
-public class MyConfiguration extends Neo4jConfiguration {
+class MyConfiguration extends Neo4jConfiguration {
 
     //Ging gestern nicht, da falsche Version!!!
     Credentials t = new UsernamePasswordCredentials("as","as");
@@ -22,12 +22,12 @@ public class MyConfiguration extends Neo4jConfiguration {
         return new SessionFactory(getConfiguration(), "entities");
     }
     @Bean
-    public org.neo4j.ogm.config.Configuration getConfiguration() {
+    private org.neo4j.ogm.config.Configuration getConfiguration() {
         org.neo4j.ogm.config.Configuration config = new org.neo4j.ogm.config.Configuration();
         config
                 .driverConfiguration()
                 .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
-                .setURI("http://neo4j:mtp123456@134.155.48.48:7474");
+                .setURI("http://neo4j:decard66@localhost:7474");
         return config;
     }
 

@@ -1,10 +1,11 @@
 package config;
 
 /**
- * Created by Felix on 05.07.2016.
+ * Created by Felix Hambrecht on 05.07.2016.
  */
 import java.util.Collections;
 
+import entities.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 
@@ -21,6 +22,9 @@ public class Main {
         // Create the session
         Session session = sessionFactory.openSession();
 
+        // Create a User
+
+        User u = new User("Leroy", "leroy@gmx.de","testPasswort");
 
         // Create few courses
         Course oop = new Course();
@@ -67,6 +71,7 @@ public class Main {
         session.save(carol);
 
         // Retrieve Students who enrolled for Advanced Algorithm
+        Iterable<Course> courses = session.loadAll(Course.class);
         Iterable<Student> students = session.query(Student.class,
                 "MATCH (c:Course)<-[:ENROLLED]-(student) WHERE c.name = 'Advanced Algorithm' RETURN student",
                 Collections.<String, Object> emptyMap());
@@ -75,5 +80,11 @@ public class Main {
         for (Student stu : students) {
             System.out.println(stu.getName());
         }
+        for (Course cts : courses){
+            System.out.println(cts.getName());
+        }
+
     }
+
+
 }

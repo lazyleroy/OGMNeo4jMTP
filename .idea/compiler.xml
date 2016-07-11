@@ -22,10 +22,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
+        <module name="OGM Neo4J" />
         <module name="TEST" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="OGM Neo4J" target="1.5" />
       <module name="TEST" target="1.5" />
     </bytecodeTargetLevel>
   </component>

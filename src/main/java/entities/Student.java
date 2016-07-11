@@ -11,10 +11,8 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
 @NodeEntity
-public class Student {
+public class Student extends BaseModel{
 
-    @GraphId
-    private Long id;
 
     private String name;
 
@@ -24,13 +22,7 @@ public class Student {
     private Set<Student> knownStudents = new HashSet<Student>();
 
 
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;

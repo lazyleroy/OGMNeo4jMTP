@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/TEST.iml" filepath="$PROJECT_DIR$/TEST.iml" />
+      <module fileurl="file://$PROJECT_DIR$/OGM Neo4J.iml" filepath="$PROJECT_DIR$/OGM Neo4J.iml" />
     </modules>
   </component>
 </project>
