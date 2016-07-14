@@ -3,86 +3,79 @@ package config;
 /**
  * Created by Felix Hambrecht on 05.07.2016.
  */
-import java.util.Collections;
-
-import entities.User;
+import java.util.ArrayList;
+import entities.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-
-import entities.Course;
-import entities.Student;
+import org.springframework.data.neo4j.template.Neo4jTemplate;
 
 public class Main {
 
+
+    // Create SessionFactory. Pass the package name of the entity classes as the argument. Pass
+    //Configuration as first Argument --> Both done in MyConfiguration
+    private static SessionFactory sessionFactory = new MyConfiguration().getSessionFactory();
+    private static Session session = sessionFactory.openSession();
+    private static Neo4jTemplate template = new Neo4jTemplate(session);
+
+
+    public Neo4jTemplate createNeo4JTemplate(){
+        return new Neo4jTemplate(sessionFactory.openSession());
+    }
+
     public static void main(String[] args) {
-        MyConfiguration x = new MyConfiguration();
-        // Create SessionFactory. Pass the package name of the entity classes as the argument. Pass
-        //Configuration as first Argument --> Both done in MyConfiguration
-        SessionFactory sessionFactory = x.getSessionFactory();
-        // Create the session
-        Session session = sessionFactory.openSession();
+
 
         // Create a User
 
-        User u = new User("Leroy", "leroy@gmx.de","testPasswort");
+        User u = new User("Leroy", "leroy@gmx.de", "testPasswort");
 
-        // Create few courses
-        Course oop = new Course();
-        oop.setName("Object Oriented Programming");
-        oop.setCredits(2.0f);
+        // Create a few GeoLocations
 
-        Course algo = new Course();
-        algo.setName("Advanced Algorithm");
-        algo.setCredits(3.0f);
-
-        Course db = new Course();
-        db.setName("Database Internals");
-        db.setCredits(3.0f);
-
-        // Create few students
-        Student alice = new Student();
-        alice.setName("Alice");
-
-        Student bob = new Student();
-        bob.setName("Bob");
-
-        Student carol = new Student();
-        carol.setName("Carol");
-
-        // Add the courses
-        alice.getCourses().add(oop);
-        alice.getCourses().add(algo);
-        alice.getCourses().add(db);
-
-        alice.getknownStudents().add(bob);
-
-        bob.getCourses().add(oop);
-        bob.getCourses().add(algo);
-        bob.getknownStudents().add(alice);
-
-        carol.getCourses().add(algo);
-        carol.getCourses().add(db);
+        GeoLocation g0 = new GeoLocation(123.42,136.2);
+        GeoLocation g1 = new GeoLocation(443.42,936.2);
+        GeoLocation g2 = new GeoLocation(3.42,1036.2);
+        GeoLocation g3 = new GeoLocation(123124,123124);
+        GeoLocation g4 = new GeoLocation(3574567,13462);
+        GeoLocation g5 = new GeoLocation(121111,22222);
 
 
+        //Create a Route
+        ArrayList<GeoLocation> gl0 = new ArrayList<GeoLocation>();
+        ArrayList<GeoLocation> gl1 = new ArrayList<GeoLocation>();
+        ArrayList<GeoLocation> gl2 = new ArrayList<GeoLocation>();
 
-        // Persist the objects. Persisting students persists courses as well.
-        session.save(alice);
-        session.save(bob);
-        session.save(carol);
+        gl0.add(g0);
+        gl0.add(g1);
+        gl0.add(g2);
+        gl1.add(g1);
+        gl1.add(g2);
+        gl2.add(g3);
+        gl2.add(g4);
+        gl2.add(g5);
+        Route r0 = new Route(gl0);
+        Route r1 = new Route(gl1);
+        Route r2 = new Route(gl2);
+        u.getRoutes().add(r0);
+        u.getRoutes().add(r1);
 
-        // Retrieve Students who enrolled for Advanced Algorithm
-        Iterable<Course> courses = session.loadAll(Course.class);
-        Iterable<Student> students = session.query(Student.class,
-                "MATCH (c:Course)<-[:ENROLLED]-(student) WHERE c.name = 'Advanced Algorithm' RETURN student",
-                Collections.<String, Object> emptyMap());
 
-        // Print all the Students
-        for (Student stu : students) {
-            System.out.println(stu.getName());
-        }
-        for (Course cts : courses){
-            System.out.println(cts.getName());
-        }
+        session.save(u);
+
+        //User b = template.loadByProperty(User.class,"userName","Leroy");
+        //b.getRoutes().add(r2);
+        //session.save(b);
+/*
+        System.out.println(User.loadUserName("Leroy"));
+        System.out.println(User.loadEmailAddress("Leroy"));
+        System.out.println(User.loadIsTrackingActivated("Leroy"));
+        System.out.println(User.loadSalt("Leroy"));
+        System.out.println(User.loadPassWord("Leroy"));
+        System.out.println(User.loadRating("Leroy"));
+
+        User.savePassword("Leroy","12345");
+        //User.saveUserName("Leroy","Jenkins");
+*/
 
     }
 

@@ -9,6 +9,9 @@ import org.neo4j.ogm.annotation.NodeEntity;
 @NodeEntity
 public class BaseModel {
 
+    public BaseModel(){
+    }
+    @GraphId
     private Long id;
 
     private Long version;

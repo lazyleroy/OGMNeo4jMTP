@@ -1,13 +1,22 @@
 package entities;
 
 /**
- * Created by Felix on 11.07.2016.
+ * Created by Felix Hambrecht on 11.07.2016.
  */
 public class GeoLocation extends BaseModel {
 
     private double longitude;
 
     private double latitude;
+
+
+    public GeoLocation(double longitude, double latitude){
+        this.longitude = longitude;
+        this.latitude = latitude;
+    }
+    GeoLocation(){
+    }
+
 
     public double getLongitude() {
         return longitude;
