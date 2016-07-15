@@ -24,6 +24,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        DatabaseOperations db = new DatabaseOperations();
 
 
         // Create a User
@@ -60,22 +61,21 @@ public class Main {
         u.getRoutes().add(r1);
 
 
-        session.save(u);
+        //session.save(u);
 
-        //User b = template.loadByProperty(User.class,"userName","Leroy");
-        //b.getRoutes().add(r2);
-        //session.save(b);
 /*
-        System.out.println(User.loadUserName("Leroy"));
-        System.out.println(User.loadEmailAddress("Leroy"));
-        System.out.println(User.loadIsTrackingActivated("Leroy"));
-        System.out.println(User.loadSalt("Leroy"));
-        System.out.println(User.loadPassWord("Leroy"));
-        System.out.println(User.loadRating("Leroy"));
+        System.out.println(db.loadUserName("Leroy"));
+        System.out.println(db.loadEmailAddress("Leroy"));
+        System.out.println(db.loadIsTrackingActivated("Leroy"));
+        System.out.println(db.loadSalt("Leroy"));
+        System.out.println(db.loadPassWord("Leroy"));
+        System.out.println(db.loadRating("Leroy"));*/
 
-        User.savePassword("Leroy","12345");
-        //User.saveUserName("Leroy","Jenkins");
-*/
+
+        
+        //db.saveEmailAddress("Leroy","12345");
+        //System.out.println(db.emailLogin("12345","testPasswort"));
+        //System.out.println(db.refreshTokenLogin(146858406871L));
 
     }
 
