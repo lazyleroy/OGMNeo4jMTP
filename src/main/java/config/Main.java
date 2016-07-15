@@ -72,7 +72,7 @@ public class Main {
         System.out.println(db.loadRating("Leroy"));*/
 
 
-        
+
         //db.saveEmailAddress("Leroy","12345");
         //System.out.println(db.emailLogin("12345","testPasswort"));
         //System.out.println(db.refreshTokenLogin(146858406871L));
