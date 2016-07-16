@@ -27,7 +27,7 @@ class MyConfiguration extends Neo4jConfiguration {
         config
                 .driverConfiguration()
                 .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
-                .setURI("http://neo4j:neo4j@localhost:7474");
+                .setURI("http://neo4j:decard66@localhost:7474");
         return config;
     }
 

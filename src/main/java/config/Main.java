@@ -4,6 +4,8 @@ package config;
  * Created by Felix Hambrecht on 05.07.2016.
  */
 import java.util.ArrayList;
+import java.util.Random;
+
 import entities.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -61,7 +63,7 @@ public class Main {
         u.getRoutes().add(r1);
 
 
-        //session.save(u);
+       // session.save(u);
 
 /*
         System.out.println(db.loadUserName("Leroy"));
@@ -75,7 +77,7 @@ public class Main {
 
         //db.saveEmailAddress("Leroy","12345");
         //System.out.println(db.emailLogin("12345","testPasswort"));
-        //System.out.println(db.refreshTokenLogin(146858406871L));
+        System.out.println(db.checkAccessToken("KeLkG4BM2FaSfxEvNtg4AdiGObhYAmZ3qVN3Ioy3hIOeBNFltL0TGyhq2GaMyXq1nyPFxrXSdphyphrBMY375JL8qCI1jiyTYGbFsNnilVVWQnYpDFrEkFBwkBmTIoE5HZj9zas0EVtFW9aJws855ck0secABrcLIqleC7Xjt4OqmtPjpj3e3BrHxDfP9o4PqCcf4lRfQIWncAIsmkLXgkGHJg4JNX7Xfux0wPFrhEM2GqKWuDBc4UBO2ToVn3x"));
 
     }
 

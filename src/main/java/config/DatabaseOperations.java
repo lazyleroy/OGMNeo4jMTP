@@ -102,26 +102,30 @@ public class DatabaseOperations {
 
     //Operations concerning the UserSession
 
-    public static String checkAccessToken(long accesstoken){
+    public static String checkAccessToken(String accesstoken) {
         long timestamp = new Date().getTime();
         Neo4jTemplate template = main.createNeo4JTemplate();
-        UserSession u = template.loadByProperty(UserSession.class,"accessToken", accesstoken);
-        if(u.getAccessToken()+86400000L>=timestamp){
-            template.purgeSession();
-            template.clear();
-            return "success";
-        }else {
-            template.purgeSession();
-            template.clear();
-            return "failure";
+        try{
+            UserSession u = template.loadByProperty(UserSession.class, "accessToken", accesstoken);
+            if (u.getExpiresAt() >= timestamp) {
+                template.purgeSession();
+                template.clear();
+                return "success";
+        }   else {
+                template.purgeSession();
+                template.clear();
+                return "failure";
+            }
+        }catch (NotFoundException nfe){
+        System.out.println("SOMETHING WENT WRONG !! NotFoundException !! ACCESSTOKEN !!");
         }
+        return"failure";
     }
 
     public static String emailLogin(String email, String password){
         Neo4jTemplate template = main.createNeo4JTemplate();
         try {
             User u = template.loadByProperty(User.class,"emailAddress", email);
-
             String hash = u.createMD5(password, u.getSalt());
             if (hash.equals(u.getPassword())){
                 u.getUserSessions().add(new UserSession(u));
@@ -142,12 +146,12 @@ public class DatabaseOperations {
         return "failure";
     }
 
-    public static String refreshTokenLogin(long refreshToken) {
+    public static String refreshTokenLogin(String refreshToken) {
         long timestamp = new Date().getTime();
         Neo4jTemplate template = main.createNeo4JTemplate();
         try {
             Cookie c = template.loadByProperty(Cookie.class, "refreshToken", refreshToken);
-            if (refreshToken + 15768000000L >= timestamp) {
+            if (c.getExpiresAt()  >= timestamp) {
                 c.getUser().getUserSessions().add(new UserSession(c.getUser()));
                 template.save(c);
                 template.purgeSession();
