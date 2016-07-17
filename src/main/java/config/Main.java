@@ -7,10 +7,17 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import entities.*;
+import javafx.application.Application;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.neo4j.template.Neo4jTemplate;
 
+
+@SpringBootApplication
+@ComponentScan(basePackages={"jsonTests"})
 public class Main {
 
 
@@ -29,7 +36,7 @@ public class Main {
         DatabaseOperations db = new DatabaseOperations();
 
 
-        // Create a User
+      /*  // Create a User
 
         User u = new User("Leroy", "leroy@gmx.de", "testPasswort");
 
@@ -64,7 +71,7 @@ public class Main {
 
 
        // session.save(u);
-
+*/
 /*
         System.out.println(db.loadUserName("Leroy"));
         System.out.println(db.loadEmailAddress("Leroy"));
@@ -76,8 +83,10 @@ public class Main {
 
 
         //db.saveEmailAddress("Leroy","12345");
-        //System.out.println(db.emailLogin("12345","testPasswort"));
-        System.out.println(db.checkAccessToken("KeLkG4BM2FaSfxEvNtg4AdiGObhYAmZ3qVN3Ioy3hIOeBNFltL0TGyhq2GaMyXq1nyPFxrXSdphyphrBMY375JL8qCI1jiyTYGbFsNnilVVWQnYpDFrEkFBwkBmTIoE5HZj9zas0EVtFW9aJws855ck0secABrcLIqleC7Xjt4OqmtPjpj3e3BrHxDfP9o4PqCcf4lRfQIWncAIsmkLXgkGHJg4JNX7Xfux0wPFrhEM2GqKWuDBc4UBO2ToVn3x"));
+        System.out.println(db.emailLogin("12345","testPasswort"));
+        SpringApplication.run(Main.class, args);
+
+
 
     }
 

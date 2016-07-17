@@ -27,7 +27,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="OGM Neo4J" target="1.5" />
+      <module name="OGM Neo4J" target="1.8" />
       <module name="TEST" target="1.5" />
     </bytecodeTargetLevel>
   </component>
