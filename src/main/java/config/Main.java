@@ -13,6 +13,7 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.neo4j.template.Neo4jTemplate;
 
 
@@ -83,7 +84,7 @@ public class Main {
 
 
         //db.saveEmailAddress("Leroy","12345");
-        System.out.println(db.emailLogin("12345","testPasswort"));
+        //System.out.println(db.emailLogin("12345","testPasswort"));
         SpringApplication.run(Main.class, args);
 
 

@@ -42,6 +42,8 @@ public class User extends BaseModel {
         Date date = new Date();
         this.salt = Long.toString(date.getTime());
         this.passWord = createMD5(passWord, this.salt);
+        this.rating = 0;
+        this.isTrackingActivated = false;
     }
     public User(){
     super();

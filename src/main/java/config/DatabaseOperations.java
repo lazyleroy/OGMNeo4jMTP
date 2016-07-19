@@ -17,6 +17,22 @@ public class DatabaseOperations {
     private static Main main = new Main();
 
     //Operations concerning the User
+
+    public static String register(User u, String emailAddress){
+        Neo4jTemplate template = main.createNeo4JTemplate();
+        try {
+        User t = template.loadByProperty(User.class, "emailAddress", emailAddress);
+            template.purgeSession();
+            template.clear();
+            return "failure: User already exists";
+        }catch(NotFoundException nfe){
+                template.save(u);
+                template.purgeSession();
+                template.clear();
+            return "success";
+            }
+    }
+
     public static String loadUserName(String accesstoken){
         Neo4jTemplate template = main.createNeo4JTemplate();
         User u = template.loadByProperty(User.class,"userName", accesstoken);
