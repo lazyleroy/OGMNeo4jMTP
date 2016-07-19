@@ -25,14 +25,14 @@ public class DatabaseOperations {
         User t = template.loadByProperty(User.class, "emailAddress", emailAddress);
             template.purgeSession();
             template.clear();
-            String accessToken = "";
-            String refreshToken = "";
-            return new RegisterAnswer(false, "Emailadress already exists", accessToken, refreshToken);
+            return new RegisterAnswer(false, "Emailadress already exists");
         }catch(NotFoundException nfe){
                 template.save(u);
                 template.purgeSession();
                 template.clear();
-            return new RegisterAnswer(true);
+                String accessToken = "";
+                String refreshToken = "";
+            return new RegisterAnswer(true, accessToken, refreshToken);
             }
     }
 
