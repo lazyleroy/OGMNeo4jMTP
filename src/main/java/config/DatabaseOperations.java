@@ -1,6 +1,7 @@
 package config;
 
 import entities.Cookie;
+import entities.RegisterAnswer;
 import entities.User;
 import entities.UserSession;
 import org.neo4j.ogm.exception.NotFoundException;
@@ -18,18 +19,20 @@ public class DatabaseOperations {
 
     //Operations concerning the User
 
-    public static String register(User u, String emailAddress){
+    public static RegisterAnswer register(User u, String emailAddress){
         Neo4jTemplate template = main.createNeo4JTemplate();
         try {
         User t = template.loadByProperty(User.class, "emailAddress", emailAddress);
             template.purgeSession();
             template.clear();
-            return "failure: User already exists";
+            String accessToken = "";
+            String refreshToken = "";
+            return new RegisterAnswer(false, "Emailadress already exists", accessToken, refreshToken);
         }catch(NotFoundException nfe){
                 template.save(u);
                 template.purgeSession();
                 template.clear();
-            return "success";
+            return new RegisterAnswer(true);
             }
     }
 
