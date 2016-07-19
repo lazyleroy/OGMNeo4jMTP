@@ -11,18 +11,18 @@ public class RegisterAnswer {
     private final String refreshToken;
 
 
-    public RegisterAnswer(boolean success, String reason, String accessToken, String refreshToken){
+    public RegisterAnswer(boolean success, String reason){
         this.success = success;
         this.reason = reason;
-        this.refreshToken = refreshToken;
-        this.accessToken = accessToken;
+        this.refreshToken = "";
+        this.accessToken = "";
     }
 
-    public RegisterAnswer(boolean success){
+    public RegisterAnswer(boolean success, String accessToken, String refreshToken){
         this.success = success;
         this.reason = "";
-        this.accessToken = "";
-        this.refreshToken = "";
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
     }
 
     public String getReason(){
