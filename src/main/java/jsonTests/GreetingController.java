@@ -3,7 +3,7 @@ package jsonTests; /**
  */
 
 import config.DatabaseOperations;
-import entities.SimpleAnswer;
+import entities.RegisterAnswer;
 import entities.User;
 import org.springframework.web.bind.annotation.*;
 @RestController
@@ -14,7 +14,7 @@ public class GreetingController {
 
     @CrossOrigin(origins = "192.168.0.101:8080")
     @RequestMapping(value = "/register",method = RequestMethod.POST)
-    public SimpleAnswer register(@RequestParam(value="username") String name,@RequestParam(value="email") String email, @RequestParam(value="password") String password) {
+    public RegisterAnswer register(@RequestParam(value="username") String name,@RequestParam(value="email") String email, @RequestParam(value="password") String password) {
         return db.register(new User(name, email,password), email);
     }
 }
