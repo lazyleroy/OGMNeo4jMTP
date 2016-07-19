@@ -26,6 +26,5 @@ public class GreetingController {
     public String register(String name, String email, String password
     ) {
         return db.register(new User(name, email,password), email);
-        //return new User(name, email, password);
     }
 }
