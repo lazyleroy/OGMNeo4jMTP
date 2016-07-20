@@ -9,42 +9,42 @@ public class RegisterAnswer {
     private final String reason;
     private final String accessToken;
     private final String refreshToken;
-    private final long accessExpires;
-    private final long refreshExpires;
+    private final long accessDuration;
+    private final long refreshDuration;
 
     public RegisterAnswer(boolean success, String reason){
         this.success = success;
         this.reason = reason;
         this.refreshToken = "";
         this.accessToken = "";
-        this.accessExpires = 0;
-        this.refreshExpires = 0;
+        this.accessDuration = 0;
+        this.refreshDuration = 0;
     }
 
-    public RegisterAnswer(boolean success, String accessToken, Long accessExpires, String refreshToken, Long refreshExpires){
+    public RegisterAnswer(boolean success, String accessToken, Long accessDuration, String refreshToken, Long refreshDuration){
         this.success = success;
         this.reason = "";
         this.accessToken = accessToken;
-        this.accessExpires = accessExpires;
+        this.accessDuration = accessDuration;
         this.refreshToken = refreshToken;
-        this.refreshExpires = refreshExpires;
+        this.refreshDuration = refreshDuration;
     }
 
     public RegisterAnswer(boolean success){
         this.success = success;
         this.reason = "";
         this.accessToken = "";
-        this.accessExpires = 0;
+        this.accessDuration = 0;
         this.refreshToken = "";
-        this.refreshExpires = 0;
+        this.refreshDuration = 0;
     }
 
-    public long getAccessExpires() {
-        return accessExpires;
+    public long getAccessDuration() {
+        return accessDuration;
     }
 
-    public long getRefreshExpires() {
-        return refreshExpires;
+    public long getRefreshDuration() {
+        return refreshDuration;
     }
 
 

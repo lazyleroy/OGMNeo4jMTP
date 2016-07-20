@@ -34,7 +34,7 @@ public class DatabaseOperations {
                 template.clear();
                 String accessToken = uS.getAccessToken();
                 String refreshToken = c.getRefreshToken();
-            return new RegisterAnswer(true, accessToken, uS.getExpiresAt(), refreshToken, c.getExpiresAt());
+            return new RegisterAnswer(true, accessToken, 86400000L, refreshToken, 15768000000L);
             }
     }
 
@@ -70,7 +70,7 @@ public class DatabaseOperations {
                 template.save(u);
                 template.purgeSession();
                 template.clear();
-                return new RegisterAnswer(true,uS.getAccessToken(), uS.getExpiresAt(), c.getRefreshToken(), c.getExpiresAt());
+                return new RegisterAnswer(true,uS.getAccessToken(), 86400000L, c.getRefreshToken(), 15768000000L);
             }else {
                 template.save(u);
                 template.purgeSession();
@@ -93,7 +93,7 @@ public class DatabaseOperations {
                 template.save(c);
                 template.purgeSession();
                 template.clear();
-                return new RegisterAnswer(true, uS.getAccessToken(),uS.getExpiresAt(), c.getRefreshToken(), c.getExpiresAt());
+                return new RegisterAnswer(true, uS.getAccessToken(),86400000L, c.getRefreshToken(), 15768000000L);
             } else {
                 template.save(c);
                 template.purgeSession();
