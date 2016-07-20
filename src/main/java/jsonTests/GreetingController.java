@@ -6,6 +6,8 @@ import config.DatabaseOperations;
 import requestAnswers.RegisterAnswer;
 import entities.User;
 import org.springframework.web.bind.annotation.*;
+import requestAnswers.SimpleAnswer;
+
 @RestController
 public class GreetingController {
 
@@ -19,9 +21,9 @@ public class GreetingController {
         return db.register(new User(name, email,password), email);
     }
     @RequestMapping(value = "/updateProfile", method = RequestMethod.GET)
-    public RegisterAnswer updateProfile(@RequestParam(value="username")String userName,@RequestParam(value="email")String email,
-                                        @RequestParam(value="occupation") String occupation,
-                                        @RequestParam(value="accessToken") String accessToken){
+    public SimpleAnswer updateProfile(@RequestParam(value="username")String userName, @RequestParam(value="email")String email,
+                                      @RequestParam(value="occupation") String occupation,
+                                      @RequestParam(value="accessToken") String accessToken){
         return db.updateProfile(userName, email, occupation,accessToken);
     }
 }

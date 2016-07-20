@@ -6,6 +6,7 @@ import entities.User;
 import entities.UserSession;
 import org.neo4j.ogm.exception.NotFoundException;
 import org.springframework.data.neo4j.template.Neo4jTemplate;
+import requestAnswers.SimpleAnswer;
 
 import java.util.Date;
 
@@ -33,7 +34,7 @@ public class DatabaseOperations {
                 template.clear();
                 String accessToken = uS.getAccessToken();
                 String refreshToken = c.getRefreshToken();
-            return new RegisterAnswer(true, accessToken, refreshToken);
+            return new RegisterAnswer(true, accessToken, uS.getExpiresAt(), refreshToken, c.getExpiresAt());
             }
     }
 
@@ -69,7 +70,7 @@ public class DatabaseOperations {
                 template.save(u);
                 template.purgeSession();
                 template.clear();
-                return new RegisterAnswer(true,uS.getAccessToken(), c.getRefreshToken());
+                return new RegisterAnswer(true,uS.getAccessToken(), uS.getExpiresAt(), c.getRefreshToken(), c.getExpiresAt());
             }else {
                 template.save(u);
                 template.purgeSession();
@@ -92,7 +93,7 @@ public class DatabaseOperations {
                 template.save(c);
                 template.purgeSession();
                 template.clear();
-                return new RegisterAnswer(true, uS.getAccessToken(), c.getRefreshToken());
+                return new RegisterAnswer(true, uS.getAccessToken(),uS.getExpiresAt(), c.getRefreshToken(), c.getExpiresAt());
             } else {
                 template.save(c);
                 template.purgeSession();
@@ -104,7 +105,7 @@ public class DatabaseOperations {
         }
     }
 
-    public static RegisterAnswer updateProfile(String userName, String email, String occupation, String accessToken){
+    public static SimpleAnswer updateProfile(String userName, String email, String occupation, String accessToken){
         if(checkAccessToken(accessToken).getSuccess()){
             Neo4jTemplate template = main.createNeo4JTemplate();
             try{
@@ -116,11 +117,11 @@ public class DatabaseOperations {
                 template.save(u);
                 template.clear();
                 template.purgeSession();
-                return new RegisterAnswer(true, "values updated: " + userName + " " + email + " " + " "+ occupation);
+                return new SimpleAnswer(true, "values updated: " + userName + " " + email + " " + " "+ occupation);
             }catch (NotFoundException nfe){
-                return new RegisterAnswer(false, "Invalid Accesstoken");
+                return new SimpleAnswer(false, "Invalid Accesstoken");
             }
-        }else return new RegisterAnswer(false, "Invalid Accesstoken");
+        }else return new SimpleAnswer(false, "Invalid Accesstoken");
 
     }
 
