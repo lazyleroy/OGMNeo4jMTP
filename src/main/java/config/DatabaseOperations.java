@@ -104,8 +104,8 @@ public class DatabaseOperations {
         }
     }
 
-    public static RegisterAnswer updateProfile(String userName, String email, String phone, String occupation, String accessToken){
-        if(checkAccessToken(accessToken).getSucsess()){
+    public static RegisterAnswer updateProfile(String userName, String email, String occupation, String accessToken){
+        if(checkAccessToken(accessToken).getSuccess()){
             Neo4jTemplate template = main.createNeo4JTemplate();
             try{
                 UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
@@ -116,7 +116,7 @@ public class DatabaseOperations {
                 template.save(u);
                 template.clear();
                 template.purgeSession();
-                return new RegisterAnswer(true, "values updated: " + userName + " " + email + " " + phone + " "+ occupation);
+                return new RegisterAnswer(true, "values updated: " + userName + " " + email + " " + " "+ occupation);
             }catch (NotFoundException nfe){
                 return new RegisterAnswer(false, "Invalid Accesstoken");
             }

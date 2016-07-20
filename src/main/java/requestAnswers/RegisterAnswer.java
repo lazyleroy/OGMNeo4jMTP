@@ -36,7 +36,7 @@ public class RegisterAnswer {
         return this.reason;
     }
 
-    public boolean getSucsess(){
+    public boolean getSuccess(){
         return this.success;
     }
 

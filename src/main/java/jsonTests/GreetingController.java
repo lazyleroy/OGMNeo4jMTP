@@ -14,8 +14,14 @@ public class GreetingController {
 
 
     @CrossOrigin(origins = "192.168.0.101:8080")
-    @RequestMapping(value = "/register",method = RequestMethod.POST)
+    @RequestMapping(value = "/register",method = RequestMethod.GET)
     public RegisterAnswer register(@RequestParam(value="username") String name,@RequestParam(value="email") String email, @RequestParam(value="password") String password) {
         return db.register(new User(name, email,password), email);
+    }
+    @RequestMapping(value = "/updateProfile", method = RequestMethod.GET)
+    public RegisterAnswer updateProfile(@RequestParam(value="username")String userName,@RequestParam(value="email")String email,
+                                        @RequestParam(value="occupation") String occupation,
+                                        @RequestParam(value="accessToken") String accessToken){
+        return db.updateProfile(userName, email, occupation,accessToken);
     }
 }

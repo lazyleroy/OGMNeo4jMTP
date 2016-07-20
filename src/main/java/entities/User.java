@@ -27,6 +27,8 @@ public class User extends BaseModel {
     private static Main main = new Main();
     private int rating;
     private boolean isTrackingActivated;
+    private GeoLocation location;
+
 
     @Relationship(type = "WALKS", direction = Relationship.OUTGOING)
     private List<Route> routes = new ArrayList<Route>();
@@ -35,7 +37,6 @@ public class User extends BaseModel {
     @Relationship(type = "COOKIE", direction = Relationship.UNDIRECTED)
     private List<Cookie> cookies = new ArrayList<Cookie>();
 
-    private GeoLocation location = new GeoLocation();
 
     public User(String userName, String emailAddress, String passWord){
         this.userName = userName;
