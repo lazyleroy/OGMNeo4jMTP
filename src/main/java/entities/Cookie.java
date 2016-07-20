@@ -29,9 +29,8 @@ public class Cookie extends  BaseModel{
             c[i] =(char)rv;
         }
         this.refreshToken = String.copyValueOf(c);
-
-
     }
+
     public Cookie(){}
 
     public long getExpiresAt(){return this.expiresAt;}

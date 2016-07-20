@@ -1,11 +1,10 @@
 package config;
 
 import entities.Cookie;
-import entities.RegisterAnswer;
+import requestAnswers.RegisterAnswer;
 import entities.User;
 import entities.UserSession;
 import org.neo4j.ogm.exception.NotFoundException;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.neo4j.template.Neo4jTemplate;
 
 import java.util.Date;
@@ -17,8 +16,6 @@ public class DatabaseOperations {
 
     private static Main main = new Main();
 
-    //Operations concerning the User
-
     public static RegisterAnswer register(User u, String emailAddress){
         Neo4jTemplate template = main.createNeo4JTemplate();
         try {
@@ -27,103 +24,20 @@ public class DatabaseOperations {
             template.clear();
             return new RegisterAnswer(false, "Emailadress already exists");
         }catch(NotFoundException nfe){
-                u.getUserSessions().add(new UserSession(u));
-                u.getCookies().add(new Cookie(u));
+                UserSession uS = new UserSession(u);
+                Cookie c = new Cookie(u);
+                u.getUserSessions().add(uS);
+                u.getCookies().add(c);
                 template.save(u);
                 template.purgeSession();
                 template.clear();
-                String accessToken = "";
-                String refreshToken = "";
+                String accessToken = uS.getAccessToken();
+                String refreshToken = c.getRefreshToken();
             return new RegisterAnswer(true, accessToken, refreshToken);
             }
     }
 
-    public static String loadUserName(String accesstoken){
-        Neo4jTemplate template = main.createNeo4JTemplate();
-        User u = template.loadByProperty(User.class,"userName", accesstoken);
-        template.purgeSession();
-        template.clear();
-        return u.getUserName();
-    }
-    public static String loadEmailAddress(String accesstoken){
-        Neo4jTemplate template = main.createNeo4JTemplate();
-        User u = template.loadByProperty(User.class,"userName", accesstoken);
-        template.purgeSession();
-        template.clear();
-        return u.getEmailAddress();
-    }
-    public static String loadSalt(String accesstoken){
-        Neo4jTemplate template = main.createNeo4JTemplate();
-        User u = template.loadByProperty(User.class,"userName", accesstoken);
-        template.purgeSession();
-        template.clear();
-        return u.getSalt();
-    }
-    public static int loadRating(String accesstoken){
-        Neo4jTemplate template = main.createNeo4JTemplate();
-        User u = template.loadByProperty(User.class,"userName", accesstoken);
-        template.purgeSession();
-        template.clear();
-        return u.getRating();
-    }
-    public static String loadPassWord(String accesstoken){
-        Neo4jTemplate template = main.createNeo4JTemplate();
-        User u = template.loadByProperty(User.class,"userName", accesstoken);
-        template.purgeSession();
-        template.clear();
-        return u.getPassword();
-    }
-    public static boolean loadIsTrackingActivated(String accesstoken){
-        Neo4jTemplate template = main.createNeo4JTemplate();
-        User u = template.loadByProperty(User.class,"userName", accesstoken);
-        template.purgeSession();
-        template.clear();
-        return u.isTrackingActivated();
-    }
-    public static void saveUserName(String accesstoken, String userName){
-        Neo4jTemplate template = main.createNeo4JTemplate();
-        User u = template.loadByProperty(User.class,"userName", accesstoken);
-        u.setUserName(userName);
-        template.save(u);
-        template.purgeSession();
-        template.clear();
-    }
-    public static void saveEmailAddress(String accesstoken, String emailAddress){
-        Neo4jTemplate template = main.createNeo4JTemplate();
-        User u = template.loadByProperty(User.class,"userName", accesstoken);
-        u.setEmailAddress(emailAddress);
-        template.save(u);
-        template.purgeSession();
-        template.clear();
-    }
-    public static void savePassword(String accesstoken, String passWord){
-        Neo4jTemplate template = main.createNeo4JTemplate();
-        User u = template.loadByProperty(User.class,"userName", accesstoken);
-        u.setPassword(u.createMD5(passWord, u.getSalt()));
-        template.save(u);
-        template.purgeSession();
-        template.clear();
-    }
-    public static void saveRating(String accesstoken, int rating){
-        Neo4jTemplate template = main.createNeo4JTemplate();
-        User u = template.loadByProperty(User.class,"userName", accesstoken);
-        u.setRating(rating);
-        template.save(u);
-        template.purgeSession();
-        template.clear();
-    }
-    public static void saveIsTrackingActivated(String accesstoken, boolean isTrackingActivated){
-        Neo4jTemplate template = main.createNeo4JTemplate();
-        User u = template.loadByProperty(User.class,"userName", accesstoken);
-        u.setIsTrackingActivated(isTrackingActivated);
-        template.save(u);
-        template.purgeSession();
-        template.clear();
-    }
-
-    //Operations concerning the UserSession
-
-    public static String checkAccessToken(String accesstoken) {
+    public static RegisterAnswer checkAccessToken(String accesstoken) {
         long timestamp = new Date().getTime();
         Neo4jTemplate template = main.createNeo4JTemplate();
         try{
@@ -131,66 +45,83 @@ public class DatabaseOperations {
             if (u.getExpiresAt() >= timestamp) {
                 template.purgeSession();
                 template.clear();
-                return "success";
+                return new RegisterAnswer(true);
         }   else {
                 template.purgeSession();
                 template.clear();
-                return "failure";
+                return new RegisterAnswer(false, "accessToken expired, refreshTokenLogin required");
             }
         }catch (NotFoundException nfe){
-        System.out.println("SOMETHING WENT WRONG !! NotFoundException !! ACCESSTOKEN !!");
+            return new RegisterAnswer(false, "Invalid accessToken, refreshTokenLogin required");
         }
-        return"failure";
     }
 
-    public static String emailLogin(String email, String password){
+    public static RegisterAnswer emailLogin(String email, String password){
         Neo4jTemplate template = main.createNeo4JTemplate();
         try {
             User u = template.loadByProperty(User.class,"emailAddress", email);
             String hash = u.createMD5(password, u.getSalt());
             if (hash.equals(u.getPassword())){
-                u.getUserSessions().add(new UserSession(u));
-                u.getCookies().add(new Cookie(u));
+                UserSession uS = new UserSession(u);
+                Cookie c = new Cookie(u);
+                u.getUserSessions().add(uS);
+                u.getCookies().add(c);
                 template.save(u);
                 template.purgeSession();
                 template.clear();
-                return "success";
+                return new RegisterAnswer(true,uS.getAccessToken(), c.getRefreshToken());
             }else {
                 template.save(u);
                 template.purgeSession();
                 template.clear();
-                return "failure";
+                return new RegisterAnswer(false, "Invalid password");
                 }
         }catch (NotFoundException nfe){
-                System.out.println("SOMETHING WENT WRONG !! NotFoundException !! MAILADDRESS !!");
-            }
-        return "failure";
+            return new RegisterAnswer(false, "Email does not exist.");
+        }
     }
 
-    public static String refreshTokenLogin(String refreshToken) {
+    public static RegisterAnswer refreshTokenLogin(String refreshToken, String clientID, String clientSecret) {
         long timestamp = new Date().getTime();
         Neo4jTemplate template = main.createNeo4JTemplate();
         try {
             Cookie c = template.loadByProperty(Cookie.class, "refreshToken", refreshToken);
             if (c.getExpiresAt()  >= timestamp) {
-                c.getUser().getUserSessions().add(new UserSession(c.getUser()));
+                UserSession uS = new UserSession(c.getUser());
+                c.getUser().getUserSessions().add(uS);
                 template.save(c);
                 template.purgeSession();
                 template.clear();
-                return "success";
+                return new RegisterAnswer(true, uS.getAccessToken(), c.getRefreshToken());
             } else {
                 template.save(c);
                 template.purgeSession();
                 template.clear();
-                return "failure";
+                return new RegisterAnswer(false, "refreshToken expired, emailLogin required");
             }
         } catch (NotFoundException nfe) {
-            System.out.println("SOMETHING WENT WRONG !! NotFoundException !! REFRESHTOKEN !!");
+                return new RegisterAnswer(false, "Invalid refreshToken, emailLogin required");
         }
-        return "failure";
     }
 
+    public static RegisterAnswer updateProfile(String userName, String email, String phone, String occupation, String accessToken){
+        if(checkAccessToken(accessToken).getSucsess()){
+            Neo4jTemplate template = main.createNeo4JTemplate();
+            try{
+                UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
+                User u = uS.getUser();
+                    u.setUserName(userName);
+                    u.setEmailAddress(email);
+                    u.setOccupation(occupation);
+                template.save(u);
+                template.clear();
+                template.purgeSession();
+                return new RegisterAnswer(true, "values updated: " + userName + " " + email + " " + phone + " "+ occupation);
+            }catch (NotFoundException nfe){
+                return new RegisterAnswer(false, "Invalid Accesstoken");
+            }
+        }else return new RegisterAnswer(false, "Invalid Accesstoken");
 
-
+    }
 
 }

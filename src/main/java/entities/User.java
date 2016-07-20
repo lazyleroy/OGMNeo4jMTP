@@ -21,6 +21,7 @@ public class User extends BaseModel {
 
     private String userName;
     private String emailAddress;
+    private String occupation;
     private String salt;
     private String passWord;
     private static Main main = new Main();
@@ -109,4 +110,11 @@ public class User extends BaseModel {
     }
 
 
+    public String getOccupation() {
+        return occupation;
+    }
+
+    public void setOccupation(String occupation) {
+        this.occupation = occupation;
+    }
 }

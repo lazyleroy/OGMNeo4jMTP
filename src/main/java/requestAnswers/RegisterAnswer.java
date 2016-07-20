@@ -1,4 +1,4 @@
-package entities;
+package requestAnswers;
 
 /**
  * Created by julianschweppe on 19.07.16.
@@ -23,6 +23,13 @@ public class RegisterAnswer {
         this.reason = "";
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
+    }
+
+    public RegisterAnswer(boolean success){
+        this.success = success;
+        this.reason = "";
+        this.accessToken = "";
+        this.refreshToken = "";
     }
 
     public String getReason(){
