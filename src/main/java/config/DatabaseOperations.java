@@ -87,7 +87,6 @@ public class DatabaseOperations {
             Cookie c = template.loadByProperty(Cookie.class, "refreshToken", refreshToken);
             if (c.getExpiresAt()  >= timestamp) {
                 UserSession uS = new UserSession(c.getUser());
-                c.getUser().getUserSessions().add(uS);
                 template.save(c);
                 template.purgeSession();
                 template.clear();
@@ -123,4 +122,24 @@ public class DatabaseOperations {
 
     }
 
+
+    public SimpleAnswer uploadGoodybag(String creatorName, int creatorImage, String title, String status, String description,
+                                       double tip, long creationTime, long deliverTime, GeoLocation deliverLocation,
+                                       GeoLocation shopLocation, String accessToken) {
+        if(checkAccessToken(accessToken).getSuccess()){
+            Neo4jTemplate template = main.createNeo4JTemplate();
+            try{
+                UserSession uS = template.loadByProperty(UserSession.class,"accessToken", accessToken);
+                Goodybag gB = new Goodybag(creatorName, creatorImage, title, status, description, tip, creationTime, deliverTime,
+                        deliverLocation, shopLocation, uS.getUser());
+                template.save(gB);
+                template.clear();
+                template.purgeSession();
+                return new SimpleAnswer(true,gB.getGoodyBagID());
+            }catch(NotFoundException nfe) {
+                return new SimpleAnswer(false, "Invalid Accesstoken");
+            }
+        }else return new SimpleAnswer(false, "Invalid Accesstoken");
+
+    }
 }

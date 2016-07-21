@@ -24,7 +24,7 @@ public class JSONController {
     public SimpleAnswer updateProfile(@RequestParam(value="username")String userName, @RequestParam(value="email")String email,
                                       @RequestParam(value="occupation") String occupation, @RequestParam(value = "phone")int phone,
                                       @RequestParam(value="accessToken") String accessToken){
-        return db.updateProfile(userName, email, occupation, phone, accessToken);
+        return db.updateProfile(userName, email, occupation, accessToken);
     }
     @RequestMapping(value="/uploadGoodybag", method = RequestMethod.POST)
     public SimpleAnswer uploadGoodybag(
