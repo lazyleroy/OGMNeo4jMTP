@@ -22,6 +22,7 @@ public class User extends BaseModel {
     private String userName;
     private String emailAddress;
     private String occupation;
+    private int phone;
     private String salt;
     private String passWord;
     private static Main main = new Main();
@@ -32,10 +33,6 @@ public class User extends BaseModel {
 
     @Relationship(type = "WALKS", direction = Relationship.OUTGOING)
     private List<Route> routes = new ArrayList<Route>();
-    @Relationship(type = "SESSION", direction = Relationship.UNDIRECTED)
-    private List<UserSession> userSessions = new ArrayList<UserSession>();
-    @Relationship(type = "COOKIE", direction = Relationship.UNDIRECTED)
-    private List<Cookie> cookies = new ArrayList<Cookie>();
 
 
     public User(String userName, String emailAddress, String passWord){
@@ -89,8 +86,7 @@ public class User extends BaseModel {
     public void setLocation(GeoLocation location) {
         this.location = location;
     }
-    public List<UserSession> getUserSessions(){return this.userSessions;}
-    public List<Cookie> getCookies(){return this.cookies;}
+
 
 
     public String createMD5(String passWord, String salt){
@@ -117,5 +113,13 @@ public class User extends BaseModel {
 
     public void setOccupation(String occupation) {
         this.occupation = occupation;
+    }
+
+    public int getPhone() {
+        return phone;
+    }
+
+    public void setPhone(int phone) {
+        this.phone = phone;
     }
 }

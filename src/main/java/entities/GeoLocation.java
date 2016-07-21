@@ -10,7 +10,7 @@ public class GeoLocation extends BaseModel {
     private double latitude;
 
 
-    public GeoLocation(double longitude, double latitude){
+    public GeoLocation(double longitude, double latitude) {
         this.longitude = longitude;
         this.latitude = latitude;
     }
