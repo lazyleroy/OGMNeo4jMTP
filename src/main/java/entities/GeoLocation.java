@@ -8,11 +8,13 @@ public class GeoLocation extends BaseModel {
     private double longitude;
 
     private double latitude;
+    private int GeoLocationID;
 
 
     public GeoLocation(double longitude, double latitude) {
         this.longitude = longitude;
         this.latitude = latitude;
+        this.GeoLocationID = 0;
     }
     GeoLocation(){
     }
@@ -33,4 +35,12 @@ public class GeoLocation extends BaseModel {
     public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
+
+    public int getGeoLocationID() {
+        return GeoLocationID;
+    }
+    public void setGeoLocationID(int GeoLocationID){
+        this.GeoLocationID = GeoLocationID;
+    }
+
 }
