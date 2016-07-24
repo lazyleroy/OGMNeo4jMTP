@@ -1,22 +1,61 @@
 package entities;
 
+import java.util.Random;
+
 /**
  * Created by Felix on 14.07.2016.
  */
 
 public class Goodybag extends BaseModel{
 
-    private GeoLocation geolocation;
+
+    private String creatorName;
+    private int creatorImage;
     private String title;
-    private int timestamp;
-    private int radiusInMeters;
-    private double tip;
-    private int creationTime;
+    private String status;
     private String description;
-    private double longitude;
-    private double latitude;
-    private int deliveryTime;
-    private String[] elements;
+    private double tip;
+    private long creationTime;
+    private long deliverTime;
+    private GeoLocation deliverLocation;
+    private GeoLocation shopLocation;
+    private String goodyBagID;
+    private User user;
+
+    public Goodybag(){
+    }
+
+    public Goodybag(String creatorName, int creatorImage, String title, String status, String description,
+                    double tip, long creationTime, long deliverTime, GeoLocation deliverLocation,
+                    GeoLocation shopLocation, User user){
+        this.creatorName = creatorName;
+        this.creatorImage = creatorImage;
+        this.title = title;
+        this.status = status;
+        this.description = description;
+        this.tip = tip;
+        this.creationTime = creationTime;
+        this.deliverTime = deliverTime;
+        this.deliverLocation = deliverLocation;
+        this.shopLocation = shopLocation;
+        this.user = user;
+
+        Random r = new Random();
+        char[] c = new char[255];
+        for (int i = 0; i< c.length; i++){
+            int rv = r.nextInt(75)+'0';
+            if((rv >=58 && rv <=64)|| (rv >=91 && rv <=96) ) {
+                i--;
+                continue;
+            }
+            c[i] =(char)rv;
+        }
+        this.goodyBagID = String.copyValueOf(c);
+
+    }
+
+
+
 
     public String getStatus() {
         return status;
@@ -26,9 +65,6 @@ public class Goodybag extends BaseModel{
         this.status = status;
     }
 
-    private String status;
-    private int creatorImage;
-
     public String getCreatorName() {
         return creatorName;
     }
@@ -37,9 +73,7 @@ public class Goodybag extends BaseModel{
         this.creatorName = creatorName;
     }
 
-    private String creatorName;
-
-    public int getCreationTime() {
+    public long getCreationTime() {
         return creationTime;
     }
 
@@ -53,29 +87,6 @@ public class Goodybag extends BaseModel{
 
     public void setCreatorImage(int creatorImage) {
         this.creatorImage = creatorImage;
-    }
-
-    public Goodybag(String title, String status, int creatorImage, String creatorName, int creationTime, int deliveryTime , String description, double tip, double longitude, double latitude, String[] elements ){
-        this.title = title;
-        this.creatorName=creatorName;
-        this.creatorImage=creatorImage;
-        this.status=status;
-        this.creationTime=creationTime;
-        this.description=description;
-        this.tip=tip;
-        this.longitude=longitude;
-        this.latitude=latitude;
-        this.deliveryTime=deliveryTime;
-        this.elements=elements;
-    }
-
-
-    public GeoLocation getGeolocation() {
-        return geolocation;
-    }
-
-    public void setGeolocation(GeoLocation geolocation) {
-        this.geolocation = geolocation;
     }
 
     public String getTitle() {
@@ -94,27 +105,51 @@ public class Goodybag extends BaseModel{
         this.description = description;
     }
 
-    public int getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(int timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public int getRadiusInMeters() {
-        return radiusInMeters;
-    }
-
-    public void setRadiusInMeters(int radiusInMeters) {
-        this.radiusInMeters = radiusInMeters;
-    }
-
     public double getTip() {
         return tip;
     }
 
     public void setTip(double tip) {
         this.tip = tip;
+    }
+
+    public long getDeliverTime() {
+        return deliverTime;
+    }
+
+    public void setDeliverTime(long deliverTime) {
+        this.deliverTime = deliverTime;
+    }
+
+    public GeoLocation getDeliverLocation() {
+        return deliverLocation;
+    }
+
+    public void setDeliverLocation(GeoLocation deliverLocation) {
+        this.deliverLocation = deliverLocation;
+    }
+
+    public String getGoodyBagID() {
+        return goodyBagID;
+    }
+
+    public void setGoodyBagID(String goodyBagID) {
+        this.goodyBagID = goodyBagID;
+    }
+
+    public GeoLocation getShopLocation() {
+        return shopLocation;
+    }
+
+    public void setShopLocation(GeoLocation shopLocation) {
+        this.shopLocation = shopLocation;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
