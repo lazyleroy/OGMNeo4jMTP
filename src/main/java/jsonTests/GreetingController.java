@@ -20,6 +20,12 @@ public class GreetingController {
     public RegisterAnswer register(@RequestParam(value="username") String name,@RequestParam(value="email") String email, @RequestParam(value="password") String password) {
         return db.register(new User(name, email,password), email);
     }
+
+    @RequestMapping(value = "/login",method = RequestMethod.GET)
+    public RegisterAnswer register(@RequestParam(value="email") String email, @RequestParam(value="password") String password) {
+        return db.emailLogin(email, password);
+    }
+
     @RequestMapping(value = "/updateProfile", method = RequestMethod.GET)
     public SimpleAnswer updateProfile(@RequestParam(value="username")String userName, @RequestParam(value="email")String email,
                                       @RequestParam(value="occupation") String occupation,
