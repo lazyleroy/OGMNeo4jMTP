@@ -2,7 +2,6 @@ package jsonTests; /**
  * Created by Felix on 17.07.2016.
  */
 
-import EntityWrappers.EmailLoginWrapper;
 import EntityWrappers.GoodybagWrapper;
 import EntityWrappers.RouteWrapper;
 import config.DatabaseOperations;
@@ -29,6 +28,11 @@ public class JSONController {
         return db.updateProfile(userName, email, occupation, accessToken);
     }
 
+    @RequestMapping(value = "/login",method = RequestMethod.GET)
+    public RegisterAnswer register(@RequestParam(value="email") String email, @RequestParam(value="password") String password) {
+        return db.emailLogin(email, password);
+    }
+
     @RequestMapping(value="/uploadGoodybag", method = RequestMethod.POST)
     public SimpleAnswer uploadGoodybag(
         @RequestBody GoodybagWrapper params){
@@ -43,11 +47,6 @@ public class JSONController {
             route.getRoute().get(i).setGeoLocationID(i);
         }
         return db.uploadRoute(route.getRoute(), route.getAccessToken());
-    }
-
-    @RequestMapping(value="/emailLogin", method = RequestMethod.POST)
-    public RegisterAnswer emailLogin(@RequestBody EmailLoginWrapper params){
-        return db.emailLogin(params.getEmail(), params.getPassword());
     }
 
 
