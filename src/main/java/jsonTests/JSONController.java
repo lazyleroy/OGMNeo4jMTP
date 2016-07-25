@@ -16,19 +16,19 @@ public class JSONController {
     private DatabaseOperations db = new DatabaseOperations();
 
     @CrossOrigin(origins = "192.168.0.101:8080")
-    @RequestMapping(value = "/register",method = RequestMethod.GET)
+    @RequestMapping(value = "/register",method = RequestMethod.POST)
     public RegisterAnswer register(@RequestParam(value="username") String name,@RequestParam(value="email") String email, @RequestParam(value="password") String password) {
         return db.register(new User(name, email,password), email);
     }
 
-    @RequestMapping(value = "/updateProfile", method = RequestMethod.GET)
+    @RequestMapping(value = "/updateProfile", method = RequestMethod.POST)
     public SimpleAnswer updateProfile(@RequestParam(value="username")String userName, @RequestParam(value="email")String email,
                                       @RequestParam(value="occupation") String occupation, @RequestParam(value = "phone")int phone,
                                       @RequestParam(value="accessToken") String accessToken){
         return db.updateProfile(userName, email, occupation, accessToken);
     }
 
-    @RequestMapping(value = "/login",method = RequestMethod.GET)
+    @RequestMapping(value = "/login",method = RequestMethod.POST)
     public RegisterAnswer register(@RequestParam(value="email") String email, @RequestParam(value="password") String password) {
         return db.emailLogin(email, password);
     }
