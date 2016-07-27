@@ -3,20 +3,21 @@ package config;
 /**
  * Created by Felix Hambrecht on 05.07.2016.
  */
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Random;
 
+import entities.*;
+import javafx.application.Application;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.neo4j.template.Neo4jTemplate;
 
-
 @SpringBootApplication
-@ComponentScan(basePackages={"jsonTests"})
 public class Main {
 
 
@@ -30,19 +31,13 @@ public class Main {
     public Neo4jTemplate createNeo4JTemplate(){
         return new Neo4jTemplate(sessionFactory.openSession());
     }
+
     public static void main(String[] args) {
-        DatabaseOperations db = new DatabaseOperations();
-        if (!Files.exists(Paths.get(FileUploadController.ROOT))){
-            try {
-                Files.createDirectory(Paths.get(FileUploadController.ROOT));
-            } catch (IOException e) {
-            }
-        }
-
-
         SpringApplication.run(Main.class, args);
-    }
 
+
+
+    }
 
 
 }
