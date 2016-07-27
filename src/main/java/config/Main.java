@@ -11,6 +11,7 @@ import javafx.application.Application;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +19,10 @@ import org.springframework.data.neo4j.template.Neo4jTemplate;
 
 
 @SpringBootApplication
+@Configuration
+@EnableAutoConfiguration
 @ComponentScan(basePackages={"jsonTests"})
+
 public class Main {
 
 
