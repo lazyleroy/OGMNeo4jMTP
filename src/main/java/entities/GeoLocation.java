@@ -16,7 +16,7 @@ public class GeoLocation extends BaseModel {
         this.latitude = latitude;
         this.GeoLocationID = 0;
     }
-    GeoLocation(){
+    public GeoLocation(){
     }
 
 

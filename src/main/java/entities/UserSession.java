@@ -1,12 +1,15 @@
 package entities;
 
+import com.fasterxml.jackson.databind.deser.Deserializers;
+import org.neo4j.ogm.annotation.GraphId;
+
 import java.util.Date;
 import java.util.Random;
 
 /**
  * Created by Felix on 14.07.2016.
  */
-public class UserSession extends BaseModel {
+public class UserSession extends BaseModel{
 
     private long expiresAt;
     private String accessToken;

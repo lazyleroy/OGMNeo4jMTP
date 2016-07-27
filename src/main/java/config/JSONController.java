@@ -15,8 +15,8 @@ public class JSONController {
 
     private DatabaseOperations db = new DatabaseOperations();
 
-    @CrossOrigin(origins = "134.155.237.210:8080")
-    @RequestMapping(value = "/register",method = RequestMethod.POST)
+    @CrossOrigin(origins = "134.155.48.48:8080")
+    @RequestMapping(value = "/register",method = RequestMethod.GET)
     public RegisterAnswer register(@RequestParam(value="username") String name,@RequestParam(value="email") String email, @RequestParam(value="password") String password) {
         return db.register(new User(name, email,password), email);
     }

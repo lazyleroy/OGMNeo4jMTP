@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.neo4j.template.Neo4jTemplate;
 
 @SpringBootApplication
+@ComponentScan("config")
 public class Main {
 
 
@@ -34,6 +35,7 @@ public class Main {
 
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
+
 
 
 

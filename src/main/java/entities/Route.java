@@ -41,9 +41,7 @@ public class Route extends BaseModel{
     public Route(ArrayList<GeoLocation> spots){this.spots=spots;
     }
 
-    public void getDistance(GeoLocation fromLocation, GeoLocation toLocation){
-        //TODO
-    }
+
 
     public void getLocationsInRoute(){
         //TODO

@@ -11,18 +11,19 @@ public class BaseModel {
 
     public BaseModel(){
     }
+
     @GraphId
     private Long id;
 
     private Long version;
 
-    public Long getId() {
-        return id;
-    }
+    //public Long getId() {
+    //    return id;
+    //}
 
-    public void setId(long id) {
-        this.id = id;
-    }
+    //public void setId(long id) {
+      //  this.id = id;
+    //}
 
     public Long getVersion() {
         return version;
