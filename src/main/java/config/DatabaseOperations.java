@@ -1,9 +1,7 @@
 package config;
 
 import entities.*;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
 import requestAnswers.RegisterAnswer;
-import entities.User;
 import entities.UserSession;
 import org.neo4j.ogm.exception.NotFoundException;
 import org.springframework.data.neo4j.template.Neo4jTemplate;

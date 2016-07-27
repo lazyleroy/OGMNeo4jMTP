@@ -1,4 +1,4 @@
-package jsonTests; /**
+package config; /**
  * Created by Felix on 17.07.2016.
  */
 
