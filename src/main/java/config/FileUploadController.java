@@ -53,21 +53,15 @@ public class FileUploadController implements HandlerExceptionResolver {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/uploadFile")
-    public @ResponseBody SimpleAnswer handleFileUpload(@RequestParam("file") MultipartFile file,
-                                         RedirectAttributes redirectAttributes) {
-
+    public @ResponseBody SimpleAnswer handleFileUpload(@RequestParam("file") MultipartFile file) {
         if (!file.isEmpty()) {
             try {
                 Files.copy(file.getInputStream(), Paths.get(ROOT, file.getOriginalFilename()));
-                redirectAttributes.addFlashAttribute("message",
-                        "You successfully uploaded " + file.getOriginalFilename() + "!");
             } catch (IOException|RuntimeException e) {
-                redirectAttributes.addFlashAttribute("message", "Failued to upload " + file.getOriginalFilename() + " => " + e.getMessage());
-            }
-        } else {
-            redirectAttributes.addFlashAttribute("message", "Failed to upload " + file.getOriginalFilename() + " because it was empty");
-        }
 
+            }
+        }
+        System.out.println(file.getContentType());
         return new SimpleAnswer(true);
     }
 
@@ -76,10 +70,10 @@ public class FileUploadController implements HandlerExceptionResolver {
                                          Object o, Exception e) {
         ModelAndView mav = new ModelAndView(new MappingJackson2JsonView());
         if (e instanceof MultipartException){
-            mav.addObject("failure", "file too large");
+            mav.addObject(new SimpleAnswer(false, "Filesize too large"));
             return mav;
         }
-        mav.addObject("failure", "execption occured");
+        mav.addObject(new SimpleAnswer(false));
         return mav;
     }
 }
