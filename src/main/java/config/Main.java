@@ -23,7 +23,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.neo4j.template.Neo4jTemplate;
 
 @SpringBootApplication
-@ComponentScan("config")
 public class Main {
 
 

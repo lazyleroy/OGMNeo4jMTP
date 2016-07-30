@@ -3,12 +3,10 @@ package entities;
 import config.Main;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-import org.springframework.data.neo4j.template.Neo4jTemplate;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,7 +27,7 @@ public class User extends BaseModel {
     private int rating;
     private boolean isTrackingActivated;
     private GeoLocation location;
-
+    private String profilePicture;
 
     @Relationship(type = "WALKS", direction = Relationship.OUTGOING)
     private List<Route> routes = new ArrayList<Route>();
@@ -43,6 +41,7 @@ public class User extends BaseModel {
         this.passWord = createMD5(passWord, this.salt);
         this.rating = 0;
         this.isTrackingActivated = false;
+        this.profilePicture = "default";
     }
     public User(){
     super();
@@ -121,5 +120,13 @@ public class User extends BaseModel {
 
     public void setPhone(int phone) {
         this.phone = phone;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }

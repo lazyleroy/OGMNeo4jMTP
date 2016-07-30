@@ -43,9 +43,11 @@ public class FileUploadController implements HandlerExceptionResolver {
 
     private static final Logger log = LoggerFactory.getLogger(FileUploadController.class);
 
-    public static final String ROOT = "upload-dir";
+    public static final String ROOT = "var/www/html/pics/";
 
     private final ResourceLoader resourceLoader;
+
+    DatabaseOperations db = new DatabaseOperations();
 
     @Autowired
     public FileUploadController(ResourceLoader resourceLoader) {
@@ -53,21 +55,21 @@ public class FileUploadController implements HandlerExceptionResolver {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/uploadFile")
-    public @ResponseBody SimpleAnswer handleFileUpload(@RequestParam("file") MultipartFile file) {
-        if (!file.isEmpty()) {
-            try {
-                Files.copy(file.getInputStream(), Paths.get(ROOT, file.getOriginalFilename()));
-            } catch (IOException|RuntimeException e) {
+    public @ResponseBody SimpleAnswer handleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("accessToken")
+            String accessToken) {
+        return db.uploadProfilePicture(file, accessToken);
+    }
 
-            }
-        }
-        System.out.println(file.getContentType());
-        return new SimpleAnswer(true);
+
+    @ExceptionHandler(MultipartException.class)
+    public SimpleAnswer resolveMultipartException (Exception e){
+        return new SimpleAnswer(false,"problems");
     }
 
     @Override
     public ModelAndView resolveException(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
                                          Object o, Exception e) {
+
         ModelAndView mav = new ModelAndView(new MappingJackson2JsonView());
         if (e instanceof MultipartException){
             mav.addObject(new SimpleAnswer(false, "Filesize too large"));
@@ -76,4 +78,5 @@ public class FileUploadController implements HandlerExceptionResolver {
         mav.addObject(new SimpleAnswer(false));
         return mav;
     }
+
 }

@@ -6,18 +6,22 @@ package config;
 import org.neo4j.ogm.authentication.Credentials;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.session.SessionFactory;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
+import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.*;
 import org.springframework.data.neo4j.config.Neo4jConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @Configuration
+@EnableWebMvc
+@EnableAutoConfiguration
 @EnableTransactionManagement
 class MyConfiguration extends Neo4jConfiguration {
 
-    //Ging gestern nicht, da falsche Version!!!
-    Credentials t = new UsernamePasswordCredentials("as","as");
+
 
     @Bean
     public SessionFactory getSessionFactory(){

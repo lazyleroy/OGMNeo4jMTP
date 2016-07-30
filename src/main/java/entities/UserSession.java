@@ -38,4 +38,7 @@ public class UserSession extends BaseModel{
     public long getExpiresAt(){return this.expiresAt;}
     public String getAccessToken(){return this.accessToken;}
     public User getUser(){return this.user;}
+    public void setExpiresAt(long expiresAt){
+        this.expiresAt = expiresAt;
+    }
 }

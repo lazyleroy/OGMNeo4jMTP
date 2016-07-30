@@ -5,6 +5,7 @@ package config; /**
 import EntityWrappers.GoodybagWrapper;
 import EntityWrappers.RouteWrapper;
 import config.DatabaseOperations;
+import org.springframework.stereotype.Controller;
 import requestAnswers.RegisterAnswer;
 import entities.User;
 import org.springframework.web.bind.annotation.*;
@@ -22,15 +23,20 @@ public class JSONController {
     }
 
     @RequestMapping(value = "/updateProfile", method = RequestMethod.POST)
-    public SimpleAnswer updateProfile(@RequestParam(value="username")String userName, @RequestParam(value="email")String email,
+    public SimpleAnswer updateProfile(@RequestParam(value="username")String userName,
                                       @RequestParam(value="occupation") String occupation, @RequestParam(value = "phone")int phone,
                                       @RequestParam(value="accessToken") String accessToken){
-        return db.updateProfile(userName, email, occupation, accessToken);
+        return db.updateProfile(userName, occupation, accessToken);
     }
 
     @RequestMapping(value = "/login",method = RequestMethod.POST)
     public RegisterAnswer register(@RequestParam(value="email") String email, @RequestParam(value="password") String password) {
         return db.emailLogin(email, password);
+    }
+
+    @RequestMapping(value = "/refreshTokenLogin", method = RequestMethod.POST)
+    public RegisterAnswer refreshTokenLogin(@RequestParam(value="refreshToken")String refreshToken){
+        return db.refreshTokenLogin(refreshToken);
     }
 
     @RequestMapping(value="/uploadGoodybag", method = RequestMethod.POST)
