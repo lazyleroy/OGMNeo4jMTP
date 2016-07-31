@@ -39,21 +39,29 @@ public class Goodybag extends BaseModel{
         this.deliverLocation = deliverLocation;
         this.shopLocation = shopLocation;
         this.user = user;
+        changeID();
 
-        Random r = new Random();
-        char[] c = new char[255];
-        for (int i = 0; i< c.length; i++){
-            int rv = r.nextInt(75)+'0';
-            if((rv >=58 && rv <=64)|| (rv >=91 && rv <=96) ) {
-                i--;
-                continue;
             }
-            c[i] =(char)rv;
-        }
-        this.goodyBagID = String.copyValueOf(c);
 
-    }
 
+     public void changeID(){
+         Random r = new Random();
+         char[] c = new char[25];
+         for (int i = 1; i< c.length; i++){
+             int rv = r.nextInt(10)+'0';
+             if(rv >=58 ) {
+                 i--;
+                 continue;
+             }
+             if(i%5==0){
+                 c[i]= '-';
+                 continue;
+             }
+             c[i] =(char)rv;
+         }
+         this.goodyBagID = String.copyValueOf(c);
+         System.out.println(goodyBagID);
+     }
 
 
 

@@ -55,6 +55,12 @@ public class JSONController {
         return db.uploadRoute(route.getRoute(), route.getAccessToken());
     }
 
+    @RequestMapping(value="/changePassword", method = RequestMethod.PUT)
+    public SimpleAnswer changePassword(@RequestParam(value="password")String password,
+                                       @RequestParam(value="accessToken")String accessToken){
+        return db.changePassword(password, accessToken);
+    }
+
 
 
     @RequestMapping(value = "/test", method = RequestMethod.POST)
