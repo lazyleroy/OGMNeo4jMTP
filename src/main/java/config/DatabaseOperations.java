@@ -23,17 +23,20 @@ import static config.FileUploadController.ROOT;
 public class DatabaseOperations {
 
     private static Main main = new Main();
+
     public String[] mimeTypes = {"jpg", "jpeg", "bmp", "png", "gif", "svg"};
 
-    public static RegisterAnswer register(User u, String emailAddress) {
+    public static RegisterAnswer register(User u, String emailAddress, String firebaseToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         try {
             User t = new User();
             t = template.loadByProperty(User.class, "emailAddress", emailAddress);
-            template.purgeSession();
-            template.clear();
             return new RegisterAnswer(false, "Emailadress already exists");
         } catch (NotFoundException nfe) {
+            if(firebaseToken != null){
+                FirebaseToken fT = new FirebaseToken(firebaseToken, u);
+                template.save(fT);
+            }
             UserSession uS = new UserSession(u);
             Cookie c = new Cookie(u);
             template.save(uS);
@@ -45,8 +48,8 @@ public class DatabaseOperations {
     }
 
     public static SimpleAnswer checkAccessToken(String accesstoken) {
-        long timestamp = new Date().getTime();
         Neo4jTemplate template = main.createNeo4JTemplate();
+        long timestamp = new Date().getTime();
         try {
             UserSession u = template.loadByProperty(UserSession.class, "accessToken", accesstoken);
             if (u.getExpiresAt() >= timestamp) {
@@ -60,19 +63,23 @@ public class DatabaseOperations {
         }
     }
 
-    public static RegisterAnswer emailLogin(String email, String password) {
+    public static RegisterAnswer emailLogin(String email, String password, String firebaseToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
+
         try {
             User u = template.loadByProperty(User.class, "emailAddress", email);
             String hash = u.createMD5(password, u.getSalt());
             if (hash.equals(u.getPassword())) {
+                if(firebaseToken != null){
+                    FirebaseToken fT = new FirebaseToken(firebaseToken, u);
+                    template.save(fT);
+                }
                 UserSession uS = new UserSession(u);
                 Cookie c = new Cookie(u);
                 template.save(uS);
                 template.save(c);
                 return new RegisterAnswer(true, uS.getAccessToken(), 86400000L, c.getRefreshToken(), 15768000000L);
             } else {
-                template.save(u);
                 return new RegisterAnswer(false, "Invalid password");
             }
         } catch (NotFoundException nfe) {
@@ -81,8 +88,8 @@ public class DatabaseOperations {
     }
 
     public static RegisterAnswer refreshTokenLogin(String refreshToken) {
-        long timestamp = new Date().getTime();
         Neo4jTemplate template = main.createNeo4JTemplate();
+        long timestamp = new Date().getTime();
         try {
             Cookie c = template.loadByProperty(Cookie.class, "refreshToken", refreshToken);
             if (c.getExpiresAt() >= timestamp) {
@@ -99,8 +106,8 @@ public class DatabaseOperations {
     }
 
     public static SimpleAnswer updateProfile(String userName, String occupation, String accessToken) {
+        Neo4jTemplate template = main.createNeo4JTemplate();
         if (checkAccessToken(accessToken).getSuccess()) {
-            Neo4jTemplate template = main.createNeo4JTemplate();
             try {
                 UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
                 User u = uS.getUser();
@@ -118,13 +125,14 @@ public class DatabaseOperations {
     public SimpleAnswer uploadGoodybag(String creatorName, int creatorImage, String title, String status, String description,
                                        double tip, long creationTime, long deliverTime, GeoLocation deliverLocation,
                                        GeoLocation shopLocation, String accessToken) {
+        Neo4jTemplate template = main.createNeo4JTemplate();
         if (checkAccessToken(accessToken).getSuccess()) {
-            Neo4jTemplate template = main.createNeo4JTemplate();
             try {
                 UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
-                Goodybag gB = new Goodybag(creatorName, creatorImage, title, status, description, tip, creationTime, deliverTime,
-                        deliverLocation, shopLocation, uS.getUser());
+
                 while (true) {
+                    Goodybag gB = new Goodybag(creatorName, creatorImage, title, status, description, tip, creationTime, deliverTime,
+                            deliverLocation, shopLocation, uS.getUser());
                     try {
                         Goodybag goodyBag = template.loadByProperty(Goodybag.class, "goodyBagID", gB.getGoodyBagID());
                         continue;
@@ -140,8 +148,8 @@ public class DatabaseOperations {
     }
 
     public SimpleAnswer uploadRoute(ArrayList<GeoLocation> routes, String accessToken) {
+        Neo4jTemplate template = main.createNeo4JTemplate();
         if (checkAccessToken(accessToken).getSuccess()) {
-            Neo4jTemplate template = main.createNeo4JTemplate();
             try {
                 UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
                 Route r = new Route(routes, uS.getUser());
@@ -155,9 +163,8 @@ public class DatabaseOperations {
     }
 
     public SimpleAnswer uploadProfilePicture(MultipartFile file, String accessToken) {
-
+        Neo4jTemplate template = main.createNeo4JTemplate();
         if (checkAccessToken(accessToken).getSuccess()) {
-            Neo4jTemplate template = main.createNeo4JTemplate();
             if (!file.isEmpty()) {
                 try {
                     Date d = new Date();
@@ -189,8 +196,8 @@ public class DatabaseOperations {
     }
 
     public SimpleAnswer changePassword(String password, String accessToken) {
+        Neo4jTemplate template = main.createNeo4JTemplate();
         if (checkAccessToken(accessToken).getSuccess()) {
-            Neo4jTemplate template = main.createNeo4JTemplate();
             try {
                 UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
                 User u = uS.getUser();
@@ -199,13 +206,25 @@ public class DatabaseOperations {
                 u.setSalt(Long.toString(t));
                 u.setPassword(u.createMD5(password, u.getSalt()));
                 template.save(u);
-                template.purgeSession();
-                template.clear();
                 return new SimpleAnswer(true);
             } catch (NotFoundException nfe) {
                 return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
             }
         } else return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
+    }
+
+    public SimpleAnswer storeFirebaseToken(String accessToken, String fireBaseToken){
+        Neo4jTemplate template = main.createNeo4JTemplate();
+        if(checkAccessToken(accessToken).getSuccess()){
+            try{
+                UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
+                FirebaseToken fT= new FirebaseToken(fireBaseToken, uS.getUser());
+                template.save(fT);
+                return new SimpleAnswer(true);
+            }catch (NotFoundException nfe){
+                return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
+            }
+        }else return new SimpleAnswer(false, "Invalid AccessToken, refreshToken required");
     }
 
 }

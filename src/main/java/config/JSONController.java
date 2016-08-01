@@ -18,8 +18,10 @@ public class JSONController {
 
     @CrossOrigin(origins = "134.155.48.48:8080")
     @RequestMapping(value = "/register",method = RequestMethod.POST)
-    public RegisterAnswer register(@RequestParam(value="username") String name,@RequestParam(value="email") String email, @RequestParam(value="password") String password) {
-        return db.register(new User(name, email,password), email);
+    public RegisterAnswer register(@RequestParam(value="username") String name,@RequestParam(value="email") String email,
+                                   @RequestParam(value="password") String password,
+                                    @RequestParam(value="firebaseToken", required = false)String firebaseToken){
+        return db.register(new User(name, email,password), email, firebaseToken);
     }
 
     @RequestMapping(value = "/updateProfile", method = RequestMethod.POST)
@@ -30,8 +32,9 @@ public class JSONController {
     }
 
     @RequestMapping(value = "/login",method = RequestMethod.POST)
-    public RegisterAnswer register(@RequestParam(value="email") String email, @RequestParam(value="password") String password) {
-        return db.emailLogin(email, password);
+    public RegisterAnswer emailLogin(@RequestParam(value="email") String email, @RequestParam(value="password") String password,
+                                   @RequestParam(value="firebaseToken", required = false)String firebaseToken) {
+        return db.emailLogin(email, password, firebaseToken);
     }
 
     @RequestMapping(value = "/refreshTokenLogin", method = RequestMethod.POST)
@@ -55,10 +58,16 @@ public class JSONController {
         return db.uploadRoute(route.getRoute(), route.getAccessToken());
     }
 
-    @RequestMapping(value="/changePassword", method = RequestMethod.PUT)
+    @RequestMapping(value="/changePassword", method = RequestMethod.POST)
     public SimpleAnswer changePassword(@RequestParam(value="password")String password,
                                        @RequestParam(value="accessToken")String accessToken){
         return db.changePassword(password, accessToken);
+    }
+
+    @RequestMapping(value="storeFirebaseToken", method = RequestMethod.POST)
+    public SimpleAnswer storeFirebaseToken(@RequestParam(value="accessToken")String accessToken,
+                                           @RequestParam(value="firebaseToken") String firebaseToken){
+        return db.storeFirebaseToken(accessToken, firebaseToken);
     }
 
 

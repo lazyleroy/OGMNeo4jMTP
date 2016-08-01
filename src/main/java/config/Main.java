@@ -3,12 +3,16 @@ package config;
 /**
  * Created by Felix Hambrecht on 05.07.2016.
  */
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import entities.*;
 import javafx.application.Application;
 import org.neo4j.ogm.session.Session;
@@ -38,6 +42,10 @@ public class Main {
     }
 
     public static void main(String[] args) {
+
+
+
+
         SpringApplication.run(Main.class, args);
 
         if(!Files.exists(Paths.get(FileUploadController.ROOT))){

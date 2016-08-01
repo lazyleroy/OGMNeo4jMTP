@@ -3,6 +3,8 @@ package config;
 /**
  * Created by Felix Hambrecht on 05.07.2016.
  */
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import org.neo4j.ogm.authentication.Credentials;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.session.SessionFactory;
@@ -14,6 +16,8 @@ import org.springframework.context.annotation.*;
 import org.springframework.data.neo4j.config.Neo4jConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+
+import java.io.FileInputStream;
 
 @Configuration
 @EnableWebMvc
@@ -43,6 +47,9 @@ class MyConfiguration extends Neo4jConfiguration {
                 new TomcatEmbeddedServletContainerFactory();
         return factory;
     }
+
+
+
 
 
 
