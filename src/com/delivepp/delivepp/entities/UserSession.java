@@ -1,8 +1,5 @@
 package entities;
 
-import com.fasterxml.jackson.databind.deser.Deserializers;
-import org.neo4j.ogm.annotation.GraphId;
-
 import java.util.Date;
 import java.util.Random;
 

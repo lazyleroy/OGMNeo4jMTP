@@ -1,6 +1,5 @@
 package entities;
 
-import javax.print.DocFlavor;
 import java.util.Date;
 import java.util.Random;
 

@@ -2,9 +2,6 @@ package EntityWrappers;
 
 import entities.GeoLocation;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by Felix on 21.07.2016.
  */
