@@ -10,6 +10,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by Felix on 11.07.2016.
@@ -28,10 +29,13 @@ public class User extends BaseModel {
     private boolean isTrackingActivated;
     private GeoLocation location;
     private String profilePicture;
+    private String userID;
 
-    @Relationship(type = "WALKS", direction = Relationship.OUTGOING)
+    @Relationship(type = "WALKS", direction = Relationship.UNDIRECTED)
     private List<Route> routes = new ArrayList<Route>();
 
+    @Relationship(type = "OWNS", direction = Relationship.OUTGOING)
+    private List<Goodybag> goodybags = new ArrayList<Goodybag>();
 
     public User(String userName, String emailAddress, String passWord){
         this.userName = userName;
@@ -40,9 +44,30 @@ public class User extends BaseModel {
         this.salt = Long.toString(date.getTime());
         this.passWord = createMD5(passWord, this.salt);
         this.rating = 0;
-        this.isTrackingActivated = false;
+        this.isTrackingActivated = true;
         this.profilePicture = "default";
+        changeID();
     }
+
+    public void changeID(){
+        Random r = new Random();
+        char[] c = new char[25];
+        for (int i = 1; i< c.length; i++){
+            int rv = r.nextInt(10)+'0';
+            if(rv >=58 ) {
+                i--;
+                continue;
+            }
+            if(i%5==0){
+                c[i]= '-';
+                continue;
+            }
+            c[i] =(char)rv;
+        }
+        this.userID = String.copyValueOf(c);
+    }
+
+
     public User(){
     super();
     }
@@ -128,5 +153,13 @@ public class User extends BaseModel {
 
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
+    }
+
+    public String getUserID() {
+        return userID;
+    }
+
+    public List<Goodybag> getGoodybags() {
+        return goodybags;
     }
 }

@@ -20,7 +20,7 @@ public class JSONController {
     @RequestMapping(value = "/register",method = RequestMethod.POST)
     public RegisterAnswer register(@RequestParam(value="username") String name,@RequestParam(value="email") String email,
                                    @RequestParam(value="password") String password,
-                                    @RequestParam(value="firebaseToken", required = false)String firebaseToken){
+                                   @RequestParam(value="firebaseToken", required = false)String firebaseToken){
         return db.register(new User(name, email,password), email, firebaseToken);
     }
 
@@ -33,7 +33,7 @@ public class JSONController {
 
     @RequestMapping(value = "/login",method = RequestMethod.POST)
     public RegisterAnswer emailLogin(@RequestParam(value="email") String email, @RequestParam(value="password") String password,
-                                   @RequestParam(value="firebaseToken", required = false)String firebaseToken) {
+                                     @RequestParam(value="firebaseToken", required = false)String firebaseToken) {
         return db.emailLogin(email, password, firebaseToken);
     }
 

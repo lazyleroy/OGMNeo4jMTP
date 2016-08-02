@@ -1,12 +1,12 @@
 package config;
 
 import entities.*;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
-import org.springframework.web.multipart.MultipartFile;
-import requestAnswers.RegisterAnswer;
-import entities.UserSession;
+import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.exception.NotFoundException;
 import org.springframework.data.neo4j.template.Neo4jTemplate;
+import org.springframework.web.multipart.MultipartFile;
+import requestAnswers.RegisterAnswer;
 import requestAnswers.SimpleAnswer;
 
 import java.io.IOException;
@@ -24,26 +24,36 @@ public class DatabaseOperations {
 
     private static Main main = new Main();
 
-    public String[] mimeTypes = {"jpg", "jpeg", "bmp", "png", "gif", "svg"};
+    private static String[] mimeTypes = {"jpg", "jpeg", "bmp", "png", "gif", "svg"};
 
     public static RegisterAnswer register(User u, String emailAddress, String firebaseToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         try {
-            User t = new User();
-            t = template.loadByProperty(User.class, "emailAddress", emailAddress);
+            User t = template.loadByProperty(User.class, "emailAddress", emailAddress);
             return new RegisterAnswer(false, "Emailadress already exists");
         } catch (NotFoundException nfe) {
-            if(firebaseToken != null){
-                FirebaseToken fT = new FirebaseToken(firebaseToken, u);
-                template.save(fT);
+            template.purgeSession();
+            template.clear();
+
+            try{
+                while(true){
+                    User t = template.loadByProperty(User.class,"userID",u.getUserID());
+                    u.changeID();
+                    continue;
+                }
+            }catch(NotFoundException e){
+                if(firebaseToken != null){
+                    FirebaseToken fT = new FirebaseToken(firebaseToken, u);
+                    template.save(fT);
+                }
+                UserSession uS = new UserSession(u);
+                Cookie c = new Cookie(u);
+                template.save(uS);
+                template.save(c);
+                String accessToken = uS.getAccessToken();
+                String refreshToken = c.getRefreshToken();
+                return new RegisterAnswer(true, accessToken, 86400000L, refreshToken, 15768000000L);
             }
-            UserSession uS = new UserSession(u);
-            Cookie c = new Cookie(u);
-            template.save(uS);
-            template.save(c);
-            String accessToken = uS.getAccessToken();
-            String refreshToken = c.getRefreshToken();
-            return new RegisterAnswer(true, accessToken, 86400000L, refreshToken, 15768000000L);
         }
     }
 
@@ -122,21 +132,22 @@ public class DatabaseOperations {
 
     }
 
-    public SimpleAnswer uploadGoodybag(String creatorName, int creatorImage, String title, String status, String description,
+    public static SimpleAnswer uploadGoodybag(String creatorName, int creatorImage, String title, String status, String description,
                                        double tip, long creationTime, long deliverTime, GeoLocation deliverLocation,
                                        GeoLocation shopLocation, String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         if (checkAccessToken(accessToken).getSuccess()) {
             try {
                 UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
-
                 while (true) {
-                    Goodybag gB = new Goodybag(creatorName, creatorImage, title, status, description, tip, creationTime, deliverTime,
-                            deliverLocation, shopLocation, uS.getUser());
+                    Goodybag gB = new Goodybag(creatorName, creatorImage, title, status, description, tip,
+                            creationTime, deliverTime, deliverLocation, shopLocation, uS.getUser());
+
                     try {
                         Goodybag goodyBag = template.loadByProperty(Goodybag.class, "goodyBagID", gB.getGoodyBagID());
                         continue;
                     } catch (NotFoundException nfe) {
+                        uS.getUser().getGoodybags().add(gB);
                         template.save(gB);
                         return new SimpleAnswer(true);
                     }
@@ -147,7 +158,7 @@ public class DatabaseOperations {
         } else return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
     }
 
-    public SimpleAnswer uploadRoute(ArrayList<GeoLocation> routes, String accessToken) {
+    public static SimpleAnswer uploadRoute(ArrayList<GeoLocation> routes, String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         if (checkAccessToken(accessToken).getSuccess()) {
             try {
@@ -162,7 +173,7 @@ public class DatabaseOperations {
         } else return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
     }
 
-    public SimpleAnswer uploadProfilePicture(MultipartFile file, String accessToken) {
+    public static SimpleAnswer uploadProfilePicture(MultipartFile file, String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         if (checkAccessToken(accessToken).getSuccess()) {
             if (!file.isEmpty()) {
@@ -195,7 +206,7 @@ public class DatabaseOperations {
         }
     }
 
-    public SimpleAnswer changePassword(String password, String accessToken) {
+    public static SimpleAnswer changePassword(String password, String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         if (checkAccessToken(accessToken).getSuccess()) {
             try {
@@ -213,7 +224,7 @@ public class DatabaseOperations {
         } else return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
     }
 
-    public SimpleAnswer storeFirebaseToken(String accessToken, String fireBaseToken){
+    public static SimpleAnswer storeFirebaseToken(String accessToken, String fireBaseToken){
         Neo4jTemplate template = main.createNeo4JTemplate();
         if(checkAccessToken(accessToken).getSuccess()){
             try{
@@ -225,6 +236,20 @@ public class DatabaseOperations {
                 return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
             }
         }else return new SimpleAnswer(false, "Invalid AccessToken, refreshToken required");
+    }
+
+    public static void retrieveAllGoodybags(String accessToken){
+        Neo4jTemplate template = main.createNeo4JTemplate();
+        if(checkAccessToken(accessToken).getSuccess()){
+            UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
+            User u = uS.getUser();
+            Filters fl = new Filters();
+            Filter f = new Filter();
+            fl.add("creatorName","felix");
+            //System.out.println(template.loadAllByProperties(Goodybag.class, f));
+            System.out.println(template.loadAllByProperties(Goodybag.class, fl,2));
+
+        }
     }
 
 }

@@ -3,28 +3,30 @@ package config;
 /**
  * Created by Felix Hambrecht on 05.07.2016.
  */
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Random;
 
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
-import entities.*;
-import javafx.application.Application;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import entities.GeoLocation;
+import entities.Goodybag;
+import entities.User;
+import org.apache.http.Header;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.neo4j.template.Neo4jTemplate;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @SpringBootApplication
 public class Main {
@@ -55,6 +57,8 @@ public class Main {
                 e.printStackTrace();
             }
         }
+        //DatabaseOperations.retrieveAllGoodybags("ltoRqohjno51v3CKbJQaSBOhVUt42n68m6lzMJUHT0fMeXV6qY6Pgr2QLqKmP9HxFVKQctxJSfcOKG0bWaFL45izwFYiVV8ERB5SagZHdEkcyaR18uzM7TUYEhrTN2qRt5MtF8FM5eT8NOR6ILx7ep7DsSFvHAAEgPsXR7tccNercQgGG4R4AVmDOko7cTb5DR1WqlApOOwzxpikRHfUOj7VBgs94tcUpmBMUba6q3olDzE9qltsFe7RH3JUW6H");
+
     }
 
 

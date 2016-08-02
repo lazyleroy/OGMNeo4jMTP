@@ -6,7 +6,6 @@ package entities;
 public class GeoLocation extends BaseModel {
 
     private double longitude;
-
     private double latitude;
     private int GeoLocationID;
 

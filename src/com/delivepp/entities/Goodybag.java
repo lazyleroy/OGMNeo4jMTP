@@ -1,5 +1,7 @@
 package entities;
 
+import org.neo4j.ogm.annotation.Relationship;
+
 import java.util.Random;
 
 /**
@@ -60,7 +62,6 @@ public class Goodybag extends BaseModel{
              c[i] =(char)rv;
          }
          this.goodyBagID = String.copyValueOf(c);
-         System.out.println(goodyBagID);
      }
 
 
