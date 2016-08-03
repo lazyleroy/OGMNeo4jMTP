@@ -44,7 +44,7 @@ public class JSONController {
 
     @RequestMapping(value="/uploadGoodybag", method = RequestMethod.POST)
     public SimpleAnswer uploadGoodybag(
-        @RequestBody GoodybagWrapper params, @RequestParam(value = "accessToken") String accessToken){
+        @RequestBody GoodybagWrapper params, @RequestHeader(value = "accessToken") String accessToken){
         return db.uploadGoodybag(params.getTitle(), params.getStatus(), params.getDescription(), params.getTip(),
                 params.getDeliverTime(), params.getDeliverLocation(), params.getShopLocation(), accessToken);
     }

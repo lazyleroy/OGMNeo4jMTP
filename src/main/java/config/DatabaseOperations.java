@@ -171,9 +171,12 @@ public class DatabaseOperations {
         if (checkAccessToken(accessToken).getSuccess()) {
             try {
                 UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
+                for(int j = 0; j < routes.size(); j++){
+                    routes.get(j).setGeoLocationID(Double.toString(routes.get(j).getLatitude())+
+                            Double.toString(routes.get(j).getLongitude()));
+                }
                 for(int i = 0; i<routes.size(); i++){
-                    routes.get(i).setGeoLocationID(Double.toString(routes.get(i).getLatitude())+
-                    Double.toString(routes.get(i).getLongitude()));
+
                     try{
                         GeoLocation gL1 = template.loadByProperty(GeoLocation.class, "geoLocationID",routes.get(i).getGeoLocationID());
                         try{
@@ -182,11 +185,13 @@ public class DatabaseOperations {
                                 if(!(gL1.getConnectedSpots().contains(gL2))){
                                     gL1.getConnectedSpots().add(gL2);
                                     gL2.getConnectedSpots().add(gL1);
+                                    template.save(gL1, -1);
                                 }
                             }
                         }catch(NotFoundException nfe){
-                            gL1.getConnectedSpots().add(routes.get(i+1));
                             routes.get(i+1).getConnectedSpots().add(gL1);
+                            gL1.getConnectedSpots().add(routes.get(i+1));
+                            template.save(gL1, -1);
                         }
 
                     }catch(NotFoundException nfe){
@@ -195,16 +200,22 @@ public class DatabaseOperations {
                                 ArrayList<GeoLocation> startedAt = new ArrayList<GeoLocation>();
                                 startedAt.add(routes.get(i));
                                 uS.getUser().setStartedAt(startedAt);
+                                template.save(uS.getUser(), -1);
                             }else {
                                 uS.getUser().getStartedAt().add(routes.get(i));
+                                template.save(uS.getUser(), -1);
                             }
                         }else{
-                            System.out.println(routes.size());
-                            if(i != routes.size()-1)
-                                if(!(routes.get(i).getConnectedSpots().contains(routes.get(i+1)))) {
-                                    routes.get(i).getConnectedSpots().add(routes.get(i+1));
+                            try{
+
+                                    GeoLocation gL2 = template.loadByProperty(GeoLocation.class, "geoLocationID", routes.get(i - 1).getGeoLocationID());
+                                    gL2.getConnectedSpots().add(routes.get(i));
+                                    template.save(gL2);
+                            }catch(NotFoundException nf){
+                                System.out.println(routes.get(i-1).getGeoLocationID());
+                                System.out.println("Irgendwas lief nicht");
                             }
-                        }
+                         }
                     }
                 }
                 template.save(uS.getUser(),-1);
