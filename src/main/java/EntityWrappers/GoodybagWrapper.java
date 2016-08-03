@@ -9,15 +9,11 @@ public class GoodybagWrapper {
 
     private GeoLocation deliverLocation;
     private GeoLocation shopLocation;
-    private String creatorName;
     private String title;
     private String status;
     private String description;
-    private String accessToken;
-    private long creationTime;
     private long deliverTime;
     private double tip;
-    private int creatorImage;
 
 
     public GeoLocation getDeliverLocation() {
@@ -26,10 +22,6 @@ public class GoodybagWrapper {
 
     public GeoLocation getShopLocation() {
         return shopLocation;
-    }
-
-    public String getCreatorName() {
-        return creatorName;
     }
 
     public String getTitle() {
@@ -44,14 +36,6 @@ public class GoodybagWrapper {
         return description;
     }
 
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public long getCreationTime() {
-        return creationTime;
-    }
-
     public long getDeliverTime() {
         return deliverTime;
     }
@@ -60,7 +44,4 @@ public class GoodybagWrapper {
         return tip;
     }
 
-    public int getCreatorImage() {
-        return creatorImage;
-    }
 }

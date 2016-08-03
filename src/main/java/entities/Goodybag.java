@@ -1,5 +1,6 @@
 package entities;
 
+import java.util.Date;
 import java.util.Random;
 
 /**
@@ -9,8 +10,7 @@ import java.util.Random;
 public class Goodybag extends BaseModel{
 
 
-    private String creatorName;
-    private int creatorImage;
+
     private String title;
     private String status;
     private String description;
@@ -25,16 +25,16 @@ public class Goodybag extends BaseModel{
     public Goodybag(){
     }
 
-    public Goodybag(String creatorName, int creatorImage, String title, String status, String description,
-                    double tip, long creationTime, long deliverTime, GeoLocation deliverLocation,
+    public Goodybag(String title, String status, String description,
+                    double tip, long deliverTime, GeoLocation deliverLocation,
                     GeoLocation shopLocation, User user){
-        this.creatorName = creatorName;
-        this.creatorImage = creatorImage;
+
+        Date d = new Date();
         this.title = title;
         this.status = status;
         this.description = description;
         this.tip = tip;
-        this.creationTime = creationTime;
+        this.creationTime = d.getTime();
         this.deliverTime = deliverTime;
         this.deliverLocation = deliverLocation;
         this.shopLocation = shopLocation;
@@ -72,28 +72,12 @@ public class Goodybag extends BaseModel{
         this.status = status;
     }
 
-    public String getCreatorName() {
-        return creatorName;
-    }
-
-    public void setCreatorName(String creatorName) {
-        this.creatorName = creatorName;
-    }
-
     public long getCreationTime() {
         return creationTime;
     }
 
     public void setCreationTime(int creationTime) {
         this.creationTime = creationTime;
-    }
-
-    public int getCreatorImage() {
-        return creatorImage;
-    }
-
-    public void setCreatorImage(int creatorImage) {
-        this.creatorImage = creatorImage;
     }
 
     public String getTitle() {

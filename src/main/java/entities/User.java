@@ -30,6 +30,7 @@ public class User extends BaseModel {
     private GeoLocation location;
     private String profilePicture;
     private String userID;
+    private ArrayList<GeoLocation>startedAt;
 
     @Relationship(type = "WALKS", direction = Relationship.UNDIRECTED)
     private List<Route> routes = new ArrayList<Route>();
@@ -47,6 +48,7 @@ public class User extends BaseModel {
         this.isTrackingActivated = true;
         this.profilePicture = "default";
         changeID();
+
     }
 
     public void changeID(){
@@ -161,5 +163,12 @@ public class User extends BaseModel {
 
     public List<Goodybag> getGoodybags() {
         return goodybags;
+    }
+
+    public ArrayList<GeoLocation> getStartedAt() {
+        return startedAt;
+    }
+    public void setStartedAt(ArrayList<GeoLocation> startedAt){
+        this.startedAt = startedAt;
     }
 }

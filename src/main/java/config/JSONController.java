@@ -36,23 +36,21 @@ public class JSONController {
     }
 
     @RequestMapping(value = "/refreshTokenLogin", method = RequestMethod.POST)
-    public RegisterAnswer refreshTokenLogin(@RequestParam(value="refreshToken")String refreshToken){
-        return db.refreshTokenLogin(refreshToken);
+    public RegisterAnswer refreshTokenLogin(@RequestParam(value="refreshToken")String refreshToken,
+                                            @RequestParam(value ="clientID")int clientID,
+                                            @RequestParam (value = "clientSecret") String clientSecret){
+        return db.refreshTokenLogin(refreshToken, clientID, clientSecret);
     }
 
     @RequestMapping(value="/uploadGoodybag", method = RequestMethod.POST)
     public SimpleAnswer uploadGoodybag(
-        @RequestBody GoodybagWrapper params){
-        return db.uploadGoodybag(params.getCreatorName(), params.getCreatorImage(), params.getTitle(),
-                params.getStatus(), params.getDescription(), params.getTip(), params.getCreationTime(),
-                params.getDeliverTime(), params.getDeliverLocation(), params.getShopLocation(), params.getAccessToken());
+        @RequestBody GoodybagWrapper params, @RequestParam(value = "accessToken") String accessToken){
+        return db.uploadGoodybag(params.getTitle(), params.getStatus(), params.getDescription(), params.getTip(),
+                params.getDeliverTime(), params.getDeliverLocation(), params.getShopLocation(), accessToken);
     }
 
     @RequestMapping(value="/uploadRoute", method = RequestMethod.POST)
     public SimpleAnswer uploadRoute(@RequestBody RouteWrapper route){
-        for(int i = 0; i < route.getRoute().size(); i++){
-            route.getRoute().get(i).setGeoLocationID(i);
-        }
         return db.uploadRoute(route.getRoute(), route.getAccessToken());
     }
 

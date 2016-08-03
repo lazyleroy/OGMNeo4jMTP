@@ -1,19 +1,25 @@
 package entities;
 
+import org.neo4j.ogm.annotation.Relationship;
+
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by Felix Hambrecht on 11.07.2016.
  */
 public class GeoLocation extends BaseModel {
 
+    @Relationship(type = "CONNECTED_WITH", direction = Relationship.UNDIRECTED)
+    private Set<GeoLocation> connectedSpots = new HashSet<>();
     private double longitude;
     private double latitude;
-    private int GeoLocationID;
+    private String GeoLocationID;
 
-
-    public GeoLocation(double longitude, double latitude) {
+    public GeoLocation(double longitude, double latitude, String id) {
         this.longitude = longitude;
         this.latitude = latitude;
-        this.GeoLocationID = 0;
+        this.GeoLocationID = Double.toString(latitude)+Double.toString(longitude);
     }
     public GeoLocation(){
     }
@@ -35,11 +41,14 @@ public class GeoLocation extends BaseModel {
         this.latitude = latitude;
     }
 
-    public int getGeoLocationID() {
+    public String getGeoLocationID() {
         return GeoLocationID;
     }
-    public void setGeoLocationID(int GeoLocationID){
+    public void setGeoLocationID(String GeoLocationID){
         this.GeoLocationID = GeoLocationID;
     }
 
+    public Set<GeoLocation> getConnectedSpots() {
+        return connectedSpots;
+    }
 }

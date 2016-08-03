@@ -59,7 +59,8 @@ public class FileUploadController implements HandlerExceptionResolver {
             mav.addObject(new SimpleAnswer(false, "Filesize too large"));
             return mav;
         }
-        mav.addObject(new SimpleAnswer(false));
+        e.printStackTrace();
+        mav.addObject(new SimpleAnswer(false, "There was an Exception that was caught by FileuploadController"));
         return mav;
     }
 

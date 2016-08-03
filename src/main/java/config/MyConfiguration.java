@@ -24,7 +24,7 @@ class MyConfiguration extends Neo4jConfiguration {
 
     @Bean
     public SessionFactory getSessionFactory(){
-        return new SessionFactory(getConfiguration(), "src/com/delivapp/entities");
+        return new SessionFactory(getConfiguration(), "entities");
     }
     @Bean
     protected org.neo4j.ogm.config.Configuration getConfiguration() {

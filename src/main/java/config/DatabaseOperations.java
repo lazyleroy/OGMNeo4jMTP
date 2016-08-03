@@ -25,6 +25,9 @@ public class DatabaseOperations {
     private static Main main = new Main();
 
     private static String[] mimeTypes = {"jpg", "jpeg", "bmp", "png", "gif", "svg"};
+    public static final int CLIENTID = 49911975;
+    public static final String CLIENTSECRET = "ab02ndls82md9ak";
+
 
     public static RegisterAnswer register(User u, String emailAddress, String firebaseToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
@@ -97,7 +100,10 @@ public class DatabaseOperations {
         }
     }
 
-    public static RegisterAnswer refreshTokenLogin(String refreshToken) {
+    public static RegisterAnswer refreshTokenLogin(String refreshToken, int clientID, String clientSecret) {
+        if(clientID!= CLIENTID || clientSecret != CLIENTSECRET){
+            return new RegisterAnswer(false, "Client - Credentials wrong.");
+        }
         Neo4jTemplate template = main.createNeo4JTemplate();
         long timestamp = new Date().getTime();
         try {
@@ -132,16 +138,15 @@ public class DatabaseOperations {
 
     }
 
-    public static SimpleAnswer uploadGoodybag(String creatorName, int creatorImage, String title, String status, String description,
-                                       double tip, long creationTime, long deliverTime, GeoLocation deliverLocation,
+    public static SimpleAnswer uploadGoodybag(String title, String status, String description,
+                                       double tip, long deliverTime, GeoLocation deliverLocation,
                                        GeoLocation shopLocation, String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         if (checkAccessToken(accessToken).getSuccess()) {
             try {
                 UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
                 while (true) {
-                    Goodybag gB = new Goodybag(creatorName, creatorImage, title, status, description, tip,
-                            creationTime, deliverTime, deliverLocation, shopLocation, uS.getUser());
+                    Goodybag gB = new Goodybag(title, status, description, tip, deliverTime, deliverLocation, shopLocation, uS.getUser());
 
                     try {
                         Goodybag goodyBag = template.loadByProperty(Goodybag.class, "goodyBagID", gB.getGoodyBagID());
@@ -158,14 +163,56 @@ public class DatabaseOperations {
         } else return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
     }
 
-    public static SimpleAnswer uploadRoute(ArrayList<GeoLocation> routes, String accessToken) {
+   public static SimpleAnswer uploadRoute(ArrayList<GeoLocation> routes, String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
+       template.purgeSession();
+       template.clear();
+
         if (checkAccessToken(accessToken).getSuccess()) {
             try {
                 UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
-                Route r = new Route(routes, uS.getUser());
-                template.save(r);
-                return new SimpleAnswer(true, r.getRouteID());
+                for(int i = 0; i<routes.size(); i++){
+                    routes.get(i).setGeoLocationID(Double.toString(routes.get(i).getLatitude())+
+                    Double.toString(routes.get(i).getLongitude()));
+                    try{
+                        GeoLocation gL1 = template.loadByProperty(GeoLocation.class, "geoLocationID",routes.get(i).getGeoLocationID());
+                        try{
+                            if(i != routes.size()-1) {
+                                GeoLocation gL2 = template.loadByProperty(GeoLocation.class, "geoLocationID", routes.get(i + 1).getGeoLocationID());
+                                if(!(gL1.getConnectedSpots().contains(gL2))){
+                                    gL1.getConnectedSpots().add(gL2);
+                                    gL2.getConnectedSpots().add(gL1);
+                                }
+                            }
+                        }catch(NotFoundException nfe){
+                            gL1.getConnectedSpots().add(routes.get(i+1));
+                            routes.get(i+1).getConnectedSpots().add(gL1);
+                        }
+
+                    }catch(NotFoundException nfe){
+                        if(i==0){
+                            if(uS.getUser().getStartedAt()==null){
+                                ArrayList<GeoLocation> startedAt = new ArrayList<GeoLocation>();
+                                startedAt.add(routes.get(i));
+                                uS.getUser().setStartedAt(startedAt);
+                            }else {
+                                uS.getUser().getStartedAt().add(routes.get(i));
+                            }
+                        }else{
+                            System.out.println(routes.size());
+                            if(i != routes.size()-1)
+                                if(!(routes.get(i).getConnectedSpots().contains(routes.get(i+1)))) {
+                                    routes.get(i).getConnectedSpots().add(routes.get(i+1));
+                            }
+                        }
+                    }
+                }
+                template.save(uS.getUser(),-1);
+
+
+
+
+                return new SimpleAnswer(true, "Spots updated");
             } catch (NotFoundException nfe) {
                 return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
 
