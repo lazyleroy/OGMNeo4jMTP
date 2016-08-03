@@ -67,7 +67,6 @@ public class JSONController {
     }
 
 
-
     @RequestMapping(value = "/test", method = RequestMethod.POST)
     public String test(@RequestBody GoodybagWrapper test){
 

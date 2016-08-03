@@ -19,7 +19,7 @@ public class Goodybag extends BaseModel{
     private long deliverTime;
     private GeoLocation deliverLocation;
     private GeoLocation shopLocation;
-    private String goodyBagID;
+    private long goodybagID;
     private User user;
 
     public Goodybag(){
@@ -39,27 +39,18 @@ public class Goodybag extends BaseModel{
         this.deliverLocation = deliverLocation;
         this.shopLocation = shopLocation;
         this.user = user;
-        changeID();
 
             }
 
 
      public void changeID(){
          Random r = new Random();
-         char[] c = new char[25];
-         for (int i = 1; i< c.length; i++){
-             int rv = r.nextInt(10)+'0';
-             if(rv >=58 ) {
-                 i--;
-                 continue;
-             }
-             if(i%5==0){
-                 c[i]= '-';
-                 continue;
-             }
-             c[i] =(char)rv;
+         String c = "";
+         for (int i = 1; i<17; i++){
+             int rv = r.nextInt(10);
+             c+= rv;
          }
-         this.goodyBagID = String.copyValueOf(c);
+         this.goodybagID = Long.parseLong(c);
      }
 
 
@@ -76,7 +67,7 @@ public class Goodybag extends BaseModel{
         return creationTime;
     }
 
-    public void setCreationTime(int creationTime) {
+    public void setCreationTime(long creationTime) {
         this.creationTime = creationTime;
     }
 
@@ -120,12 +111,12 @@ public class Goodybag extends BaseModel{
         this.deliverLocation = deliverLocation;
     }
 
-    public String getGoodyBagID() {
-        return goodyBagID;
+    public long getGoodybagID() {
+        return goodybagID;
     }
 
-    public void setGoodyBagID(String goodyBagID) {
-        this.goodyBagID = goodyBagID;
+    public void setGoodybagID(long goodybagID) {
+        this.goodybagID = goodybagID;
     }
 
     public GeoLocation getShopLocation() {

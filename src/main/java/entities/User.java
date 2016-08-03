@@ -29,7 +29,7 @@ public class User extends BaseModel {
     private boolean isTrackingActivated;
     private GeoLocation location;
     private String profilePicture;
-    private String userID;
+    private long userID;
     private ArrayList<GeoLocation>startedAt;
 
     @Relationship(type = "WALKS", direction = Relationship.UNDIRECTED)
@@ -53,20 +53,12 @@ public class User extends BaseModel {
 
     public void changeID(){
         Random r = new Random();
-        char[] c = new char[25];
-        for (int i = 1; i< c.length; i++){
-            int rv = r.nextInt(10)+'0';
-            if(rv >=58 ) {
-                i--;
-                continue;
-            }
-            if(i%5==0){
-                c[i]= '-';
-                continue;
-            }
-            c[i] =(char)rv;
+        String c = "";
+        for (int i = 1; i<17; i++){
+            int rv = r.nextInt(10);
+            c+= rv;
         }
-        this.userID = String.copyValueOf(c);
+        this.userID = Long.parseLong(c);
     }
 
 
@@ -157,7 +149,7 @@ public class User extends BaseModel {
         this.profilePicture = profilePicture;
     }
 
-    public String getUserID() {
+    public long getUserID() {
         return userID;
     }
 

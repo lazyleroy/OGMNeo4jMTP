@@ -101,7 +101,7 @@ public class DatabaseOperations {
     }
 
     public static RegisterAnswer refreshTokenLogin(String refreshToken, int clientID, String clientSecret) {
-        if(clientID!= CLIENTID || clientSecret != CLIENTSECRET){
+        if(clientID!= CLIENTID || !(clientSecret.equals(CLIENTSECRET))){
             return new RegisterAnswer(false, "Client - Credentials wrong.");
         }
         Neo4jTemplate template = main.createNeo4JTemplate();
@@ -147,9 +147,9 @@ public class DatabaseOperations {
                 UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
                 while (true) {
                     Goodybag gB = new Goodybag(title, status, description, tip, deliverTime, deliverLocation, shopLocation, uS.getUser());
-
+                    gB.changeID();
                     try {
-                        Goodybag goodyBag = template.loadByProperty(Goodybag.class, "goodyBagID", gB.getGoodyBagID());
+                        Goodybag goodyBag = template.loadByProperty(Goodybag.class, "goodyBagID", gB.getGoodybagID());
                         continue;
                     } catch (NotFoundException nfe) {
                         uS.getUser().getGoodybags().add(gB);
@@ -305,7 +305,6 @@ public class DatabaseOperations {
             Filter f = new Filter();
             fl.add("creatorName","felix");
             //System.out.println(template.loadAllByProperties(Goodybag.class, f));
-            System.out.println(template.loadAllByProperties(Goodybag.class, fl,2));
 
         }
     }
