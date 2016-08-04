@@ -10,13 +10,8 @@ import java.util.ArrayList;
 public class RouteWrapper {
 
     private ArrayList<GeoLocation> route;
-    private String accessToken;
 
     public ArrayList<GeoLocation> getRoute() {
         return route;
-    }
-
-    public String getAccessToken() {
-        return accessToken;
     }
 }

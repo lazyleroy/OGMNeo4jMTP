@@ -39,7 +39,7 @@ public class FileUploadController implements HandlerExceptionResolver {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/uploadFile")
-    public @ResponseBody SimpleAnswer handleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("accessToken")
+    public @ResponseBody SimpleAnswer handleFileUpload(@RequestParam("file") MultipartFile file, @RequestHeader(value="accessToken")
             String accessToken) {
         return db.uploadProfilePicture(file, accessToken);
     }

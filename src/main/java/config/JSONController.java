@@ -23,10 +23,10 @@ public class JSONController {
     }
 
     @RequestMapping(value = "/updateProfile", method = RequestMethod.POST)
-    public SimpleAnswer updateProfile(@RequestParam(value="username")String userName,
-                                      @RequestParam(value="occupation") String occupation, @RequestParam(value = "phone")int phone,
-                                      @RequestParam(value="accessToken") String accessToken){
-        return db.updateProfile(userName, occupation, accessToken);
+    public SimpleAnswer updateProfile(@RequestParam(value="username", required = false)String userName,
+                                      @RequestParam(value="email", required = false) String email,
+                                      @RequestHeader(value = "accessToken") String accessToken){
+        return db.updateProfile(userName, email, accessToken);
     }
 
     @RequestMapping(value = "/login",method = RequestMethod.POST)
@@ -50,8 +50,9 @@ public class JSONController {
     }
 
     @RequestMapping(value="/uploadRoute", method = RequestMethod.POST)
-    public SimpleAnswer uploadRoute(@RequestBody RouteWrapper route){
-        return db.uploadRoute(route.getRoute(), route.getAccessToken());
+    public SimpleAnswer uploadRoute(
+            @RequestBody RouteWrapper route, @RequestHeader(value = "accessToken") String accessToken){
+        return db.uploadRoute(route.getRoute(), accessToken);
     }
 
     @RequestMapping(value="/changePassword", method = RequestMethod.POST)

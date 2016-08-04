@@ -121,16 +121,20 @@ public class DatabaseOperations {
         }
     }
 
-    public static SimpleAnswer updateProfile(String userName, String occupation, String accessToken) {
+    public static SimpleAnswer updateProfile(String userName, String email, String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         if (checkAccessToken(accessToken).getSuccess()) {
             try {
                 UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
                 User u = uS.getUser();
-                u.setUserName(userName);
-                u.setOccupation(occupation);
+                if(userName != null){
+                    u.setUserName(userName);
+                }
+                if (email != null){
+                    u.setEmailAddress(email);
+                }
                 template.save(u);
-                return new SimpleAnswer(true, "values updated: " + userName + " " + occupation);
+                return new SimpleAnswer(true, "values updated: " + userName + " " + email);
             } catch (NotFoundException nfe) {
                 return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
             }
@@ -145,6 +149,18 @@ public class DatabaseOperations {
         if (checkAccessToken(accessToken).getSuccess()) {
             try {
                 UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
+                if(title == null){
+                    title = "Goodybag";
+                }
+                if(status == null){
+                    status = "Not Accepted";
+                }
+                if(deliverTime == 0) {
+                    deliverTime = 0;
+                }
+                if(description == null || tip == 0 ||deliverLocation == null || shopLocation == null){
+                    return new SimpleAnswer(false, "Important value missing (description / tip / deliverLocation / shopLocation)");
+                }
                 while (true) {
                     Goodybag gB = new Goodybag(title, status, description, tip, deliverTime, deliverLocation, shopLocation, uS.getUser());
                     gB.changeID();
@@ -152,6 +168,7 @@ public class DatabaseOperations {
                         Goodybag goodyBag = template.loadByProperty(Goodybag.class, "goodyBagID", gB.getGoodybagID());
                         continue;
                     } catch (NotFoundException nfe) {
+
                         uS.getUser().getGoodybags().add(gB);
                         template.save(gB);
                         return new SimpleAnswer(true);
@@ -174,6 +191,9 @@ public class DatabaseOperations {
                 for(int j = 0; j < routes.size(); j++){
                     routes.get(j).setGeoLocationID(Double.toString(routes.get(j).getLatitude())+
                             Double.toString(routes.get(j).getLongitude()));
+                    routes.get(j).setAddress("default");
+                    routes.get(j).setTitle("default");
+                    routes.get(j).setTown("default");
                 }
                 for(int i = 0; i<routes.size(); i++){
 
@@ -213,7 +233,6 @@ public class DatabaseOperations {
                                     template.save(gL2);
                             }catch(NotFoundException nf){
                                 System.out.println(routes.get(i-1).getGeoLocationID());
-                                System.out.println("Irgendwas lief nicht");
                             }
                          }
                     }
@@ -244,7 +263,7 @@ public class DatabaseOperations {
                     String[] extension = file.getOriginalFilename().split("\\.");
                     for (int i = 0; i < mimeTypes.length; i++) {
                         if (mimeTypes[i].equals(extension[extension.length - 1])) {
-                            u.setProfilePicture(t + u.getEmailAddress() + "." + extension[extension.length - 1]);
+                            u.setProfilePicture(t + u.getUserID() + "." + extension[extension.length - 1]);
                             Files.copy(file.getInputStream(), Paths.get(ROOT, u.getProfilePicture()));
                             template.save(uS);
                             template.purgeSession();
