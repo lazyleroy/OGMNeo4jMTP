@@ -94,7 +94,7 @@ public class DatabaseOperations {
                 Cookie c = new Cookie(u);
                 template.save(uS);
                 template.save(c);
-                return new LoginAnswer(true, uS.getAccessToken(), 86400000L, c.getRefreshToken(), 15768000000L, u.getProfilePicture());
+                return new LoginAnswer(true, uS.getAccessToken(), 86400000L, c.getRefreshToken(), 15768000000L, u.getProfilePicture(), u.getUserName());
             } else {
                 return new LoginAnswer(false, "Invalid password");
             }
