@@ -18,6 +18,8 @@ public class GeoLocation extends BaseModel {
     private String address;
     private String town;
     private String GeoLocationID;
+    private long userID;
+
 
     public GeoLocation(double longitude, double latitude, String address, String town, String title) {
         this.longitude = longitude;
@@ -80,5 +82,9 @@ public class GeoLocation extends BaseModel {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public void setUserID(long userID) {
+        this.userID = userID;
     }
 }

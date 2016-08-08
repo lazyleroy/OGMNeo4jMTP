@@ -55,4 +55,6 @@ public class Route extends BaseModel{
     public void setConnected_with(GeoLocation connected_with) {
         this.connected_with = connected_with;
     }
+
+
 }

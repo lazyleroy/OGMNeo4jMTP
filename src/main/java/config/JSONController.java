@@ -4,6 +4,7 @@ package config; /**
 
 import EntityWrappers.GoodybagWrapper;
 import EntityWrappers.RouteWrapper;
+import requestAnswers.LoginAnswer;
 import requestAnswers.RegisterAnswer;
 import entities.User;
 import org.springframework.web.bind.annotation.*;
@@ -30,8 +31,8 @@ public class JSONController {
     }
 
     @RequestMapping(value = "/login",method = RequestMethod.POST)
-    public RegisterAnswer emailLogin(@RequestParam(value="email") String email, @RequestParam(value="password") String password,
-                                     @RequestParam(value="firebaseToken", required = false)String firebaseToken) {
+    public LoginAnswer emailLogin(@RequestParam(value="email") String email, @RequestParam(value="password") String password,
+                                  @RequestParam(value="firebaseToken", required = false)String firebaseToken) {
         return db.emailLogin(email, password, firebaseToken);
     }
 
@@ -51,6 +52,7 @@ public class JSONController {
 
     @RequestMapping(value="/uploadRoute", method = RequestMethod.POST)
     public SimpleAnswer uploadRoute(
+
             @RequestBody RouteWrapper route, @RequestHeader(value = "accessToken") String accessToken){
         return db.uploadRoute(route.getRoute(), accessToken);
     }

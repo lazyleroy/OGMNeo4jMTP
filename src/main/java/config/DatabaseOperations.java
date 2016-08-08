@@ -6,6 +6,7 @@ import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.exception.NotFoundException;
 import org.springframework.data.neo4j.template.Neo4jTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import requestAnswers.LoginAnswer;
 import requestAnswers.RegisterAnswer;
 import requestAnswers.SimpleAnswer;
 
@@ -13,7 +14,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
 
 import static config.FileUploadController.ROOT;
 
@@ -76,7 +79,7 @@ public class DatabaseOperations {
         }
     }
 
-    public static RegisterAnswer emailLogin(String email, String password, String firebaseToken) {
+    public static LoginAnswer emailLogin(String email, String password, String firebaseToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
 
         try {
@@ -91,12 +94,12 @@ public class DatabaseOperations {
                 Cookie c = new Cookie(u);
                 template.save(uS);
                 template.save(c);
-                return new RegisterAnswer(true, uS.getAccessToken(), 86400000L, c.getRefreshToken(), 15768000000L);
+                return new LoginAnswer(true, uS.getAccessToken(), 86400000L, c.getRefreshToken(), 15768000000L, u.getProfilePicture());
             } else {
-                return new RegisterAnswer(false, "Invalid password");
+                return new LoginAnswer(false, "Invalid password");
             }
         } catch (NotFoundException nfe) {
-            return new RegisterAnswer(false, "Email does not exist.");
+            return new LoginAnswer(false, "Email does not exist.");
         }
     }
 
@@ -180,17 +183,31 @@ public class DatabaseOperations {
         } else return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
     }
 
+
    public static SimpleAnswer uploadRoute(ArrayList<GeoLocation> routes, String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
        template.purgeSession();
        template.clear();
 
         if (checkAccessToken(accessToken).getSuccess()) {
+
             try {
+                long startTime = System.nanoTime();
+
                 UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
+
+                Collection<GeoLocation> collection = template.loadAllByProperty(GeoLocation.class, "userID", uS.getUser().getUserID());
+                ArrayList<GeoLocation> gL = new ArrayList<>(collection);
+                long stopTime = System.nanoTime();
+                System.out.println(stopTime - startTime);
+                for(int i = 0; i < gL.size(); i++){
+                    System.out.println(gL.get(i).getGeoLocationID());
+                }
+
                 for(int j = 0; j < routes.size(); j++){
                     routes.get(j).setGeoLocationID(Double.toString(routes.get(j).getLatitude())+
                             Double.toString(routes.get(j).getLongitude()));
+                    routes.get(j).setUserID(uS.getUser().getUserID());
                     routes.get(j).setAddress("default");
                     routes.get(j).setTitle("default");
                     routes.get(j).setTown("default");
@@ -198,20 +215,23 @@ public class DatabaseOperations {
                 for(int i = 0; i<routes.size(); i++){
 
                     try{
+
                         GeoLocation gL1 = template.loadByProperty(GeoLocation.class, "geoLocationID",routes.get(i).getGeoLocationID());
                         try{
                             if(i != routes.size()-1) {
+
                                 GeoLocation gL2 = template.loadByProperty(GeoLocation.class, "geoLocationID", routes.get(i + 1).getGeoLocationID());
                                 if(!(gL1.getConnectedSpots().contains(gL2))){
-                                    gL1.getConnectedSpots().add(gL2);
+                                    System.out.println("Knoten nicht vorhanden Füge Knoten "+ " " +i+1+ " hinzu");
                                     gL2.getConnectedSpots().add(gL1);
-                                    template.save(gL1, -1);
+                                    gL1.getConnectedSpots().add(gL2);
+                                    template.save(gL2, 1);
                                 }
                             }
                         }catch(NotFoundException nfe){
                             routes.get(i+1).getConnectedSpots().add(gL1);
                             gL1.getConnectedSpots().add(routes.get(i+1));
-                            template.save(gL1, -1);
+                            template.save(gL1, 1);
                         }
 
                     }catch(NotFoundException nfe){
@@ -220,27 +240,23 @@ public class DatabaseOperations {
                                 ArrayList<GeoLocation> startedAt = new ArrayList<GeoLocation>();
                                 startedAt.add(routes.get(i));
                                 uS.getUser().setStartedAt(startedAt);
-                                template.save(uS.getUser(), -1);
+                                template.save(uS.getUser());
                             }else {
                                 uS.getUser().getStartedAt().add(routes.get(i));
-                                template.save(uS.getUser(), -1);
+                                template.save(uS.getUser());
                             }
                         }else{
                             try{
 
                                     GeoLocation gL2 = template.loadByProperty(GeoLocation.class, "geoLocationID", routes.get(i - 1).getGeoLocationID());
                                     gL2.getConnectedSpots().add(routes.get(i));
-                                    template.save(gL2);
+                                    template.save(gL2, 1);
                             }catch(NotFoundException nf){
                                 System.out.println(routes.get(i-1).getGeoLocationID());
                             }
                          }
                     }
                 }
-                template.save(uS.getUser(),-1);
-
-
-
 
                 return new SimpleAnswer(true, "Spots updated");
             } catch (NotFoundException nfe) {
@@ -268,7 +284,7 @@ public class DatabaseOperations {
                             template.save(uS);
                             template.purgeSession();
                             template.clear();
-                            return new SimpleAnswer(true);
+                            return new SimpleAnswer(true, u.getProfilePicture());
                         }
                     }
                     return new SimpleAnswer(false, "Bad Filetype");
