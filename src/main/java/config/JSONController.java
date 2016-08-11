@@ -10,6 +10,8 @@ import entities.User;
 import org.springframework.web.bind.annotation.*;
 import requestAnswers.SimpleAnswer;
 
+import java.util.ArrayList;
+
 @RestController
 public class JSONController {
 
@@ -59,20 +61,19 @@ public class JSONController {
 
     @RequestMapping(value="/changePassword", method = RequestMethod.POST)
     public SimpleAnswer changePassword(@RequestParam(value="password")String password,
-                                       @RequestParam(value="accessToken")String accessToken){
+                                       @RequestHeader(value="accessToken")String accessToken){
         return db.changePassword(password, accessToken);
     }
 
-    @RequestMapping(value="storeFirebaseToken", method = RequestMethod.POST)
-    public SimpleAnswer storeFirebaseToken(@RequestParam(value="accessToken")String accessToken,
+    /*@RequestMapping(value="storeFirebaseToken", method = RequestMethod.POST)
+    public SimpleAnswer storeFirebaseToken(@RequestHeader(value="accessToken")String accessToken,
                                            @RequestParam(value="firebaseToken") String firebaseToken){
         return db.storeFirebaseToken(accessToken, firebaseToken);
-    }
+    }*/
 
 
-    @RequestMapping(value = "/test", method = RequestMethod.POST)
-    public String test(@RequestBody GoodybagWrapper test){
-
-        return null;
+    @RequestMapping(value = "/sendGoodybagToUsers", method = RequestMethod.POST)
+    public void sendGoodybagToUsers(@RequestParam (value = "userIDs")ArrayList<Long>userIDs, @RequestParam(value="goodyBagID")String goodybagID){
+        db.sendGoodybagToUsers(userIDs,goodybagID);
     }
 }

@@ -8,14 +8,14 @@ public class FirebaseToken extends BaseModel {
 
 
     private String token;
-    private User user;
+    private Cookie cookie;
 
     public FirebaseToken(){
     }
 
-    public FirebaseToken(String token, User user){
+    public FirebaseToken(String token, Cookie cookie){
         this.token = token;
-        this.user = user;
+        this.cookie = cookie;
     }
 
     public String getToken() {
@@ -26,7 +26,7 @@ public class FirebaseToken extends BaseModel {
         this.token = token;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(Cookie cookie) {
+        this.cookie = cookie;
     }
 }

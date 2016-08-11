@@ -38,4 +38,35 @@ public class LoginAnswer {
         this.username = username;
     }
 
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public long getAccessDuration() {
+        return accessDuration;
+    }
+
+    public long getRefreshDuration() {
+        return refreshDuration;
+    }
+
+    public String getPicturePath() {
+        return picturePath;
+    }
+
+    public String getUsername() {
+        return username;
+    }
 }

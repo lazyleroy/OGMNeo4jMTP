@@ -1,9 +1,23 @@
 package config;
 
 import entities.*;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
+import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.exception.NotFoundException;
+import org.neo4j.ogm.json.JSONException;
+import org.neo4j.ogm.json.JSONObject;
+import org.neo4j.ogm.model.Result;
 import org.springframework.data.neo4j.template.Neo4jTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import requestAnswers.LoginAnswer;
@@ -11,12 +25,10 @@ import requestAnswers.RegisterAnswer;
 import requestAnswers.SimpleAnswer;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.LinkedList;
+import java.util.*;
 
 import static config.FileUploadController.ROOT;
 
@@ -48,12 +60,15 @@ public class DatabaseOperations {
                     continue;
                 }
             }catch(NotFoundException e){
-                if(firebaseToken != null){
-                    FirebaseToken fT = new FirebaseToken(firebaseToken, u);
-                    template.save(fT);
-                }
                 UserSession uS = new UserSession(u);
                 Cookie c = new Cookie(u);
+                if(firebaseToken != null){
+                    FirebaseToken fT = new FirebaseToken(firebaseToken, c);
+                    c.setFirebaseToken(fT);
+                    template.save(u);
+                    template.save(fT);
+                }
+
                 template.save(uS);
                 template.save(c);
                 String accessToken = uS.getAccessToken();
@@ -85,13 +100,14 @@ public class DatabaseOperations {
         try {
             User u = template.loadByProperty(User.class, "emailAddress", email);
             String hash = u.createMD5(password, u.getSalt());
+            UserSession uS = new UserSession(u);
+            Cookie c = new Cookie(u);
             if (hash.equals(u.getPassword())) {
                 if(firebaseToken != null){
-                    FirebaseToken fT = new FirebaseToken(firebaseToken, u);
+                    FirebaseToken fT = new FirebaseToken(firebaseToken, c);
                     template.save(fT);
                 }
-                UserSession uS = new UserSession(u);
-                Cookie c = new Cookie(u);
+
                 template.save(uS);
                 template.save(c);
                 return new LoginAnswer(true, uS.getAccessToken(), 86400000L, c.getRefreshToken(), 15768000000L, u.getProfilePicture(), u.getUserName());
@@ -161,8 +177,8 @@ public class DatabaseOperations {
                 if(deliverTime == 0) {
                     deliverTime = 0;
                 }
-                if(description == null || tip == 0 ||deliverLocation == null || shopLocation == null){
-                    return new SimpleAnswer(false, "Important value missing (description / tip / deliverLocation / shopLocation)");
+                if(description == null||deliverLocation == null || tip < 0 || shopLocation == null){
+                    return new SimpleAnswer(false, "Important value missing (description / deliverLocation / shopLocation)");
                 }
                 while (true) {
                     Goodybag gB = new Goodybag(title, status, description, tip, deliverTime, deliverLocation, shopLocation, uS.getUser());
@@ -210,7 +226,6 @@ public class DatabaseOperations {
                     routes.get(j).setUserID(uS.getUser().getUserID());
                     routes.get(j).setAddress("default");
                     routes.get(j).setTitle("default");
-                    routes.get(j).setTown("default");
                 }
                 for(int i = 0; i<routes.size(); i++){
 
@@ -271,15 +286,14 @@ public class DatabaseOperations {
         if (checkAccessToken(accessToken).getSuccess()) {
             if (!file.isEmpty()) {
                 try {
-                    Date d = new Date();
-                    long t = d.getTime();
+
                     UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
                     User u = uS.getUser();
                     Files.deleteIfExists(Paths.get(ROOT, u.getProfilePicture()));
                     String[] extension = file.getOriginalFilename().split("\\.");
                     for (int i = 0; i < mimeTypes.length; i++) {
                         if (mimeTypes[i].equals(extension[extension.length - 1])) {
-                            u.setProfilePicture(t + u.getUserID() + "." + extension[extension.length - 1]);
+                            u.setProfilePicture(u.getUserID() + "." + extension[extension.length - 1]);
                             Files.copy(file.getInputStream(), Paths.get(ROOT, u.getProfilePicture()));
                             template.save(uS);
                             template.purgeSession();
@@ -317,12 +331,20 @@ public class DatabaseOperations {
         } else return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
     }
 
-    public static SimpleAnswer storeFirebaseToken(String accessToken, String fireBaseToken){
+/*       public static SimpleAnswer storeFirebaseToken(String accessToken, String fireBaseToken){
         Neo4jTemplate template = main.createNeo4JTemplate();
         if(checkAccessToken(accessToken).getSuccess()){
             try{
                 UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
                 FirebaseToken fT= new FirebaseToken(fireBaseToken, uS.getUser());
+                ArrayList<FirebaseToken> fbT = uS.getUser().getFirebaseToken();
+                if(fbT == null){
+                    fbT = new ArrayList<>();
+                    fbT.add(fT);
+                    uS.getUser().setFirebaseToken(fbT);
+                }else{
+                    uS.getUser().getFirebaseToken().add(fT);
+                }
                 template.save(fT);
                 return new SimpleAnswer(true);
             }catch (NotFoundException nfe){
@@ -330,18 +352,75 @@ public class DatabaseOperations {
             }
         }else return new SimpleAnswer(false, "Invalid AccessToken, refreshToken required");
     }
-
+*/
     public static void retrieveAllGoodybags(String accessToken){
         Neo4jTemplate template = main.createNeo4JTemplate();
         if(checkAccessToken(accessToken).getSuccess()){
             UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
-            User u = uS.getUser();
-            Filters fl = new Filters();
-            Filter f = new Filter();
-            fl.add("creatorName","felix");
-            //System.out.println(template.loadAllByProperties(Goodybag.class, f));
-
+            List<Goodybag> u = uS.getUser().getGoodybags();
         }
+    }
+
+    public static void sendGoodybagToUsers(ArrayList<Long> userIDs, String goodybagID){
+
+        Neo4jTemplate template = main.createNeo4JTemplate();
+        String query ="";
+        for(int i = 0; i < userIDs.size(); i++){
+            if(i == userIDs.size()-1){
+                query += userIDs.get(i).toString();
+            }else{
+                query += userIDs.get(i).toString()+",";
+            }
+        }
+        ArrayList<String> firebaseTokens = new ArrayList<String>();
+        String firebaseToken ="";
+        String refreshToken;
+        Result r = template.query("match (x:FirebaseToken)-[:COOKIE]->(y:Cookie)-[:USER]->(n:User) where n.userID IN["+query+"] return x,y", Collections.EMPTY_MAP, true);
+        Iterator<Map<String, Object>> iterator = r.iterator();
+        while(iterator.hasNext()){
+            Map<String, Object> i = iterator.next();
+            for(Map.Entry<String, Object> entry: i.entrySet()){
+                if(entry.getValue() instanceof FirebaseToken){
+                    firebaseToken = ((FirebaseToken) entry.getValue()).getToken();
+                }
+                if(entry.getValue()instanceof Cookie){
+                    refreshToken = ((Cookie) entry.getValue()).getRefreshToken();
+                    org.json.JSONObject notification = new org.json.JSONObject();
+                    org.json.JSONObject goodybag = new org.json.JSONObject();
+                    org.json.JSONObject body = new org.json.JSONObject();
+                    body.put("body","Matched Goodybag");
+                    goodybag.put("goodybagID", goodybagID);
+                    goodybag.put("refreshToken", refreshToken);
+                    notification.put("notification", body);
+                    notification.put("data", goodybag);
+                    notification.put("to", firebaseToken);
+
+                    HttpClient httpClient    = HttpClientBuilder.create().build();
+                    HttpPost post          = new HttpPost("https://fcm.googleapis.com/fcm/send");
+                    try {
+                        StringEntity se = new StringEntity(notification.toString());
+                        post.setEntity(se);
+                        post.setHeader("Content-type", "application/json");
+                        post.addHeader("Authorization", "key=AIzaSyCwYZ4ddd2Ue0DcRCJkhdHSuX1x6AoMC8Q");
+                        HttpResponse response = httpClient.execute(post);
+                        System.out.println(EntityUtils.toString(response.getEntity()));
+
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        }
+
+
+
+
+
+
+
     }
 
 }

@@ -19,7 +19,7 @@ public class UserSession extends BaseModel{
         this.user = user;
 
         Random r = new Random();
-        char[] c = new char[255];
+        char[] c = new char[70];
         for (int i = 0; i< c.length; i++){
             int rv = r.nextInt(75)+'0';
             if((rv >=58 && rv <=64)|| (rv >=91 && rv <=96) ) {

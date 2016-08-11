@@ -46,7 +46,6 @@ public class User extends BaseModel {
         this.isTrackingActivated = true;
         this.profilePicture = "default";
         changeID();
-
     }
 
     public void changeID(){
@@ -145,4 +144,5 @@ public class User extends BaseModel {
     public void setStartedAt(ArrayList<GeoLocation> startedAt){
         this.startedAt = startedAt;
     }
+
 }

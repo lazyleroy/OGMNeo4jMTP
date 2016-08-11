@@ -11,6 +11,8 @@ public class Cookie extends  BaseModel{
     private long expiresAt;
     private String refreshToken;
     private User user;
+    private FirebaseToken firebaseToken;
+
 
     public Cookie(User user){
         Date date = new Date();
@@ -18,7 +20,7 @@ public class Cookie extends  BaseModel{
         this.user = user;
 
         Random r = new Random();
-        char[] c = new char[255];
+        char[] c = new char[70];
         for (int i = 0; i< c.length; i++){
             int rv = r.nextInt(75)+'0';
             if((rv >=58 && rv <=64)|| (rv >=91 && rv <=96) ) {
@@ -35,5 +37,11 @@ public class Cookie extends  BaseModel{
     public long getExpiresAt(){return this.expiresAt;}
     public java.lang.String getRefreshToken() {return refreshToken;}
     public User getUser(){return this.user;}
+    public FirebaseToken getFirebaseToken() {
+        return this.firebaseToken;
+    }
+    public void setFirebaseToken(FirebaseToken firebaseToken) {
+        this.firebaseToken = firebaseToken;
+    }
 
 }

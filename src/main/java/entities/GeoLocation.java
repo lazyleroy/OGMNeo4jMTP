@@ -16,16 +16,14 @@ public class GeoLocation extends BaseModel {
     private double latitude;
     private String title;
     private String address;
-    private String town;
     private String GeoLocationID;
     private long userID;
 
 
-    public GeoLocation(double longitude, double latitude, String address, String town, String title) {
+    public GeoLocation(double longitude, double latitude, String address, String title) {
         this.longitude = longitude;
         this.latitude = latitude;
         this.address = address;
-        this. town = town;
         this.title = title;
         this.GeoLocationID = Double.toString(latitude)+Double.toString(longitude);
     }
@@ -66,14 +64,6 @@ public class GeoLocation extends BaseModel {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getTown() {
-        return town;
-    }
-
-    public void setTown(String town) {
-        this.town = town;
     }
 
     public String getAddress() {

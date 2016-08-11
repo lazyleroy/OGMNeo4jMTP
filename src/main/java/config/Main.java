@@ -4,7 +4,9 @@ package config;
  * Created by Felix Hambrecht on 05.07.2016.
  */
 
+import com.google.api.client.util.Data;
 import entities.GeoLocation;
+import org.neo4j.ogm.json.JSONException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.boot.SpringApplication;
@@ -33,7 +35,7 @@ public class Main {
         return new Neo4jTemplate(sessionFactory.openSession());
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args){
 
 
 
@@ -46,6 +48,16 @@ public class Main {
                 e.printStackTrace();
             }
         }
+
+        ArrayList<Long> x = new ArrayList<Long>();
+        x.add(1712652937495941L);
+        x.add(919967042209181L);
+        x.add(2635972791352644L);
+        DatabaseOperations db = new DatabaseOperations();
+        db.sendGoodybagToUsers(x, "19905L12");
+
+
+
 
 
 
