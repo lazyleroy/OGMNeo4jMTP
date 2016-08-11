@@ -99,7 +99,7 @@ public class DatabaseOperations {
 
         try {
             User u = template.loadByProperty(User.class, "emailAddress", email);
-            String hash = u.createMD5(password, u.getSalt());
+            String hash = u.createSHA3(password, u.getSalt());
             UserSession uS = new UserSession(u);
             Cookie c = new Cookie(u);
             if (hash.equals(u.getPassword())) {
@@ -322,7 +322,7 @@ public class DatabaseOperations {
                 Date d = new Date();
                 Long t = d.getTime();
                 u.setSalt(Long.toString(t));
-                u.setPassword(u.createMD5(password, u.getSalt()));
+                u.setPassword(u.createSHA3(password, u.getSalt()));
                 template.save(u);
                 return new SimpleAnswer(true);
             } catch (NotFoundException nfe) {

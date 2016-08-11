@@ -3,7 +3,9 @@ package entities;
 import config.Main;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-
+import org.bouncycastle.jcajce.provider.digest.SHA3.DigestSHA3;
+import org.bouncycastle.jcajce.provider.digest.SHA3.Digest256;
+import javax.xml.bind.DatatypeConverter;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -41,7 +43,7 @@ public class User extends BaseModel {
         this.emailAddress = emailAddress;
         Date date = new Date();
         this.salt = Long.toString(date.getTime());
-        this.passWord = createMD5(passWord, this.salt);
+        this.passWord = createSHA3(passWord, this.salt);
         this.rating = 0;
         this.isTrackingActivated = true;
         this.profilePicture = "default";
@@ -104,21 +106,12 @@ public class User extends BaseModel {
 
 
 
-    public String createMD5(String passWord, String salt){
-        try {
-            MessageDigest md5;
-            md5 = MessageDigest.getInstance("MD5");
-            byte[] messageDigest = md5.digest((passWord+salt).getBytes());
-            BigInteger number = new BigInteger(1, messageDigest);
-            String hashtext = number.toString(16);
-            while (hashtext.length() < 32) {
-                hashtext = "0" + hashtext;
-            }
-            return hashtext;
-        } catch (NoSuchAlgorithmException nsae){
-            nsae.printStackTrace();
-        }
-        return null;
+    public String createSHA3(String passWord, String salt){
+
+            final DigestSHA3 sha3 = new Digest256();
+            sha3.update((passWord+salt).getBytes());
+            byte[] digestArray = sha3.digest();
+            return DatatypeConverter.printHexBinary(digestArray);
     }
 
 
