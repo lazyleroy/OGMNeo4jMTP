@@ -6,6 +6,8 @@ package config;
 
 import com.google.api.client.util.Data;
 import entities.GeoLocation;
+import entities.Spot;
+import entities.User;
 import org.neo4j.ogm.json.JSONException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -54,7 +56,63 @@ public class Main {
         x.add(919967042209181L);
         x.add(2635972791352644L);
         DatabaseOperations db = new DatabaseOperations();
-        db.sendGoodybagToUsers(x, "19905L12");
+        //db.sendGoodybagToUsers(x, "19905L12");
+
+        ArrayList<Spot> arrayList = new ArrayList<>();
+
+        arrayList.add(new Spot(1, new HashSet<>()));
+        arrayList.add(new Spot(2, new HashSet<>()));
+        arrayList.add(new Spot(3, new HashSet<>()));
+        arrayList.add(new Spot(4, new HashSet<>()));
+        arrayList.add(new Spot(5, new HashSet<>()));
+        arrayList.add(new Spot(6, new HashSet<>()));
+        arrayList.add(new Spot(7, new HashSet<>()));
+        arrayList.add(new Spot(8, new HashSet<>()));
+        arrayList.add(new Spot(9, new HashSet<>()));
+        arrayList.add(new Spot(10, new HashSet<>()));
+        arrayList.add(new Spot(11, new HashSet<>()));
+        arrayList.add(new Spot(12, new HashSet<>()));
+        arrayList.add(new Spot(13, new HashSet<>()));
+        arrayList.add(new Spot(14, new HashSet<>()));
+        arrayList.add(new Spot(15, new HashSet<>()));
+        arrayList.add(new Spot(16, new HashSet<>()));
+        arrayList.add(new Spot(17, new HashSet<>()));
+        arrayList.add(new Spot(18, new HashSet<>()));
+        arrayList.add(new Spot(19, new HashSet<>()));
+        arrayList.add(new Spot(20, new HashSet<>()));
+        arrayList.add(new Spot(21, new HashSet<>()));
+        arrayList.add(new Spot(22, new HashSet<>()));
+        /*arrayList.add(new Spot(12, new HashSet<>()));
+        arrayList.add(new Spot(13, new HashSet<>()));
+        arrayList.add(new Spot(14, new HashSet<>()));*/
+        arrayList.get(0).getConnectedSpots().add(arrayList.get(1));
+        arrayList.get(1).getConnectedSpots().add(arrayList.get(2));
+        arrayList.get(2).getConnectedSpots().add(arrayList.get(3));
+        arrayList.get(3).getConnectedSpots().add(arrayList.get(4));
+        arrayList.get(4).getConnectedSpots().add(arrayList.get(5));
+        arrayList.get(5).getConnectedSpots().add(arrayList.get(6));
+        arrayList.get(6).getConnectedSpots().add(arrayList.get(7));
+        arrayList.get(7).getConnectedSpots().add(arrayList.get(8));
+        arrayList.get(8).getConnectedSpots().add(arrayList.get(5));
+        arrayList.get(8).getConnectedSpots().add(arrayList.get(9));
+        arrayList.get(9).getConnectedSpots().add(arrayList.get(10));
+        arrayList.get(10).getConnectedSpots().add(arrayList.get(11));
+        arrayList.get(11).getConnectedSpots().add(arrayList.get(12));
+        arrayList.get(12).getConnectedSpots().add(arrayList.get(13));
+        arrayList.get(13).getConnectedSpots().add(arrayList.get(14));
+        arrayList.get(14).getConnectedSpots().add(arrayList.get(15));
+        arrayList.get(14).getConnectedSpots().add(arrayList.get(6));
+        arrayList.get(14).getConnectedSpots().add(arrayList.get(4));
+        arrayList.get(14).getConnectedSpots().add(arrayList.get(9));
+        arrayList.get(15).getConnectedSpots().add(arrayList.get(16));
+        arrayList.get(16).getConnectedSpots().add(arrayList.get(17));
+        arrayList.get(17).getConnectedSpots().add(arrayList.get(18));
+        arrayList.get(18).getConnectedSpots().add(arrayList.get(19));
+        arrayList.get(19).getConnectedSpots().add(arrayList.get(20));
+        arrayList.get(20).getConnectedSpots().add(arrayList.get(21));
+
+
+        //db.test(arrayList);
 
 
 

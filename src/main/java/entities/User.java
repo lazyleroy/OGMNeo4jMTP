@@ -1,18 +1,21 @@
 package entities;
 
 import config.Main;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-import org.bouncycastle.jcajce.provider.digest.SHA3.DigestSHA3;
-import org.bouncycastle.jcajce.provider.digest.SHA3.Digest256;
+//import org.bouncycastle.jcajce.provider.digest.SHA3.DigestSHA3;
+//import org.bouncycastle.jcajce.provider.digest.SHA3.Digest256;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.*;
 
 /**
  * Created by Felix on 11.07.2016.
@@ -41,9 +44,9 @@ public class User extends BaseModel {
     public User(String userName, String emailAddress, String passWord){
         this.userName = userName;
         this.emailAddress = emailAddress;
-        Date date = new Date();
-        this.salt = Long.toString(date.getTime());
-        this.passWord = createSHA3(passWord, this.salt);
+        Date d = new Date();
+        this.salt = Long.toString(d.getTime());
+        this.passWord = createSHA1(passWord, this.salt);
         this.rating = 0;
         this.isTrackingActivated = true;
         this.profilePicture = "default";
@@ -106,12 +109,12 @@ public class User extends BaseModel {
 
 
 
-    public String createSHA3(String passWord, String salt){
-
-            final DigestSHA3 sha3 = new Digest256();
-            sha3.update((passWord+salt).getBytes());
-            byte[] digestArray = sha3.digest();
-            return DatatypeConverter.printHexBinary(digestArray);
+    public String createSHA1(String passWord, String salt){
+        System.out.println(passWord);
+        System.out.println(salt);
+        String result = DigestUtils.sha1Hex(passWord+salt);
+        System.out.print(result);
+        return result;
     }
 
 

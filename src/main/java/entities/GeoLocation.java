@@ -10,14 +10,16 @@ import java.util.Set;
  */
 public class GeoLocation extends BaseModel {
 
-    @Relationship(type = "CONNECTED_WITH", direction = Relationship.UNDIRECTED)
-    private Set<GeoLocation> connectedSpots = new HashSet<>();
+
+    @Relationship(type = "LOCATED_IN", direction = Relationship.UNDIRECTED)
+    private Spot spot;
+    @Relationship(type = "BELONGS_TO", direction = Relationship.UNDIRECTED)
+    private User user;
     private double longitude;
     private double latitude;
     private String title;
     private String address;
     private String GeoLocationID;
-    private long userID;
 
 
     public GeoLocation(double longitude, double latitude, String address, String title) {
@@ -54,10 +56,6 @@ public class GeoLocation extends BaseModel {
         this.GeoLocationID = GeoLocationID;
     }
 
-    public Set<GeoLocation> getConnectedSpots() {
-        return connectedSpots;
-    }
-
     public String getTitle() {
         return title;
     }
@@ -74,7 +72,19 @@ public class GeoLocation extends BaseModel {
         this.address = address;
     }
 
-    public void setUserID(long userID) {
-        this.userID = userID;
+    public Spot getSpot() {
+        return spot;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setSpot(Spot spot) {
+        this.spot = spot;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

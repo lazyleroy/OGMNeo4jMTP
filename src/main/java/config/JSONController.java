@@ -65,11 +65,11 @@ public class JSONController {
         return db.changePassword(password, accessToken);
     }
 
-    /*@RequestMapping(value="storeFirebaseToken", method = RequestMethod.POST)
-    public SimpleAnswer storeFirebaseToken(@RequestHeader(value="accessToken")String accessToken,
+    @RequestMapping(value="storeFirebaseToken", method = RequestMethod.POST)
+    public SimpleAnswer storeFirebaseToken(@RequestHeader(value="refreshToken")String refreshToken,
                                            @RequestParam(value="firebaseToken") String firebaseToken){
-        return db.storeFirebaseToken(accessToken, firebaseToken);
-    }*/
+        return db.storeFirebaseToken(refreshToken, firebaseToken);
+    }
 
 
     @RequestMapping(value = "/sendGoodybagToUsers", method = RequestMethod.POST)
