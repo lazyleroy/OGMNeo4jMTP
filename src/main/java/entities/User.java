@@ -28,18 +28,20 @@ public class User extends BaseModel {
     private String salt;
     private String passWord;
     private static Main main = new Main();
-    private int rating;
+    private double rating;
+    private int cumulatedRatings;
     private boolean isTrackingActivated;
     private GeoLocation location;
     private String profilePicture;
     private long userID;
+    private int numberOfRatings;
     private ArrayList<GeoLocation>startedAt;
 
     @Relationship(type = "WALKS", direction = Relationship.UNDIRECTED)
     private List<Route> routes = new ArrayList<Route>();
 
     @Relationship(type = "OWNS", direction = Relationship.OUTGOING)
-    private List<Goodybag> goodybags = new ArrayList<Goodybag>();
+    private ArrayList<Goodybag> goodybags = new ArrayList<Goodybag>();
 
     public User(String userName, String emailAddress, String passWord){
         this.userName = userName;
@@ -50,6 +52,7 @@ public class User extends BaseModel {
         this.rating = 0;
         this.isTrackingActivated = true;
         this.profilePicture = "default";
+        this.numberOfRatings = 0;
         changeID();
     }
 
@@ -85,10 +88,10 @@ public class User extends BaseModel {
     public void  setSalt(String salt){ this.salt = salt; }
     public String getPassword(){return passWord; }
     public void setPassword(String passWord){this.passWord = passWord;}
-    public int getRating() {
+    public double getRating() {
         return rating;
     }
-    public void setRating(int rating) {
+    public void setRating(double rating) {
         this.rating = rating;
     }
     public boolean isTrackingActivated() {
@@ -110,10 +113,7 @@ public class User extends BaseModel {
 
 
     public String createSHA1(String passWord, String salt){
-        System.out.println(passWord);
-        System.out.println(salt);
         String result = DigestUtils.sha1Hex(passWord+salt);
-        System.out.print(result);
         return result;
     }
 
@@ -130,7 +130,7 @@ public class User extends BaseModel {
         return userID;
     }
 
-    public List<Goodybag> getGoodybags() {
+    public ArrayList<Goodybag> getGoodybags() {
         return goodybags;
     }
 
@@ -141,4 +141,19 @@ public class User extends BaseModel {
         this.startedAt = startedAt;
     }
 
+    public int getNumberOfRatings() {
+        return numberOfRatings;
+    }
+
+    public void setNumberOfRatings(int numberOfRatings) {
+        this.numberOfRatings = numberOfRatings;
+    }
+
+    public int getCumulatedRatings() {
+        return cumulatedRatings;
+    }
+
+    public void setCumulatedRatings(int cumulatedRatings) {
+        this.cumulatedRatings = cumulatedRatings;
+    }
 }

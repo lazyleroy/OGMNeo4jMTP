@@ -27,6 +27,7 @@ import requestAnswers.SimpleAnswer;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -345,12 +346,20 @@ public class DatabaseOperations {
                 }
         }
 
-    public static void retrieveAllGoodybags(String accessToken) {
+    public static ArrayList<Goodybag> retrieveAllGoodybags(String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
-        if (checkAccessToken(accessToken).getSuccess()) {
-            UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
-            List<Goodybag> u = uS.getUser().getGoodybags();
+       Result result = template.query("MATCH(n:UserSession{accessToken:\'"+accessToken+"\'})-[:USER]-(m:User)-[:OWNS]-(t:Goodybag) return t",Collections.EMPTY_MAP, true );
+       Iterator<Map<String, Object>> iterator = result.iterator();
+        ArrayList<Goodybag> goodybags = new ArrayList<>();
+        while(iterator.hasNext()){
+            Map<String, Object> map = iterator.next();
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                if(entry.getValue() instanceof Goodybag){
+                    goodybags.add((Goodybag)entry.getValue());
+                }
+            }
         }
+        return goodybags;
     }
 
     public static void sendGoodybagToUsers(ArrayList<Long> userIDs, String goodybagID) {
@@ -406,35 +415,67 @@ public class DatabaseOperations {
                 }
             }
         }
-
-
     }
 
-    public static void test(ArrayList<Spot> uploadedSpots) {
+    public static SimpleAnswer finishGoodybag(long goodybagID, int rating){
         Neo4jTemplate template = main.createNeo4JTemplate();
-
-        String query = "";
-        int j = 0;
-        for(int i = 0; i < uploadedSpots.size(); i++){
-            j++;
-            Spot spot = uploadedSpots.get(i);
-            query+= "merge(c"+j+":Spot{spotID:"+spot.getSpotID()+"})";
-            String subQuery = "merge(c"+j+":Spot{spotID:"+spot.getSpotID()+"})";
-            Iterator<Spot> spotIterator = spot.getConnectedSpots().iterator();
-            int t = 1;
-            while(spotIterator.hasNext()){
-                j++;
-                Spot connectedSpot = spotIterator.next();
-
-                query+= "merge(c"+j+":Spot{spotID:"+connectedSpot.getSpotID()+"})";
-                query+= "MERGE(c"+(j-t)+")-[:CONNECTED_WITH]-(c"+j+")";
-                t++;
+        try{
+            Goodybag gB = template.loadByProperty(Goodybag.class, "goodybagID", goodybagID);
+            if(gB.getStatus().equals("Done")){
+                return new SimpleAnswer(false, "Goodybag aready done. Cannot rate twice.");
             }
+            gB.setStatus("Done");
+            User u = gB.getUser();
+            u.setNumberOfRatings(u.getNumberOfRatings()+1);
+            u.setCumulatedRatings(u.getCumulatedRatings()+rating);
+            u.setRating((double)(u.getCumulatedRatings())/u.getNumberOfRatings());
+            template.save(gB);
+            return new SimpleAnswer(true, String.valueOf(u.getRating()));
+        }catch(NotFoundException nfe){
+            return new SimpleAnswer(false, "Goodybag does not exist");
         }
-        System.out.println(query);
-        long startTime = System.nanoTime();
-        template.query(query, Collections.EMPTY_MAP);
-        long stopTime = System.nanoTime();
-        System.out.println(stopTime-startTime);
     }
+
+    public static SimpleAnswer test(ArrayList<Spot> uploadedSpots, ArrayList<Waypoint> uploadedWaypoints, String accessToken) {
+        long startTime = System.nanoTime();
+        if (checkAccessToken(accessToken).getSuccess()) {
+            Neo4jTemplate template = main.createNeo4JTemplate();
+            try {
+                User u = template.loadByProperty(UserSession.class, "accessToken", accessToken).getUser();
+
+                String query = "";
+                query += "MERGE(U:User{userID:"+u.getUserID()+"})";
+                int j = 0;
+                for (int i = 0; i < uploadedWaypoints.size(); i++) {
+                    j++;
+                    Spot spot = uploadedWaypoints.get(i).getSpot();
+                    query += "MERGE(W" + j + ":Waypoint{waypointID:" + uploadedWaypoints.get(i).getWaypointID() + "})";
+                    query += "MERGE(S" + j + ":Spot{spotID:" + spot.getSpotID() + "})";
+                    query += "MERGE(U)<-[:USER]-(W"+ j+")-[:LOCATED_IN]-(S"+j+")";
+                    System.out.println(query);
+                    Iterator<Spot> spotIterator = spot.getConnectedSpots().iterator();
+                    int t = 1;
+                    while (spotIterator.hasNext()) {
+                        j++;
+                        Spot connectedSpot = spotIterator.next();
+
+                        query += "MERGE(S" + j + ":Spot{spotID:" + connectedSpot.getSpotID() + "})";
+                        query += "MERGE(S" + (j - t) + ")-[:CONNECTED_WITH]-(S" + j + ")";
+                        t++;
+                    }
+                }
+                System.out.println(query);
+                template.query(query, Collections.EMPTY_MAP);
+                long stopTime = System.nanoTime();
+                System.out.println(stopTime - startTime);
+                return new SimpleAnswer(true);
+            }catch(NotFoundException nfe){
+                return new SimpleAnswer(false, "User could not be found");
+            }
+        }else {
+            return new SimpleAnswer(false, "Invalid AccessToken, refreshToken required");
+        }
+    }
+
+
 }

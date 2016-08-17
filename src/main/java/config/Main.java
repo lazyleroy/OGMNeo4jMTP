@@ -8,6 +8,7 @@ import com.google.api.client.util.Data;
 import entities.GeoLocation;
 import entities.Spot;
 import entities.User;
+import entities.Waypoint;
 import org.neo4j.ogm.json.JSONException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -59,6 +60,7 @@ public class Main {
         //db.sendGoodybagToUsers(x, "19905L12");
 
         ArrayList<Spot> arrayList = new ArrayList<>();
+        ArrayList<Waypoint> waypointArrayList = new ArrayList<>();
 
         arrayList.add(new Spot(1, new HashSet<>()));
         arrayList.add(new Spot(2, new HashSet<>()));
@@ -72,7 +74,7 @@ public class Main {
         arrayList.add(new Spot(10, new HashSet<>()));
         arrayList.add(new Spot(11, new HashSet<>()));
         arrayList.add(new Spot(12, new HashSet<>()));
-        arrayList.add(new Spot(13, new HashSet<>()));
+        /*arrayList.add(new Spot(13, new HashSet<>()));
         arrayList.add(new Spot(14, new HashSet<>()));
         arrayList.add(new Spot(15, new HashSet<>()));
         arrayList.add(new Spot(16, new HashSet<>()));
@@ -86,17 +88,18 @@ public class Main {
         arrayList.add(new Spot(13, new HashSet<>()));
         arrayList.add(new Spot(14, new HashSet<>()));*/
         arrayList.get(0).getConnectedSpots().add(arrayList.get(1));
-        arrayList.get(1).getConnectedSpots().add(arrayList.get(2));
+        arrayList.get(0).getConnectedSpots().add(arrayList.get(2));
+        arrayList.get(1).getConnectedSpots().add(arrayList.get(11));
         arrayList.get(2).getConnectedSpots().add(arrayList.get(3));
         arrayList.get(3).getConnectedSpots().add(arrayList.get(4));
         arrayList.get(4).getConnectedSpots().add(arrayList.get(5));
         arrayList.get(5).getConnectedSpots().add(arrayList.get(6));
-        arrayList.get(6).getConnectedSpots().add(arrayList.get(7));
+        arrayList.get(5).getConnectedSpots().add(arrayList.get(7));
         arrayList.get(7).getConnectedSpots().add(arrayList.get(8));
-        arrayList.get(8).getConnectedSpots().add(arrayList.get(5));
         arrayList.get(8).getConnectedSpots().add(arrayList.get(9));
-        arrayList.get(9).getConnectedSpots().add(arrayList.get(10));
+        arrayList.get(9).getConnectedSpots().add(arrayList.get(11));
         arrayList.get(10).getConnectedSpots().add(arrayList.get(11));
+        /*arrayList.get(10).getConnectedSpots().add(arrayList.get(11));
         arrayList.get(11).getConnectedSpots().add(arrayList.get(12));
         arrayList.get(12).getConnectedSpots().add(arrayList.get(13));
         arrayList.get(13).getConnectedSpots().add(arrayList.get(14));
@@ -109,11 +112,17 @@ public class Main {
         arrayList.get(17).getConnectedSpots().add(arrayList.get(18));
         arrayList.get(18).getConnectedSpots().add(arrayList.get(19));
         arrayList.get(19).getConnectedSpots().add(arrayList.get(20));
-        arrayList.get(20).getConnectedSpots().add(arrayList.get(21));
+        arrayList.get(20).getConnectedSpots().add(arrayList.get(21));*/
+        waypointArrayList.add(new Waypoint(arrayList.get(0), 1L));
+        waypointArrayList.add(new Waypoint(arrayList.get(1), 2L));
+        waypointArrayList.add(new Waypoint(arrayList.get(2), 3L));
+        waypointArrayList.add(new Waypoint(arrayList.get(3), 4L));
+        waypointArrayList.add(new Waypoint(arrayList.get(4), 5L));
+        waypointArrayList.add(new Waypoint(arrayList.get(5), 6L));
 
 
-        //db.test(arrayList);
-
+        //db.test(arrayList,waypointArrayList,"MJeXUrf9cv63X5PBWetsvcP98GiTQ6UAwQRgpgdkrMmfNNMdKibWG7NYfCE0BWoWZKovy8");
+        //db.register(new User("felix","abc@gmx.de","1234"),"abc@gmx.de",null);
 
 
 

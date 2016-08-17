@@ -4,6 +4,8 @@ package config; /**
 
 import EntityWrappers.GoodybagWrapper;
 import EntityWrappers.RouteWrapper;
+import entities.Goodybag;
+import org.neo4j.ogm.json.JSONArray;
 import requestAnswers.LoginAnswer;
 import requestAnswers.RegisterAnswer;
 import entities.User;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import requestAnswers.SimpleAnswer;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 public class JSONController {
@@ -75,5 +78,15 @@ public class JSONController {
     @RequestMapping(value = "/sendGoodybagToUsers", method = RequestMethod.POST)
     public void sendGoodybagToUsers(@RequestParam (value = "userIDs")ArrayList<Long>userIDs, @RequestParam(value="goodyBagID")String goodybagID){
         db.sendGoodybagToUsers(userIDs,goodybagID);
+    }
+
+    @RequestMapping(value="/finishGoodybag", method = RequestMethod.POST)
+    public SimpleAnswer finishGoodybag(@RequestParam(value ="goodybagID")long goodybagID, @RequestParam(value="rating")int rating){
+        return db.finishGoodybag(goodybagID, rating);
+    }
+
+    @RequestMapping(value="/myGoodybags", method = RequestMethod.GET)
+    public @ResponseBody List<Goodybag> retrieveAllGoodybags(@RequestHeader(value="accessToken")String accessToken){
+        return db.retrieveAllGoodybags(accessToken);
     }
 }
