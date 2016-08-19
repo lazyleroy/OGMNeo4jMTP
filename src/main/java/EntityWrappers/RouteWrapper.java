@@ -3,7 +3,6 @@ package EntityWrappers;
 import entities.GeoLocation;
 import entities.Spot;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 /**

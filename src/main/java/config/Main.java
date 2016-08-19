@@ -4,12 +4,8 @@ package config;
  * Created by Felix Hambrecht on 05.07.2016.
  */
 
-import com.google.api.client.util.Data;
-import entities.GeoLocation;
 import entities.Spot;
-import entities.User;
 import entities.Waypoint;
-import org.neo4j.ogm.json.JSONException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.boot.SpringApplication;
@@ -20,7 +16,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 
 @SpringBootApplication
@@ -52,12 +47,12 @@ public class Main {
             }
         }
 
-        ArrayList<Long> x = new ArrayList<Long>();
+        /*ArrayList<Long> x = new ArrayList<Long>();
         x.add(1712652937495941L);
         x.add(919967042209181L);
         x.add(2635972791352644L);
         DatabaseOperations db = new DatabaseOperations();
-        //db.sendGoodybagToUsers(x, "19905L12");
+        //db.sendGoodybagToUsers(x, "19905L12");*/
 
         ArrayList<Spot> arrayList = new ArrayList<>();
         ArrayList<Waypoint> waypointArrayList = new ArrayList<>();

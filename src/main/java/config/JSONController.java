@@ -5,7 +5,6 @@ package config; /**
 import EntityWrappers.GoodybagWrapper;
 import EntityWrappers.RouteWrapper;
 import entities.Goodybag;
-import org.neo4j.ogm.json.JSONArray;
 import requestAnswers.LoginAnswer;
 import requestAnswers.RegisterAnswer;
 import entities.User;

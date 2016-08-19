@@ -2,9 +2,6 @@ package entities;
 
 import org.neo4j.ogm.annotation.Relationship;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * Created by Felix Hambrecht on 11.07.2016.
  */

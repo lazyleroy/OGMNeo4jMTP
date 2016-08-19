@@ -1,52 +1,64 @@
 package config;
 
 import entities.*;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.neo4j.ogm.cypher.BooleanOperator;
-import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.exception.NotFoundException;
-import org.neo4j.ogm.json.JSONException;
-import org.neo4j.ogm.json.JSONObject;
 import org.neo4j.ogm.model.Result;
 import org.springframework.data.neo4j.template.Neo4jTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import requestAnswers.LoginAnswer;
 import requestAnswers.RegisterAnswer;
 import requestAnswers.SimpleAnswer;
-
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-
 import static config.FileUploadController.ROOT;
 
 /**
+ * DatabaseOperations is used to execute operations related to a Database directly on the server.
+ * The functions of this class or mostly called in JSON Controller and FileUploadController of this project
  * Created by Felix on 15.07.2016.
  */
 public class DatabaseOperations {
 
+    /**
+     * Instance of the Main class to create Neo4JTemplates in different functions of the DatabaseOperations class.
+     */
     private static Main main = new Main();
 
+    /**
+     * Types / Extensions that are allowed in the uploadProfilePicture function.
+     * By default jpg, jpeg, bmp, png, gif and svg are allowed.
+     */
     private static String[] mimeTypes = {"jpg", "jpeg", "bmp", "png", "gif", "svg"};
-    public static final int CLIENTID = 49911975;
-    public static final String CLIENTSECRET = "ab02ndls82md9ak";
+    /**
+     * Number that is checked in different functions to verify the sender uses the correct application.
+     * Always used with CLIENTSECRET
+     */
+    private static final int CLIENTID = 49911975;
+    /**
+     * String that is checked in different functions to verify the sender uses the correct application.
+     * Always used with CLIENTID.
+     */
+    private static final String CLIENTSECRET = "ab02ndls82md9ak";
 
 
-    public static RegisterAnswer register(User u, String emailAddress, String firebaseToken) {
+    /**
+     * Method to register a user on the database. Returns false + reason if the chosen email is already bound to
+     * another user on the database.
+     * @param user the user that is to be stored
+     * @param emailAddress email of the user. Is checked against duplicates on the database
+     * @param firebaseToken Token that is required for pushNotifications later on. Stored together with the user.
+     * @return RegisterAnswer consists of false and a reason if the registration fails. If the registration process
+     * succeeds the RegisterAnswer will consist of true, refreshToken, accessToken + their expiry dates.
+     */
+    public static RegisterAnswer register(User user, String emailAddress, String firebaseToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         try {
             User t = template.loadByProperty(User.class, "emailAddress", emailAddress);
@@ -56,18 +68,18 @@ public class DatabaseOperations {
             template.clear();
 
             try {
+                //noinspection InfiniteLoopStatement
                 while (true) {
-                    User t = template.loadByProperty(User.class, "userID", u.getUserID());
-                    u.changeID();
-                    continue;
+                    User t = template.loadByProperty(User.class, "userID", user.getUserID());
+                    user.changeID();
                 }
             } catch (NotFoundException e) {
-                UserSession uS = new UserSession(u);
-                Cookie c = new Cookie(u);
+                UserSession uS = new UserSession(user);
+                Cookie c = new Cookie(user);
                 if (firebaseToken != null) {
                     FirebaseToken fT = new FirebaseToken(firebaseToken, c);
                     c.setFirebaseToken(fT);
-                    template.save(u);
+                    template.save(user);
                     template.save(fT);
                 }
 
@@ -80,6 +92,14 @@ public class DatabaseOperations {
         }
     }
 
+    /**
+     * Checks the expiry date and the correctness of an accesstoken of a user. This function is used in other functions
+     * to verify a user and grant rights for further database operations.
+     * @param accesstoken The token sent by the user to verify himself
+     * @return SimpleAnswer will either return false, "Invalid AccessToken, refreshToken required" if the accessToken
+     * is wrong or expired, or simply holds true if everything is ok.
+     */
+    @SuppressWarnings("WeakerAccess")
     public static SimpleAnswer checkAccessToken(String accesstoken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         long timestamp = new Date().getTime();
@@ -95,6 +115,17 @@ public class DatabaseOperations {
             return new SimpleAnswer(false, "Invalid accessToken, refreshTokenLogin required");
         }
     }
+
+    /**
+     * This function uses the credentials of a user to login and to create an accesstoken and a refreshtoken for the user
+     * for further verification.
+     * @param email the email of the user
+     * @param password the password of the user
+     * @param firebaseToken token that will be stored if the user exists. If the token was not stored during the registration
+     *                      process it will be stored in this function call.
+     * @return returns false + reason if email or password are incorrect. Returns true, accesstoken refreshtoken + their
+     * expiry dates if the login was successful.
+     */
 
     public static LoginAnswer emailLogin(String email, String password, String firebaseToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
@@ -121,6 +152,15 @@ public class DatabaseOperations {
         }
     }
 
+    /**
+     * Verifies a user via his refreshtoken + clientID + clientSecret
+     * @param refreshToken token that verifies the user
+     * @param clientID ID of the app. Verifies that the request was sent from the correct application
+     * @param clientSecret ID of the app. Verifies that the request was sent from the correct application
+     * @return RegisterAnswer consists of false + a reason if one or multiple of the params are incorrect
+     * RegisterAnswer returns true, + a new accesstoken + old refreshtoken + their expiry dates if the call was successful.
+     */
+
     public static RegisterAnswer refreshTokenLogin(String refreshToken, int clientID, String clientSecret) {
         if (clientID != CLIENTID || !(clientSecret.equals(CLIENTSECRET))) {
             return new RegisterAnswer(false, "Client - Credentials wrong.");
@@ -142,26 +182,40 @@ public class DatabaseOperations {
         }
     }
 
+    /**
+     * Changes username and / or email of a User.
+     * @param userName String that shall be the new username of the user
+     * @param email String that shall be the new username of the user. Email is a unique value and can only exist once in the database
+     * @param accessToken token to verify the user
+     * @return SimpleAnswer consists of false + reason if the new email is already present on the database or if the accesstoken is
+     * invalid (due to expiry date or wrong spelling). SimpleAnswer consists of true + the updated values if everything was ok.
+     *
+     */
     public static SimpleAnswer updateProfile(String userName, String email, String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
-        if (checkAccessToken(accessToken).getSuccess()) {
-            try {
-                UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
-                User u = uS.getUser();
-                if (userName != null) {
-                    u.setUserName(userName);
+        try{
+            User u = template.loadByProperty(User.class, "emailAddress", email);
+            return new SimpleAnswer(false, "Email already exists. Chose another one");
+        }catch(NotFoundException nfe) {
+            if (checkAccessToken(accessToken).getSuccess()) {
+                try {
+                    UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
+                    User u = uS.getUser();
+                    if (userName != null) {
+                        u.setUserName(userName);
+                    }
+                    if (email != null) {
+                        u.setEmailAddress(email);
+                    }
+                    template.save(u);
+                    return new SimpleAnswer(true, "values updated: " + userName + " " + email);
+                } catch (NotFoundException nfe2) {
+                    return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
                 }
-                if (email != null) {
-                    u.setEmailAddress(email);
-                }
-                template.save(u);
-                return new SimpleAnswer(true, "values updated: " + userName + " " + email);
-            } catch (NotFoundException nfe) {
-                return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
-            }
-        } else return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
-
+            } else return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
+        }
     }
+
 
     public static SimpleAnswer uploadGoodybag(String title, String status, String description,
                                               double tip, long deliverTime, GeoLocation deliverLocation,
@@ -170,16 +224,17 @@ public class DatabaseOperations {
         if (checkAccessToken(accessToken).getSuccess()) {
             try {
                 UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
+                Date d = new Date();
                 if (title == null) {
                     title = "Goodybag";
                 }
                 if (status == null) {
                     status = "Not Accepted";
                 }
-                if (deliverTime == 0) {
+                if (deliverTime <= d.getTime()) {
                     deliverTime = 0;
                 }
-                if (description == null || deliverLocation == null || tip < 0 || shopLocation == null) {
+                if (description.equals("") || deliverLocation == null || tip < 0 || shopLocation == null) {
                     return new SimpleAnswer(false, "Important value missing (description / deliverLocation / shopLocation)");
                 }
                 while (true) {
@@ -187,7 +242,6 @@ public class DatabaseOperations {
                     gB.changeID();
                     try {
                         Goodybag goodyBag = template.loadByProperty(Goodybag.class, "goodyBagID", gB.getGoodybagID());
-                        continue;
                     } catch (NotFoundException nfe) {
 
                         uS.getUser().getGoodybags().add(gB);
@@ -202,84 +256,7 @@ public class DatabaseOperations {
     }
 
 
-    public static SimpleAnswer uploadRoute(Map<GeoLocation, Spot> route, String accessToken) {
-        Neo4jTemplate template = main.createNeo4JTemplate();
 
-        if (checkAccessToken(accessToken).getSuccess()) {
-
-            /*try {
-
-                UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
-
-                Collection<GeoLocation> collection = template.loadAllByProperty(GeoLocation.class, "userID", uS.getUser().getUserID());
-                ArrayList<GeoLocation> gL = new ArrayList<>(collection);
-                long stopTime = System.nanoTime();
-                System.out.println(stopTime - startTime);
-                for(int i = 0; i < gL.size(); i++){
-                    System.out.println(gL.get(i).getGeoLocationID());
-                }
-
-                for(int j = 0; j < routes.size(); j++){
-                    routes.get(j).setGeoLocationID(Double.toString(routes.get(j).getLatitude())+
-                            Double.toString(routes.get(j).getLongitude()));
-                    routes.get(j).setUserID(uS.getUser().getUserID());
-                    routes.get(j).setAddress("default");
-                    routes.get(j).setTitle("default");
-                }
-                for(int i = 0; i<routes.size(); i++){
-
-                    try{
-
-                        GeoLocation gL1 = template.loadByProperty(GeoLocation.class, "geoLocationID",routes.get(i).getGeoLocationID());
-                        try{
-                            if(i != routes.size()-1) {
-
-                                GeoLocation gL2 = template.loadByProperty(GeoLocation.class, "geoLocationID", routes.get(i + 1).getGeoLocationID());
-                                if(!(gL1.getConnectedSpots().contains(gL2))){
-                                    System.out.println("Knoten nicht vorhanden Füge Knoten "+ " " +i+1+ " hinzu");
-                                    gL2.getConnectedSpots().add(gL1);
-                                    gL1.getConnectedSpots().add(gL2);
-                                    template.save(gL2, 1);
-                                }
-                            }
-                        }catch(NotFoundException nfe){
-                            routes.get(i+1).getConnectedSpots().add(gL1);
-                            gL1.getConnectedSpots().add(routes.get(i+1));
-                            template.save(gL1, 1);
-                        }
-
-                    }catch(NotFoundException nfe){
-                        if(i==0){
-                            if(uS.getUser().getStartedAt()==null){
-                                ArrayList<GeoLocation> startedAt = new ArrayList<GeoLocation>();
-                                startedAt.add(routes.get(i));
-                                uS.getUser().setStartedAt(startedAt);
-                                template.save(uS.getUser());
-                            }else {
-                                uS.getUser().getStartedAt().add(routes.get(i));
-                                template.save(uS.getUser());
-                            }
-                        }else{
-                            try{
-
-                                    GeoLocation gL2 = template.loadByProperty(GeoLocation.class, "geoLocationID", routes.get(i - 1).getGeoLocationID());
-                                    gL2.getConnectedSpots().add(routes.get(i));
-                                    template.save(gL2, 1);
-                            }catch(NotFoundException nf){
-                                System.out.println(routes.get(i-1).getGeoLocationID());
-                            }
-                         }
-                    }
-                }
-
-                return new SimpleAnswer(true, "Spots updated");
-            } catch (NotFoundException nfe) {
-                return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
-
-            }*/
-        } else return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
-        return new SimpleAnswer(true);
-    }
 
     public static SimpleAnswer uploadProfilePicture(MultipartFile file, String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
@@ -291,6 +268,7 @@ public class DatabaseOperations {
                     User u = uS.getUser();
                     Files.deleteIfExists(Paths.get(ROOT, u.getProfilePicture()));
                     String[] extension = file.getOriginalFilename().split("\\.");
+                    //noinspection ForLoopReplaceableByForEach
                     for (int i = 0; i < mimeTypes.length; i++) {
                         if (mimeTypes[i].equals(extension[extension.length - 1])) {
                             u.setProfilePicture(u.getUserID() + "." + extension[extension.length - 1]);
@@ -353,6 +331,7 @@ public class DatabaseOperations {
         ArrayList<Goodybag> goodybags = new ArrayList<>();
         while(iterator.hasNext()){
             Map<String, Object> map = iterator.next();
+            //noinspection Convert2streamapi
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 if(entry.getValue() instanceof Goodybag){
                     goodybags.add((Goodybag)entry.getValue());
@@ -373,11 +352,12 @@ public class DatabaseOperations {
                 query += userIDs.get(i).toString() + ",";
             }
         }
-        ArrayList<String> firebaseTokens = new ArrayList<String>();
+        ArrayList<String> firebaseTokens = new ArrayList<>();
         String firebaseToken = "";
         String refreshToken;
         Result r = template.query("match (x:FirebaseToken)-[:COOKIE]->(y:Cookie)-[:USER]->(n:User) where n.userID IN[" + query + "] return x,y", Collections.EMPTY_MAP, true);
         Iterator<Map<String, Object>> iterator = r.iterator();
+        //noinspection WhileLoopReplaceableByForEach
         while (iterator.hasNext()) {
             Map<String, Object> i = iterator.next();
             for (Map.Entry<String, Object> entry : i.entrySet()) {
@@ -406,8 +386,6 @@ public class DatabaseOperations {
                         HttpResponse response = httpClient.execute(post);
                         System.out.println(EntityUtils.toString(response.getEntity()));
 
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -436,7 +414,7 @@ public class DatabaseOperations {
         }
     }
 
-    public static SimpleAnswer test(ArrayList<Spot> uploadedSpots, ArrayList<Waypoint> uploadedWaypoints, String accessToken) {
+    public static SimpleAnswer test(ArrayList<Waypoint> uploadedWaypoints, String accessToken) {
         long startTime = System.nanoTime();
         if (checkAccessToken(accessToken).getSuccess()) {
             Neo4jTemplate template = main.createNeo4JTemplate();
@@ -446,6 +424,7 @@ public class DatabaseOperations {
                 String query = "";
                 query += "MERGE(U:User{userID:"+u.getUserID()+"})";
                 int j = 0;
+                //noinspection ForLoopReplaceableByForEach
                 for (int i = 0; i < uploadedWaypoints.size(); i++) {
                     j++;
                     Spot spot = uploadedWaypoints.get(i).getSpot();

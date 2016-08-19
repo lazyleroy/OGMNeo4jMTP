@@ -6,15 +6,6 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 //import org.bouncycastle.jcajce.provider.digest.SHA3.DigestSHA3;
 //import org.bouncycastle.jcajce.provider.digest.SHA3.Digest256;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.xml.bind.DatatypeConverter;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
 import java.util.*;
 
 /**
@@ -113,8 +104,7 @@ public class User extends BaseModel {
 
 
     public String createSHA1(String passWord, String salt){
-        String result = DigestUtils.sha1Hex(passWord+salt);
-        return result;
+        return DigestUtils.sha1Hex(passWord+salt);
     }
 
 
