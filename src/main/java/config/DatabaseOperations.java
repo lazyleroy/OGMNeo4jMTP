@@ -95,7 +95,7 @@ public class DatabaseOperations {
     /**
      * Checks the expiry date and the correctness of an accesstoken of a user. This function is used in other functions
      * to verify a user and grant rights for further database operations.
-     * @param accesstoken The token sent by the user to verify himself
+     * @param accesstoken token to verify the user
      * @return SimpleAnswer will either return false, "Invalid AccessToken, refreshToken required" if the accessToken
      * is wrong or expired, or simply holds true if everything is ok.
      */
@@ -153,8 +153,8 @@ public class DatabaseOperations {
     }
 
     /**
-     * Verifies a user via his refreshtoken + clientID + clientSecret
-     * @param refreshToken token that verifies the user
+     * Verifies a user via his refreshtoken + clientID + clientSecret.
+     * @param refreshToken token to verify the user
      * @param clientID ID of the app. Verifies that the request was sent from the correct application
      * @param clientSecret ID of the app. Verifies that the request was sent from the correct application
      * @return RegisterAnswer consists of false + a reason if one or multiple of the params are incorrect
@@ -216,7 +216,19 @@ public class DatabaseOperations {
         }
     }
 
-
+    /**
+     * Core function of the application. This function creates a goodybag and links it to a user on the database.
+     * @param title the title of the goodybag
+     * @param status the status of a goodybag. Represents if a goodybag is already taken, done, matched,...
+     * @param description holds information about what the creator of the goodybag needs
+     * @param tip amount of money the creator is ready to pay for the delivery of the described goods
+     * @param deliverTime point of time until when the creator wants the goodybag to be delivered
+     * @param deliverLocation the location the creator wants the goodybag to be delivered to
+     * @param shopLocation the location of the shop from where the goods shall be bought
+     * @param accessToken the token to verify a user and enable the creationg of a goodybag
+     * @return depending on missing or wrong input this method will return a SimpleAnswer holding false + reason
+     * what went wrong on the creation process. The SimpleAnswer holds true if the process worked.
+     */
     public static SimpleAnswer uploadGoodybag(String title, String status, String description,
                                               double tip, long deliverTime, GeoLocation deliverLocation,
                                               GeoLocation shopLocation, String accessToken) {
@@ -255,9 +267,14 @@ public class DatabaseOperations {
         } else return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
     }
 
-
-
-
+    /**
+     * A simple function to upload a picture and store it in the database. Only files with a size of 10MB will be accepted.
+     * In addition this method will only accept files with the following file-extensions: "jpg", "jpeg", "bmp", "png", "gif", "svg".
+     * @param file the file that is to be uploaded to the database
+     * @param accessToken token to verify the user
+     * @return The returned SimpleAnswer holds true and the filename of the uploaded picture if the process is successful.
+     * The returned SimpleAnswer holds wrong and a reason if something went wrong.
+     */
     public static SimpleAnswer uploadProfilePicture(MultipartFile file, String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         if (checkAccessToken(accessToken).getSuccess()) {
@@ -291,6 +308,12 @@ public class DatabaseOperations {
         }
     }
 
+    /**
+     * This function changes the password of a user.
+     * @param password the new password of the user
+     * @param accessToken token to verify the password
+     * @return returns a SimpleAnswer with true or a SimpleAnswer holding false + a reason in case of an invalid refreshToken
+     */
     public static SimpleAnswer changePassword(String password, String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         if (checkAccessToken(accessToken).getSuccess()) {
@@ -308,7 +331,14 @@ public class DatabaseOperations {
         } else return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
     }
 
-           public static SimpleAnswer storeFirebaseToken(String refreshToken, String fireBaseToken){
+    /**
+     * Explicitly stores a firebasetoken of a user if it has not already been uploaded during the login or refreshtokenlogin.
+     * @param refreshToken token to verify a user.
+     * @param fireBaseToken the token that is to be saved on the database. Will be linked to the cookie of a user.
+     * @return A SimpleAnswer holding false + reason if a firebasetoken already exists or if the given refreshtoken does not exist.
+     * A SimpleAnwer holding true if everything worked.
+     */
+    public static SimpleAnswer storeFirebaseToken(String refreshToken, String fireBaseToken){
             Neo4jTemplate template = main.createNeo4JTemplate();
                 try{
                     Cookie c = template.loadByProperty(Cookie.class, "refreshToken", refreshToken);
@@ -324,6 +354,12 @@ public class DatabaseOperations {
                 }
         }
 
+
+    /**
+     * Function to return all goodybags that are linked to a unique user.
+     * @param accessToken token to verfiy the unique user
+     * @return returns an ArrayList of Goodybags.
+     */
     public static ArrayList<Goodybag> retrieveAllGoodybags(String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
        Result result = template.query("MATCH(n:UserSession{accessToken:\'"+accessToken+"\'})-[:USER]-(m:User)-[:OWNS]-(t:Goodybag) return t",Collections.EMPTY_MAP, true );
@@ -341,6 +377,12 @@ public class DatabaseOperations {
         return goodybags;
     }
 
+    /**
+     * Function to send a goodybag to a variable number of users via a push notification. The purpose of this method is to
+     * send a matched goodybag to different users.
+     * @param userIDs the IDs of the users who shall be notificated
+     * @param goodybagID the ID of the matched goodybag
+     */
     public static void sendGoodybagToUsers(ArrayList<Long> userIDs, String goodybagID) {
 
         Neo4jTemplate template = main.createNeo4JTemplate();
@@ -395,22 +437,37 @@ public class DatabaseOperations {
         }
     }
 
-    public static SimpleAnswer finishGoodybag(long goodybagID, int rating){
-        Neo4jTemplate template = main.createNeo4JTemplate();
-        try{
-            Goodybag gB = template.loadByProperty(Goodybag.class, "goodybagID", goodybagID);
-            if(gB.getStatus().equals("Done")){
-                return new SimpleAnswer(false, "Goodybag aready done. Cannot rate twice.");
+    /**
+     * Function to rate a user and to set a goodybags status to "Done".
+     * @param goodybagID the ID of the finished goodybag
+     * @param rating number between 1 and 5 to rate the shopper of the goodybag.
+     * @return A SimpleAnswer holding false + reason if the goodybags status is already set on "Done" or if the goodybag does not exist
+     * A Simple Answer holding true if everything worked.
+     */
+    public static SimpleAnswer finishGoodybag(long goodybagID, int rating, String accessToken) {
+        if (checkAccessToken(accessToken).getSuccess()) {
+            Neo4jTemplate template = main.createNeo4JTemplate();
+            try {
+                Goodybag gB = template.loadByProperty(Goodybag.class, "goodybagID", goodybagID);
+                if (gB.getStatus().equals("Done")) {
+                    return new SimpleAnswer(false, "Goodybag aready done. Cannot rate twice.");
+                }
+                if (rating >5){
+                    gB.setStatus("Done");
+                    return new SimpleAnswer(true);
+                }
+                gB.setStatus("Done");
+                User u = gB.getUser();
+                u.setNumberOfRatings(u.getNumberOfRatings() + 1);
+                u.setCumulatedRatings(u.getCumulatedRatings() + rating);
+                u.setRating((double) (u.getCumulatedRatings()) / u.getNumberOfRatings());
+                template.save(gB);
+                return new SimpleAnswer(true, String.valueOf(u.getRating()));
+            } catch (NotFoundException nfe) {
+                return new SimpleAnswer(false, "Goodybag does not exist");
             }
-            gB.setStatus("Done");
-            User u = gB.getUser();
-            u.setNumberOfRatings(u.getNumberOfRatings()+1);
-            u.setCumulatedRatings(u.getCumulatedRatings()+rating);
-            u.setRating((double)(u.getCumulatedRatings())/u.getNumberOfRatings());
-            template.save(gB);
-            return new SimpleAnswer(true, String.valueOf(u.getRating()));
-        }catch(NotFoundException nfe){
-            return new SimpleAnswer(false, "Goodybag does not exist");
+        }else {
+            return new SimpleAnswer(false, "Invalid Accesstoken");
         }
     }
 

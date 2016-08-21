@@ -28,11 +28,6 @@ public class Spot extends BaseModel {
     public Spot(){
     }
 
-
-
-
-
-
     public long getSpotID() {
         return spotID;
     }

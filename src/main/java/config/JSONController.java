@@ -54,12 +54,12 @@ public class JSONController {
                 params.getDeliverTime(), params.getDeliverLocation(), params.getShopLocation(), accessToken);
     }
 
-    @RequestMapping(value="/uploadRoute", method = RequestMethod.POST)
+    /*@RequestMapping(value="/uploadRoute", method = RequestMethod.POST)
     public SimpleAnswer uploadRoute(
 
             @RequestBody RouteWrapper route, @RequestHeader(value = "accessToken") String accessToken){
         return db.uploadRoute(route.getRoute(), accessToken);
-    }
+    }*/
 
     @RequestMapping(value="/changePassword", method = RequestMethod.POST)
     public SimpleAnswer changePassword(@RequestParam(value="password")String password,
@@ -80,11 +80,11 @@ public class JSONController {
     }
 
     @RequestMapping(value="/finishGoodybag", method = RequestMethod.POST)
-    public SimpleAnswer finishGoodybag(@RequestParam(value ="goodybagID")long goodybagID, @RequestParam(value="rating")int rating){
-        return db.finishGoodybag(goodybagID, rating);
+    public SimpleAnswer finishGoodybag(@RequestHeader(value="accessToken") String accessToken,@RequestParam(value ="goodybagID")long goodybagID, @RequestParam(value="rating")int rating){
+        return db.finishGoodybag(goodybagID, rating, accessToken);
     }
 
-    @RequestMapping(value="/myGoodybags", method = RequestMethod.GET)
+    @RequestMapping(value="/myGoodybags", method = RequestMethod.POST)
     public @ResponseBody List<Goodybag> retrieveAllGoodybags(@RequestHeader(value="accessToken")String accessToken){
         return db.retrieveAllGoodybags(accessToken);
     }
