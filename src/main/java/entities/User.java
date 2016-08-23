@@ -34,6 +34,7 @@ public class User extends BaseModel {
     @Relationship(type = "OWNS", direction = Relationship.OUTGOING)
     private ArrayList<Goodybag> goodybags = new ArrayList<Goodybag>();
 
+
     public User(String userName, String emailAddress, String passWord){
         this.userName = userName;
         this.emailAddress = emailAddress;
@@ -52,6 +53,9 @@ public class User extends BaseModel {
         String c = "";
         for (int i = 1; i<17; i++){
             int rv = r.nextInt(10);
+            if(i == 1){
+                rv = r.nextInt(9);
+            }
             c+= rv;
         }
         this.userID = Long.parseLong(c);
@@ -146,4 +150,6 @@ public class User extends BaseModel {
     public void setCumulatedRatings(int cumulatedRatings) {
         this.cumulatedRatings = cumulatedRatings;
     }
+
+
 }

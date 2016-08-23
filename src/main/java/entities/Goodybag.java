@@ -1,5 +1,8 @@
 package entities;
 
+import org.neo4j.ogm.annotation.Relationship;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 
@@ -22,6 +25,9 @@ public class Goodybag extends BaseModel{
     private long goodybagID;
     private User user;
 
+    @Relationship(type = "MATCHED_TO", direction = Relationship.OUTGOING)
+    private ArrayList<User> matchedUsers = new ArrayList<>();
+
     public Goodybag(){
     }
 
@@ -40,7 +46,7 @@ public class Goodybag extends BaseModel{
         this.shopLocation = shopLocation;
         this.user = user;
 
-            }
+    }
 
 
      public void changeID(){
@@ -48,6 +54,9 @@ public class Goodybag extends BaseModel{
          String c = "";
          for (int i = 1; i<17; i++){
              int rv = r.nextInt(10);
+             if(i == 1){
+                 rv = r.nextInt(9);
+             }
              c+= rv;
          }
          this.goodybagID = Long.parseLong(c);
@@ -133,5 +142,9 @@ public class Goodybag extends BaseModel{
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public ArrayList<User> getMatchedUsers() {
+        return matchedUsers;
     }
 }

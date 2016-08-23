@@ -54,7 +54,7 @@ public class Main {
         DatabaseOperations db = new DatabaseOperations();
         //db.sendGoodybagToUsers(x, "19905L12");*/
 
-        ArrayList<Spot> arrayList = new ArrayList<>();
+        /*ArrayList<Spot> arrayList = new ArrayList<>();
         ArrayList<Waypoint> waypointArrayList = new ArrayList<>();
 
         arrayList.add(new Spot(1, new HashSet<>()));
@@ -69,7 +69,7 @@ public class Main {
         arrayList.add(new Spot(10, new HashSet<>()));
         arrayList.add(new Spot(11, new HashSet<>()));
         arrayList.add(new Spot(12, new HashSet<>()));
-        /*arrayList.add(new Spot(13, new HashSet<>()));
+        arrayList.add(new Spot(13, new HashSet<>()));
         arrayList.add(new Spot(14, new HashSet<>()));
         arrayList.add(new Spot(15, new HashSet<>()));
         arrayList.add(new Spot(16, new HashSet<>()));
@@ -81,7 +81,7 @@ public class Main {
         arrayList.add(new Spot(22, new HashSet<>()));
         /*arrayList.add(new Spot(12, new HashSet<>()));
         arrayList.add(new Spot(13, new HashSet<>()));
-        arrayList.add(new Spot(14, new HashSet<>()));*/
+        arrayList.add(new Spot(14, new HashSet<>()));
         arrayList.get(0).getConnectedSpots().add(arrayList.get(1));
         arrayList.get(0).getConnectedSpots().add(arrayList.get(2));
         arrayList.get(1).getConnectedSpots().add(arrayList.get(11));
@@ -107,18 +107,23 @@ public class Main {
         arrayList.get(17).getConnectedSpots().add(arrayList.get(18));
         arrayList.get(18).getConnectedSpots().add(arrayList.get(19));
         arrayList.get(19).getConnectedSpots().add(arrayList.get(20));
-        arrayList.get(20).getConnectedSpots().add(arrayList.get(21));*/
+        arrayList.get(20).getConnectedSpots().add(arrayList.get(21));
         waypointArrayList.add(new Waypoint(arrayList.get(0), 1L));
         waypointArrayList.add(new Waypoint(arrayList.get(1), 2L));
         waypointArrayList.add(new Waypoint(arrayList.get(2), 3L));
         waypointArrayList.add(new Waypoint(arrayList.get(3), 4L));
         waypointArrayList.add(new Waypoint(arrayList.get(4), 5L));
-        waypointArrayList.add(new Waypoint(arrayList.get(5), 6L));
+        waypointArrayList.add(new Waypoint(arrayList.get(5), 6L));*/
 
 
         //db.test(arrayList,waypointArrayList,"MJeXUrf9cv63X5PBWetsvcP98GiTQ6UAwQRgpgdkrMmfNNMdKibWG7NYfCE0BWoWZKovy8");
         //db.register(new User("felix","abc@gmx.de","1234"),"abc@gmx.de",null);
-
+        ArrayList<String> userIDs = new ArrayList<>();
+        userIDs.add("3015889670584973");
+        userIDs.add("2609054028101385");
+        userIDs.add("3298671247787562");
+        userIDs.add("9455440145628192");
+        //DatabaseOperations.matching(userIDs, 4726992368837059L);
 
 
 

@@ -85,7 +85,12 @@ public class JSONController {
     }
 
     @RequestMapping(value="/myGoodybags", method = RequestMethod.POST)
-    public @ResponseBody List<Goodybag> retrieveAllGoodybags(@RequestHeader(value="accessToken")String accessToken){
-        return db.retrieveAllGoodybags(accessToken);
+    public @ResponseBody List<Goodybag> myGoodybags(@RequestHeader(value="accessToken")String accessToken){
+        return db.myGoodybags(accessToken);
     }
+    @RequestMapping(value = "/myMatchedGoodybags", method = RequestMethod.POST)
+    public @ResponseBody List<Goodybag> myMatchedGoodybags(@RequestHeader(value="accessToken")String accessToken){
+        return db.matchedGoodybags(accessToken);
+    }
+
 }

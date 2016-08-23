@@ -122,7 +122,8 @@ public class DatabaseOperations {
      * @param email the email of the user
      * @param password the password of the user
      * @param firebaseToken token that will be stored if the user exists. If the token was not stored during the registration
-     *                      process it will be stored in this function call.
+     *                      process it will be stored in this function call. If the firebaseToken already exists it will be bound
+     *                      to the newly created refreshToken.
      * @return returns false + reason if email or password are incorrect. Returns true, accesstoken refreshtoken + their
      * expiry dates if the login was successful.
      */
@@ -137,8 +138,15 @@ public class DatabaseOperations {
             Cookie c = new Cookie(u);
             if (hash.equals(u.getPassword())) {
                 if (firebaseToken != null) {
-                    FirebaseToken fT = new FirebaseToken(firebaseToken, c);
-                    template.save(fT);
+                    try{
+                        FirebaseToken fT0 = template.loadByProperty(FirebaseToken.class, "token", firebaseToken);
+                        fT0.setUser(c);
+                        template.save(fT0);
+                    }catch(NotFoundException nfe){
+                        FirebaseToken fT = new FirebaseToken(firebaseToken, c);
+                        template.save(fT);
+                    }
+
                 }
 
                 template.save(uS);
@@ -244,6 +252,8 @@ public class DatabaseOperations {
                     status = "Not Accepted";
                 }
                 if (deliverTime <= d.getTime()) {
+                    System.out.println(d.getTime());
+                    System.out.println(deliverTime);
                     deliverTime = 0;
                 }
                 if (description.equals("") || deliverLocation == null || tip < 0 || shopLocation == null) {
@@ -360,21 +370,45 @@ public class DatabaseOperations {
      * @param accessToken token to verfiy the unique user
      * @return returns an ArrayList of Goodybags.
      */
-    public static ArrayList<Goodybag> retrieveAllGoodybags(String accessToken) {
-        Neo4jTemplate template = main.createNeo4JTemplate();
-       Result result = template.query("MATCH(n:UserSession{accessToken:\'"+accessToken+"\'})-[:USER]-(m:User)-[:OWNS]-(t:Goodybag) return t",Collections.EMPTY_MAP, true );
-       Iterator<Map<String, Object>> iterator = result.iterator();
-        ArrayList<Goodybag> goodybags = new ArrayList<>();
-        while(iterator.hasNext()){
-            Map<String, Object> map = iterator.next();
-            //noinspection Convert2streamapi
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
-                if(entry.getValue() instanceof Goodybag){
-                    goodybags.add((Goodybag)entry.getValue());
+    public static ArrayList<Goodybag> myGoodybags(String accessToken) {
+        if(checkAccessToken(accessToken).getSuccess()) {
+            Neo4jTemplate template = main.createNeo4JTemplate();
+            Date d = new Date();
+            long timestamp = d.getTime();
+            Result result = template.query("MATCH(n:UserSession{accessToken:\'" + accessToken + "\'})-[:USER]-(m:User)-[:OWNS]-(t:Goodybag)" +
+                    "MATCH(t:Goodybag)-[:DELIVER_LOCATION]-(k:GeoLocation) " +
+                    "MATCH(t:Goodybag)-[:SHOP_LOCATION]-(r:GeoLocation)return t,k,r", Collections.EMPTY_MAP, true);
+
+            Iterator<Map<String, Object>> iterator = result.iterator();
+            ArrayList<Goodybag> goodybags = new ArrayList<>();
+            int i = 0;
+            while (iterator.hasNext()) {
+                boolean j = true;
+                Map<String, Object> map = iterator.next();
+                //noinspection Convert2streamapi
+                for (Map.Entry<String, Object> entry : map.entrySet()) {
+                    if (entry.getValue() instanceof Goodybag) {
+                        if (((Goodybag) entry.getValue()).getDeliverTime() < timestamp || ((Goodybag) entry.getValue()).getStatus().equals("Done")) {
+                            template.delete(map.get("k"));
+                            template.delete(map.get("r"));
+                            template.delete((Goodybag) entry.getValue());
+                            break;
+                        }
+                        goodybags.add((Goodybag) entry.getValue());
+                    }
+                    if (entry.getValue() instanceof GeoLocation && j) {
+                        goodybags.get(i).setDeliverLocation((GeoLocation) entry.getValue());
+                        j = false;
+                        continue;
+                    }
+                    if (entry.getValue() instanceof GeoLocation && !j) {
+                        goodybags.get(i).setShopLocation((GeoLocation) entry.getValue());
+                    }
                 }
             }
+            return goodybags;
         }
-        return goodybags;
+        return new ArrayList<>();
     }
 
     /**
@@ -386,6 +420,7 @@ public class DatabaseOperations {
     public static void sendGoodybagToUsers(ArrayList<Long> userIDs, String goodybagID) {
 
         Neo4jTemplate template = main.createNeo4JTemplate();
+        Goodybag gB = template.loadByProperty(Goodybag.class, "goodybagID", goodybagID);
         String query = "";
         for (int i = 0; i < userIDs.size(); i++) {
             if (i == userIDs.size() - 1) {
@@ -397,14 +432,18 @@ public class DatabaseOperations {
         ArrayList<String> firebaseTokens = new ArrayList<>();
         String firebaseToken = "";
         String refreshToken;
-        Result r = template.query("match (x:FirebaseToken)-[:COOKIE]->(y:Cookie)-[:USER]->(n:User) where n.userID IN[" + query + "] return x,y", Collections.EMPTY_MAP, true);
+        Result r = template.query("match (x:FirebaseToken)-[:COOKIE]->(y:Cookie)-[:USER]->(n:User) where n.userID IN[" + query + "] return x,y,n", Collections.EMPTY_MAP, true);
         Iterator<Map<String, Object>> iterator = r.iterator();
         //noinspection WhileLoopReplaceableByForEach
         while (iterator.hasNext()) {
             Map<String, Object> i = iterator.next();
             for (Map.Entry<String, Object> entry : i.entrySet()) {
+
                 if (entry.getValue() instanceof FirebaseToken) {
                     firebaseToken = ((FirebaseToken) entry.getValue()).getToken();
+                }
+                if(entry.getValue() instanceof User){
+                    gB.getMatchedUsers().add((User)entry.getValue());
                 }
                 if (entry.getValue() instanceof Cookie) {
                     refreshToken = ((Cookie) entry.getValue()).getRefreshToken();
@@ -435,6 +474,7 @@ public class DatabaseOperations {
                 }
             }
         }
+        template.save(gB);
     }
 
     /**
@@ -452,7 +492,7 @@ public class DatabaseOperations {
                 if (gB.getStatus().equals("Done")) {
                     return new SimpleAnswer(false, "Goodybag aready done. Cannot rate twice.");
                 }
-                if (rating >5){
+                if (rating == -1){
                     gB.setStatus("Done");
                     return new SimpleAnswer(true);
                 }
@@ -470,6 +510,50 @@ public class DatabaseOperations {
             return new SimpleAnswer(false, "Invalid Accesstoken");
         }
     }
+
+    public static ArrayList<Goodybag> matchedGoodybags(String accessToken) {
+        Neo4jTemplate template = main.createNeo4JTemplate();
+        Date d = new Date();
+        long timestamp = d.getTime();
+        Result result = template.query("MATCH(n:UserSession{accessToken:\'" + accessToken + "\'})-[:USER]-(m:User)-[:MATCHED_TO]-(t:Goodybag)-[:OWNS]-(q:User)" +
+                "MATCH(t:Goodybag)-[:DELIVER_LOCATION]-(k:GeoLocation) " +
+                "MATCH(t:Goodybag)-[:SHOP_LOCATION]-(r:GeoLocation)return t,k,r,q", Collections.EMPTY_MAP, true);
+
+        Iterator<Map<String, Object>> iterator = result.iterator();
+        ArrayList<Goodybag> goodybags = new ArrayList<>();
+        int i = 0;
+        while (iterator.hasNext()) {
+            boolean j = true;
+            Map<String, Object> map = iterator.next();
+            //noinspection Convert2streamapi
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                if (entry.getValue() instanceof Goodybag) {
+                    if (((Goodybag) entry.getValue()).getDeliverTime() < timestamp || ((Goodybag) entry.getValue()).getStatus().equals("Done")) {
+                        template.delete(map.get("k"));
+                        template.delete(map.get("r"));
+                        template.delete((Goodybag) entry.getValue());
+                        break;
+                    }
+                    goodybags.add((Goodybag) entry.getValue());
+                }
+                if (entry.getValue() instanceof GeoLocation && j) {
+                    goodybags.get(i).setDeliverLocation((GeoLocation) entry.getValue());
+                    j = false;
+                    continue;
+                }
+                if (entry.getValue() instanceof GeoLocation && !j) {
+                    goodybags.get(i).setShopLocation((GeoLocation) entry.getValue());
+                }
+                if (entry.getValue() instanceof User) {
+                    goodybags.get(i).setUser((User) entry.getValue());
+                }
+            }
+        }
+        return goodybags;
+    }
+
+
+
 
     public static SimpleAnswer test(ArrayList<Waypoint> uploadedWaypoints, String accessToken) {
         long startTime = System.nanoTime();
@@ -511,6 +595,45 @@ public class DatabaseOperations {
         }else {
             return new SimpleAnswer(false, "Invalid AccessToken, refreshToken required");
         }
+    }
+
+
+
+
+
+
+
+
+
+    public static void matching(ArrayList<String> userIDs, long goodybagID){
+        Neo4jTemplate template = main.createNeo4JTemplate();
+        String query = "";
+        Goodybag gB;
+        try{
+            gB = template.loadByProperty(Goodybag.class, "goodybagID", goodybagID);
+        }catch(NotFoundException nfe){
+            System.out.println("Goodybag not found. Wrong ID or its deliverTime might have expired during the matching process");
+            return;
+        }
+        for(int i = 0; i < userIDs.size(); i++){
+            if(i == 0){
+                query+= userIDs.get(i);
+                continue;
+            }
+            query += ","+userIDs.get(i);
+        }
+        Result r = template.query("match(n:User) where n.userID IN["+query+"] return n", Collections.EMPTY_MAP, true);
+        Iterator<Map<String, Object>> iterator = r.iterator();
+        //noinspection WhileLoopReplaceableByForEach
+        while (iterator.hasNext()) {
+            Map<String, Object> i = iterator.next();
+            for (Map.Entry<String, Object> entry : i.entrySet()) {
+                if(entry.getValue() instanceof User){
+                    gB.getMatchedUsers().add((User)entry.getValue());
+                    }
+                }
+            }
+        template.save(gB);
     }
 
 
