@@ -24,6 +24,8 @@ public class Goodybag extends BaseModel{
     private GeoLocation shopLocation;
     private long goodybagID;
     private User user;
+    private int checkOne;
+    private int checkTwo;
 
     @Relationship(type = "MATCHED_TO", direction = Relationship.OUTGOING)
     private ArrayList<User> matchedUsers = new ArrayList<>();
@@ -33,7 +35,7 @@ public class Goodybag extends BaseModel{
 
     public Goodybag(String title, String status, String description,
                     double tip, long deliverTime, GeoLocation deliverLocation,
-                    GeoLocation shopLocation, User user){
+                    GeoLocation shopLocation, User user, int checkOne, int checkTwo){
 
         Date d = new Date();
         this.title = title;
@@ -45,6 +47,8 @@ public class Goodybag extends BaseModel{
         this.deliverLocation = deliverLocation;
         this.shopLocation = shopLocation;
         this.user = user;
+        this.checkOne = checkOne;
+        this.checkTwo = checkTwo;
 
     }
 

@@ -200,28 +200,34 @@ public class DatabaseOperations {
      *
      */
     public static SimpleAnswer updateProfile(String userName, String email, String accessToken) {
+        String name = "No changes";
+        String mail = "No changes";
         Neo4jTemplate template = main.createNeo4JTemplate();
-        try{
-            User u = template.loadByProperty(User.class, "emailAddress", email);
-            return new SimpleAnswer(false, "Email already exists. Chose another one");
-        }catch(NotFoundException nfe) {
+
             if (checkAccessToken(accessToken).getSuccess()) {
                 try {
                     UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
                     User u = uS.getUser();
-                    if (userName != null) {
+                    if (userName != null && !userName.equals("")&&!u.getUserName().equals(userName)) {
                         u.setUserName(userName);
+                        name = userName;
                     }
-                    if (email != null) {
-                        u.setEmailAddress(email);
+                    if (email != null && !email.equals("")&& !u.getEmailAddress().equals(email)) {
+                            try{
+                                User user = template.loadByProperty(User.class, "emailAddress", email);
+                                return new SimpleAnswer(false, "Email already exists. Choose another one");
+                            }catch(NotFoundException nfe){
+                                u.setEmailAddress(email);
+                                mail = email;
+                            }
                     }
                     template.save(u);
-                    return new SimpleAnswer(true, "values updated: " + userName + " " + email);
+                    return new SimpleAnswer(true, "Update complete:  Username: " + name + " - Email: " + mail);
                 } catch (NotFoundException nfe2) {
                     return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
                 }
             } else return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
-        }
+
     }
 
     /**
@@ -239,7 +245,7 @@ public class DatabaseOperations {
      */
     public static SimpleAnswer uploadGoodybag(String title, String status, String description,
                                               double tip, long deliverTime, GeoLocation deliverLocation,
-                                              GeoLocation shopLocation, String accessToken) {
+                                              GeoLocation shopLocation, int checkOne, int checkTwo, String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         if (checkAccessToken(accessToken).getSuccess()) {
             try {
@@ -260,7 +266,7 @@ public class DatabaseOperations {
                     return new SimpleAnswer(false, "Important value missing (description / deliverLocation / shopLocation)");
                 }
                 while (true) {
-                    Goodybag gB = new Goodybag(title, status, description, tip, deliverTime, deliverLocation, shopLocation, uS.getUser());
+                    Goodybag gB = new Goodybag(title, status, description, tip, deliverTime, deliverLocation, shopLocation, uS.getUser(), checkOne, checkTwo);
                     gB.changeID();
                     try {
                         Goodybag goodyBag = template.loadByProperty(Goodybag.class, "goodyBagID", gB.getGoodybagID());
@@ -374,7 +380,8 @@ public class DatabaseOperations {
         if(checkAccessToken(accessToken).getSuccess()) {
             Neo4jTemplate template = main.createNeo4JTemplate();
             Date d = new Date();
-            long timestamp = d.getTime();
+            //Timestamp from now + 12 hours (extra time if goodybag is overdue)
+            long timestamp = d.getTime()+43200000;
             Result result = template.query("MATCH(n:UserSession{accessToken:\'" + accessToken + "\'})-[:USER]-(m:User)-[:OWNS]-(t:Goodybag)" +
                     "MATCH(t:Goodybag)-[:DELIVER_LOCATION]-(k:GeoLocation) " +
                     "MATCH(t:Goodybag)-[:SHOP_LOCATION]-(r:GeoLocation)return t,k,r", Collections.EMPTY_MAP, true);
@@ -411,71 +418,6 @@ public class DatabaseOperations {
         return new ArrayList<>();
     }
 
-    /**
-     * Function to send a goodybag to a variable number of users via a push notification. The purpose of this method is to
-     * send a matched goodybag to different users.
-     * @param userIDs the IDs of the users who shall be notificated
-     * @param goodybagID the ID of the matched goodybag
-     */
-    public static void sendGoodybagToUsers(ArrayList<Long> userIDs, String goodybagID) {
-
-        Neo4jTemplate template = main.createNeo4JTemplate();
-        Goodybag gB = template.loadByProperty(Goodybag.class, "goodybagID", goodybagID);
-        String query = "";
-        for (int i = 0; i < userIDs.size(); i++) {
-            if (i == userIDs.size() - 1) {
-                query += userIDs.get(i).toString();
-            } else {
-                query += userIDs.get(i).toString() + ",";
-            }
-        }
-        ArrayList<String> firebaseTokens = new ArrayList<>();
-        String firebaseToken = "";
-        String refreshToken;
-        Result r = template.query("match (x:FirebaseToken)-[:COOKIE]->(y:Cookie)-[:USER]->(n:User) where n.userID IN[" + query + "] return x,y,n", Collections.EMPTY_MAP, true);
-        Iterator<Map<String, Object>> iterator = r.iterator();
-        //noinspection WhileLoopReplaceableByForEach
-        while (iterator.hasNext()) {
-            Map<String, Object> i = iterator.next();
-            for (Map.Entry<String, Object> entry : i.entrySet()) {
-
-                if (entry.getValue() instanceof FirebaseToken) {
-                    firebaseToken = ((FirebaseToken) entry.getValue()).getToken();
-                }
-                if(entry.getValue() instanceof User){
-                    gB.getMatchedUsers().add((User)entry.getValue());
-                }
-                if (entry.getValue() instanceof Cookie) {
-                    refreshToken = ((Cookie) entry.getValue()).getRefreshToken();
-                    org.json.JSONObject notification = new org.json.JSONObject();
-                    org.json.JSONObject goodybag = new org.json.JSONObject();
-                    org.json.JSONObject body = new org.json.JSONObject();
-                    body.put("body", "Matched Goodybag");
-                    goodybag.put("goodybagID", goodybagID);
-                    goodybag.put("refreshToken", refreshToken);
-                    notification.put("notification", body);
-                    notification.put("data", goodybag);
-                    notification.put("to", firebaseToken);
-
-                    HttpClient httpClient = HttpClientBuilder.create().build();
-                    HttpPost post = new HttpPost("https://fcm.googleapis.com/fcm/send");
-                    try {
-                        StringEntity se = new StringEntity(notification.toString());
-                        post.setEntity(se);
-                        post.setHeader("Content-type", "application/json");
-                        post.addHeader("Authorization", "key=AIzaSyCwYZ4ddd2Ue0DcRCJkhdHSuX1x6AoMC8Q");
-                        HttpResponse response = httpClient.execute(post);
-                        System.out.println(EntityUtils.toString(response.getEntity()));
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            }
-        }
-        template.save(gB);
-    }
 
     /**
      * Function to rate a user and to set a goodybags status to "Done".
@@ -509,6 +451,26 @@ public class DatabaseOperations {
         }else {
             return new SimpleAnswer(false, "Invalid Accesstoken");
         }
+    }
+
+    public static Goodybag getGoodybagbyID(long goodybagID, String accessToken){
+        Neo4jTemplate template = main.createNeo4JTemplate();
+        Goodybag gB = new Goodybag();
+        if (checkAccessToken(accessToken).getSuccess()){
+            Result r = template.query("match (u:UserSession)-[:USER]-(n:User)-[:MATCHED_TO]-(m:Goodybag) where m.goodybagID = "+goodybagID+" and u.accessToken = \'"+accessToken+"\' return m", Collections.EMPTY_MAP, false);
+            Iterator<Map<String, Object>> iterator = r.iterator();
+            //noinspection WhileLoopReplaceableByForEach
+            while (iterator.hasNext()) {
+                Map<String, Object> i = iterator.next();
+                for (Map.Entry<String, Object> entry : i.entrySet()) {
+                    if(entry.getValue() instanceof  Goodybag){
+                         gB = (Goodybag)entry.getValue();
+                    }
+                }
+            }
+            return gB;
+        }
+        return null;
     }
 
     public static ArrayList<Goodybag> matchedGoodybags(String accessToken) {
@@ -551,9 +513,6 @@ public class DatabaseOperations {
         }
         return goodybags;
     }
-
-
-
 
     public static SimpleAnswer test(ArrayList<Waypoint> uploadedWaypoints, String accessToken) {
         long startTime = System.nanoTime();
@@ -599,11 +558,13 @@ public class DatabaseOperations {
 
 
 
-
-
-
-
-
+    /**
+     * Function to add a relationship between Users and their matched Goodybags on the database. This method will
+     * also automatically send a goodybagID to all users who have been matched via a push notification using their
+     * firebaseTokens.
+     * @param userIDs the IDs of the users who shall be notificated
+     * @param goodybagID the ID of the matched goodybag
+     */
 
     public static void matching(ArrayList<String> userIDs, long goodybagID){
         Neo4jTemplate template = main.createNeo4JTemplate();
@@ -622,12 +583,44 @@ public class DatabaseOperations {
             }
             query += ","+userIDs.get(i);
         }
-        Result r = template.query("match(n:User) where n.userID IN["+query+"] return n", Collections.EMPTY_MAP, true);
+        String firebaseToken = "";
+        String refreshToken;
+        Result r = template.query("match (x:FirebaseToken)-[:COOKIE]->(y:Cookie)-[:USER]->(n:User) where n.userID IN["+query+"] return x,n,y", Collections.EMPTY_MAP, false);
         Iterator<Map<String, Object>> iterator = r.iterator();
         //noinspection WhileLoopReplaceableByForEach
         while (iterator.hasNext()) {
             Map<String, Object> i = iterator.next();
             for (Map.Entry<String, Object> entry : i.entrySet()) {
+                if (entry.getValue() instanceof FirebaseToken) {
+                    firebaseToken = ((FirebaseToken) entry.getValue()).getToken();
+                }
+                if (entry.getValue() instanceof Cookie) {
+                    refreshToken = ((Cookie) entry.getValue()).getRefreshToken();
+                    org.json.JSONObject notification = new org.json.JSONObject();
+                    org.json.JSONObject goodybag = new org.json.JSONObject();
+                    org.json.JSONObject body = new org.json.JSONObject();
+                    body.put("body", "Matched Goodybag");
+                    goodybag.put("goodybagID", goodybagID);
+                    goodybag.put("refreshToken", refreshToken);
+                    notification.put("notification", body);
+                    notification.put("data", goodybag);
+                    notification.put("to", firebaseToken);
+
+                    HttpClient httpClient = HttpClientBuilder.create().build();
+                    HttpPost post = new HttpPost("https://fcm.googleapis.com/fcm/send");
+                    try {
+                        System.out.println(notification.toString());
+                        StringEntity se = new StringEntity(notification.toString());
+                        post.setEntity(se);
+                        post.setHeader("Content-type", "application/json");
+                        post.addHeader("Authorization", "key=AIzaSyCwYZ4ddd2Ue0DcRCJkhdHSuX1x6AoMC8Q");
+                        HttpResponse response = httpClient.execute(post);
+                        System.out.println(EntityUtils.toString(response.getEntity()));
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
                 if(entry.getValue() instanceof User){
                     gB.getMatchedUsers().add((User)entry.getValue());
                     }

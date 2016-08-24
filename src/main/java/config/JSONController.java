@@ -51,7 +51,8 @@ public class JSONController {
     public SimpleAnswer uploadGoodybag(
         @RequestBody GoodybagWrapper params, @RequestHeader(value = "accessToken") String accessToken){
         return db.uploadGoodybag(params.getTitle(), params.getStatus(), params.getDescription(), params.getTip(),
-                params.getDeliverTime(), params.getDeliverLocation(), params.getShopLocation(), accessToken);
+                params.getDeliverTime(), params.getDeliverLocation(), params.getShopLocation(),params.getCheckOne(),
+                params.getCheckTwo(), accessToken);
     }
 
     /*@RequestMapping(value="/uploadRoute", method = RequestMethod.POST)
@@ -74,10 +75,10 @@ public class JSONController {
     }
 
 
-    @RequestMapping(value = "/sendGoodybagToUsers", method = RequestMethod.POST)
+    /*@RequestMapping(value = "/sendGoodybagToUsers", method = RequestMethod.POST)
     public void sendGoodybagToUsers(@RequestParam (value = "userIDs")ArrayList<Long>userIDs, @RequestParam(value="goodyBagID")String goodybagID){
         db.sendGoodybagToUsers(userIDs,goodybagID);
-    }
+    }*/
 
     @RequestMapping(value="/finishGoodybag", method = RequestMethod.POST)
     public SimpleAnswer finishGoodybag(@RequestHeader(value="accessToken") String accessToken,@RequestParam(value ="goodybagID")long goodybagID, @RequestParam(value="rating")int rating){
@@ -91,6 +92,12 @@ public class JSONController {
     @RequestMapping(value = "/myMatchedGoodybags", method = RequestMethod.POST)
     public @ResponseBody List<Goodybag> myMatchedGoodybags(@RequestHeader(value="accessToken")String accessToken){
         return db.matchedGoodybags(accessToken);
+    }
+
+    @RequestMapping(value="getGoodybagByID", method = RequestMethod.POST)
+    public @ResponseBody Goodybag getGoodybagByID(@RequestHeader(value ="accessToken")String accessToken,
+                                                  @RequestParam(value="goodybagID")long goodybagID){
+        return db.getGoodybagbyID(goodybagID, accessToken);
     }
 
 }

@@ -14,6 +14,8 @@ public class GoodybagWrapper {
     private String description;
     private long deliverTime;
     private double tip;
+    private int checkOne;
+    private int checkTwo;
 
 
     public GeoLocation getDeliverLocation() {
@@ -44,4 +46,11 @@ public class GoodybagWrapper {
         return tip;
     }
 
+    public int getCheckOne() {
+        return checkOne;
+    }
+
+    public int getCheckTwo() {
+        return checkTwo;
+    }
 }

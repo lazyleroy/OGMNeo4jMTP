@@ -21,7 +21,6 @@ import java.util.HashSet;
 @SpringBootApplication
 public class Main {
 
-
     // Create SessionFactory. Pass the package name of the entity classes as the argument. Pass
     //Configuration as first Argument --> Both done in MyConfiguration
     private static SessionFactory sessionFactory = new MyConfiguration().getSessionFactory();
@@ -119,15 +118,11 @@ public class Main {
         //db.test(arrayList,waypointArrayList,"MJeXUrf9cv63X5PBWetsvcP98GiTQ6UAwQRgpgdkrMmfNNMdKibWG7NYfCE0BWoWZKovy8");
         //db.register(new User("felix","abc@gmx.de","1234"),"abc@gmx.de",null);
         ArrayList<String> userIDs = new ArrayList<>();
-        userIDs.add("3015889670584973");
-        userIDs.add("2609054028101385");
-        userIDs.add("3298671247787562");
-        userIDs.add("9455440145628192");
-        //DatabaseOperations.matching(userIDs, 4726992368837059L);
+        userIDs.add("9122645420057464");
+        //userIDs.add("6247335780268493");
+        //DatabaseOperations.matching(userIDs, 8366074120591263L);
 
-
-
-
+        
         //DatabaseOperations.retrieveAllGoodybags("ltoRqohjno51v3CKbJQaSBOhVUt42n68m6lzMJUHT0fMeXV6qY6Pgr2QLqKmP9HxFVKQctxJSfcOKG0bWaFL45izwFYiVV8ERB5SagZHdEkcyaR18uzM7TUYEhrTN2qRt5MtF8FM5eT8NOR6ILx7ep7DsSFvHAAEgPsXR7tccNercQgGG4R4AVmDOko7cTb5DR1WqlApOOwzxpikRHfUOj7VBgs94tcUpmBMUba6q3olDzE9qltsFe7RH3JUW6H");
 
     }
