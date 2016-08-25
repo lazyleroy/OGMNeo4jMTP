@@ -68,7 +68,7 @@ public class JSONController {
         return db.changePassword(password, accessToken);
     }
 
-    @RequestMapping(value="storeFirebaseToken", method = RequestMethod.POST)
+    @RequestMapping(value="/storeFirebaseToken", method = RequestMethod.POST)
     public SimpleAnswer storeFirebaseToken(@RequestHeader(value="refreshToken")String refreshToken,
                                            @RequestParam(value="firebaseToken") String firebaseToken){
         return db.storeFirebaseToken(refreshToken, firebaseToken);
@@ -85,6 +85,11 @@ public class JSONController {
         return db.finishGoodybag(goodybagID, rating, accessToken);
     }
 
+    @RequestMapping(value="/acceptGoodybag", method = RequestMethod.POST)
+    public SimpleAnswer acceptGoody(@RequestHeader(value="accessToken") String accessToken, @RequestParam(value="goodybagID")long goodybagID){
+        return db.acceptGoodybag(goodybagID, accessToken);
+    }
+
     @RequestMapping(value="/myGoodybags", method = RequestMethod.POST)
     public @ResponseBody List<Goodybag> myGoodybags(@RequestHeader(value="accessToken")String accessToken){
         return db.myGoodybags(accessToken);
@@ -94,7 +99,7 @@ public class JSONController {
         return db.matchedGoodybags(accessToken);
     }
 
-    @RequestMapping(value="getGoodybagByID", method = RequestMethod.POST)
+    @RequestMapping(value="/getGoodybagByID", method = RequestMethod.POST)
     public @ResponseBody Goodybag getGoodybagByID(@RequestHeader(value ="accessToken")String accessToken,
                                                   @RequestParam(value="goodybagID")long goodybagID){
         return db.getGoodybagbyID(goodybagID, accessToken);

@@ -1,5 +1,6 @@
 package entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.Random;
  * Created by Felix on 14.07.2016.
  */
 
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class Goodybag extends BaseModel{
 
 
@@ -151,4 +153,16 @@ public class Goodybag extends BaseModel{
     public ArrayList<User> getMatchedUsers() {
         return matchedUsers;
     }
+    public void setMatchedUsers(ArrayList<User> matchedUsers){
+        this.matchedUsers = matchedUsers;
+    }
+
+
+    public int getCheckOne() {
+        return checkOne;
+    }
+    public int getCheckTwo() {
+        return checkTwo;
+    }
+
 }

@@ -1,5 +1,6 @@
 package entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import config.Main;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -12,6 +13,7 @@ import java.util.*;
  * Created by Felix on 11.07.2016.
  */
 @NodeEntity
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class User extends BaseModel {
 
     private String userName;
@@ -98,6 +100,9 @@ public class User extends BaseModel {
     public List<Route> getRoutes() {
         return routes;
     }
+    public void setRoutes(List<Route> routes){
+        this.routes =routes;
+    }
     public GeoLocation getLocation() {
         return location;
     }
@@ -126,6 +131,9 @@ public class User extends BaseModel {
 
     public ArrayList<Goodybag> getGoodybags() {
         return goodybags;
+    }
+    public void setGoodybags(ArrayList<Goodybag> goodybags){
+        this.goodybags = goodybags;
     }
 
     public ArrayList<GeoLocation> getStartedAt() {
