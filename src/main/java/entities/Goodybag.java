@@ -11,7 +11,6 @@ import java.util.Random;
  * Created by Felix on 14.07.2016.
  */
 
-@JsonIgnoreProperties(ignoreUnknown=true)
 public class Goodybag extends BaseModel{
 
 

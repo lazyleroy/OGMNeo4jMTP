@@ -23,9 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 import requestAnswers.LoginAnswer;
 import requestAnswers.RegisterAnswer;
 import requestAnswers.SimpleAnswer;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
+
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -265,9 +264,6 @@ public class DatabaseOperations {
                 if (title == null) {
                     title = "Goodybag";
                 }
-                if (status == null) {
-                    status = "Not Accepted";
-                }
                 if (deliverTime <= d.getTime()) {
                     deliverTime = -1;
                 }
@@ -275,7 +271,7 @@ public class DatabaseOperations {
                     return new SimpleAnswer(false, "Important value missing (description / deliverLocation / shopLocation)");
                 }
                 while (true) {
-                    Goodybag gB = new Goodybag(title, status, description, tip, deliverTime, deliverLocation, shopLocation, uS.getUser(), checkOne, checkTwo);
+                    Goodybag gB = new Goodybag(title, "Not Accepted", description, tip, deliverTime, deliverLocation, shopLocation, uS.getUser(), checkOne, checkTwo);
                     gB.changeID();
                     try {
                         Goodybag goodyBag = template.loadByProperty(Goodybag.class, "goodyBagID", gB.getGoodybagID());
@@ -404,10 +400,8 @@ public class DatabaseOperations {
                 //noinspection Convert2streamapi
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
                     if (entry.getValue() instanceof Goodybag) {
-                        if (((Goodybag) entry.getValue()).getDeliverTime() < timestamp || ((Goodybag) entry.getValue()).getStatus().equals("Done")) {
-                            template.delete(map.get("k"));
-                            template.delete(map.get("r"));
-                            template.delete((Goodybag) entry.getValue());
+                        if (((Goodybag) entry.getValue()).getDeliverTime() < timestamp && ((Goodybag) entry.getValue()).getStatus().equals("Not Accepted")) {
+                            template.query("match (g:Goodybag) where g.goodybagID = "+((Goodybag)entry.getValue()).getGoodybagID()+"set g.status \'Expired\'", Collections.EMPTY_MAP, false);
                             break;
                         }
                         goodybags.add((Goodybag) entry.getValue());
@@ -421,10 +415,26 @@ public class DatabaseOperations {
                         goodybags.get(i).setShopLocation((GeoLocation) entry.getValue());
                     }
                 }
+                i++;
             }
             return goodybags;
         }
         return new ArrayList<>();
+    }
+
+    public static int getNumberOfFinishedGoodybags(String accessToken){
+        if(checkAccessToken(accessToken).getSuccess()){
+            Neo4jTemplate template = main.createNeo4JTemplate();
+            int counter = 0;
+            ArrayList<Goodybag> gBs = template.loadByProperty(UserSession.class,"accessToken", accessToken, 3).getUser().getGoodybags();
+            for (int i = 0; i < gBs.size();i++){
+                if (gBs.get(i).getStatus().equals("Done")){
+                    counter++;
+                }
+            }
+            return counter;
+        }
+    return -1;
     }
 
 
@@ -435,28 +445,70 @@ public class DatabaseOperations {
      * @return A SimpleAnswer holding false + reason if the goodybags status is already set on "Done" or if the goodybag does not exist
      * A Simple Answer holding true if everything worked.
      */
-    public static SimpleAnswer finishGoodybag(long goodybagID, int rating, String accessToken) {
+    public static SimpleAnswer finishGoodybag(long goodybagID, int rating, boolean creatorRates, String accessToken) {
         if (checkAccessToken(accessToken).getSuccess()) {
             Neo4jTemplate template = main.createNeo4JTemplate();
-            try {
-                Goodybag gB = template.loadByProperty(Goodybag.class, "goodybagID", goodybagID);
-                if (gB.getStatus().equals("Done")) {
-                    return new SimpleAnswer(false, "Goodybag aready done. Cannot rate twice.");
-                }
-                if (rating == -1){
-                    gB.setStatus("Done");
-                    return new SimpleAnswer(true);
-                }
-                gB.setStatus("Done");
-                User u = gB.getUser();
-                u.setNumberOfRatings(u.getNumberOfRatings() + 1);
-                u.setCumulatedRatings(u.getCumulatedRatings() + rating);
-                u.setRating((double) (u.getCumulatedRatings()) / u.getNumberOfRatings());
-                template.save(gB);
-                return new SimpleAnswer(true, String.valueOf(u.getRating()));
-            } catch (NotFoundException nfe) {
-                return new SimpleAnswer(false, "Goodybag does not exist");
+            Result result;
+            double userRating = 0;
+            int cumulatedRating = 0;
+            int numberOfRatings = 0;
+            long userID = 0;
+
+            String query1 =" match (ft:FirebaseToken)-[:COOKIE]-(c:Cookie)-[:USER]-(u:User)-[:MATCHED_TO]-(gb:Goodybag{goodybagID:"+goodybagID+"})-[:USER]-(n:User)-[:USER]-(us:UserSession{accessToken:\'" + accessToken + "\'}) set gb.status = \'Done\' return u, ft";
+            String query2 =" match (ft:FirebaseToken)-[:COOKIE]-(c:Cookie)-[:USER]-(u:User)-[:OWNS]-(gb:Goodybag{goodybagID:"+goodybagID+"})-[:MATCHED_TO]-(n:User)-[:USER]-(us:UserSession{accessToken:\'" + accessToken + "\'}) set gb.status = \'Done\' return u, ft";
+
+
+            if(creatorRates){
+                 result = template.query(query1, Collections.EMPTY_MAP, false);
+            }else{
+                 result = template.query(query2, Collections.EMPTY_MAP, false);
             }
+
+            Iterator<Map<String, Object>> iterator = result.iterator();
+            while (iterator.hasNext()) {
+                boolean j = true;
+                Map<String, Object> map = iterator.next();
+                //noinspection Convert2streamapi
+                for (Map.Entry<String, Object> entry : map.entrySet()) {
+                    if (entry.getValue() instanceof User){
+                        if(rating ==-1){
+                            continue;
+                        }
+                        cumulatedRating = ((User) entry.getValue()).getCumulatedRatings()+rating;
+                        numberOfRatings = ((User) entry.getValue()).getNumberOfRatings()+1;
+                        userRating = (double)(cumulatedRating)/numberOfRatings;
+                        userID = ((User) entry.getValue()).getUserID();
+                    }
+                    if(entry.getValue() instanceof FirebaseToken){
+                        org.json.JSONObject notification = new org.json.JSONObject();
+                        org.json.JSONObject message = new org.json.JSONObject();
+                        org.json.JSONObject body = new org.json.JSONObject();
+                        body.put("body", "rated");
+                        message.put("rating", userRating);
+                        notification.put("notification", body);
+                        notification.put("data", message);
+                        notification.put("to", ((FirebaseToken) entry.getValue()).getToken());
+                        HttpClient httpClient = HttpClientBuilder.create().build();
+                        //System.out.println(notification.toString());
+                        HttpPost post = new HttpPost("https://fcm.googleapis.com/fcm/send");
+                        try {
+
+                            StringEntity se = new StringEntity(notification.toString());
+                            post.setEntity(se);
+                            post.setHeader("Content-type", "application/json");
+                            post.addHeader("Authorization", "key=AIzaSyCwYZ4ddd2Ue0DcRCJkhdHSuX1x6AoMC8Q");
+                            HttpResponse response = httpClient.execute(post);
+                            System.out.println(EntityUtils.toString(response.getEntity()));
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                 }
+            }
+            template.query("match(n:User) where n.userID="+userID+" set n.rating = "+userRating+" set n.cumulatedRatings ="+ cumulatedRating+" set n.numberOfRatings = "+numberOfRatings , Collections.EMPTY_MAP, false);
+
+            return new SimpleAnswer(true);
         }else {
             return new SimpleAnswer(false, "Invalid Accesstoken");
         }
@@ -466,14 +518,26 @@ public class DatabaseOperations {
         Neo4jTemplate template = main.createNeo4JTemplate();
         Goodybag gB = new Goodybag();
         if (checkAccessToken(accessToken).getSuccess()){
-            Result r = template.query("match (u:UserSession)-[:USER]-(n:User)-[:MATCHED_TO]-(m:Goodybag) where m.goodybagID = "+goodybagID+" and u.accessToken = \'"+accessToken+"\' return m", Collections.EMPTY_MAP, false);
+            Result r = template.query("match (u:UserSession)-[:USER]-(n:User)-[:MATCHED_TO]-(m:Goodybag) where m.goodybagID = "+goodybagID+" and u.accessToken = \'"+accessToken+"\' " +
+                     "MATCH(m:Goodybag)-[:DELIVER_LOCATION]-(k:GeoLocation) " +
+                    "MATCH(m:Goodybag)-[:SHOP_LOCATION]-(r:GeoLocation) return m, k,r", Collections.EMPTY_MAP, false);
             Iterator<Map<String, Object>> iterator = r.iterator();
             //noinspection WhileLoopReplaceableByForEach
             while (iterator.hasNext()) {
+                boolean j = true;
                 Map<String, Object> i = iterator.next();
                 for (Map.Entry<String, Object> entry : i.entrySet()) {
                     if(entry.getValue() instanceof  Goodybag){
                          gB = (Goodybag)entry.getValue();
+                    }
+                    if (entry.getValue() instanceof GeoLocation && j) {
+                        gB.setDeliverLocation((GeoLocation) entry.getValue());
+                        j = false;
+                        continue;
+                    }
+                    if (entry.getValue() instanceof GeoLocation && !j) {
+                        gB.setShopLocation((GeoLocation) entry.getValue());
+
                     }
                 }
             }
@@ -485,8 +549,8 @@ public class DatabaseOperations {
     public static ArrayList<Goodybag> matchedGoodybags(String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         Date d = new Date();
-        long timestamp = d.getTime();
-        Result result = template.query("MATCH(n:UserSession{accessToken:\'" + accessToken + "\'})-[:USER]-(m:User)-[:MATCHED_TO]-(t:Goodybag)-[:OWNS]-(q:User)" +
+        long timestamp = d.getTime()+43200000;
+        Result result = template.query("MATCH(n:UserSession{accessToken:\'" + accessToken + "\'})-[:USER]-(m:User)-[:MATCHED_TO]-(t:Goodybag)-[:OWNS]-(q:User) where t.status in [\'Accepted\',\'Not Accepted\']" +
                 "MATCH(t:Goodybag)-[:DELIVER_LOCATION]-(k:GeoLocation) " +
                 "MATCH(t:Goodybag)-[:SHOP_LOCATION]-(r:GeoLocation)return t,k,r,q", Collections.EMPTY_MAP, true);
 
@@ -499,10 +563,8 @@ public class DatabaseOperations {
             //noinspection Convert2streamapi
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 if (entry.getValue() instanceof Goodybag) {
-                    if (((Goodybag) entry.getValue()).getDeliverTime() < timestamp || ((Goodybag) entry.getValue()).getStatus().equals("Done")) {
-                        template.delete(map.get("k"));
-                        template.delete(map.get("r"));
-                        template.delete((Goodybag) entry.getValue());
+                    if (((Goodybag) entry.getValue()).getDeliverTime() < timestamp) {
+                        template.query("match (g:Goodybag)-[m:MATCHED_TO] where g.goodybagID = "+((Goodybag)entry.getValue()).getGoodybagID()+"set g.status \'Expired\' delete m", Collections.EMPTY_MAP, false);
                         break;
                     }
                     goodybags.add((Goodybag) entry.getValue());
@@ -514,11 +576,16 @@ public class DatabaseOperations {
                 }
                 if (entry.getValue() instanceof GeoLocation && !j) {
                     goodybags.get(i).setShopLocation((GeoLocation) entry.getValue());
+
                 }
                 if (entry.getValue() instanceof User) {
+                    ((User) entry.getValue()).setPassword("");
+                    ((User) entry.getValue()).setSalt("");
+                    ((User) entry.getValue()).setEmailAddress("");
                     goodybags.get(i).setUser((User) entry.getValue());
                 }
             }
+            i++;
         }
         return goodybags;
     }
@@ -536,6 +603,7 @@ public class DatabaseOperations {
             while (iterator.hasNext()) {
                 boolean j = true;
                 Map<String, Object> map = iterator.next();
+                int i = 0;
                 //noinspection Convert2streamapi
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
                     if (entry.getValue() instanceof Goodybag) {
@@ -546,7 +614,6 @@ public class DatabaseOperations {
                             return new SimpleAnswer(false, "Goodybag has already been accepted");
                         }
                         gB = (Goodybag)entry.getValue();
-                        gB.setStatus("Accepted");
                     }
                     if (entry.getValue() instanceof FirebaseToken) {
 
@@ -568,7 +635,7 @@ public class DatabaseOperations {
                             post.setHeader("Content-type", "application/json");
                             post.addHeader("Authorization", "key=AIzaSyCwYZ4ddd2Ue0DcRCJkhdHSuX1x6AoMC8Q");
                             HttpResponse response = httpClient.execute(post);
-                            System.out.println(EntityUtils.toString(response.getEntity()));
+
 
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -587,6 +654,12 @@ public class DatabaseOperations {
         }
     return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
     }
+
+
+
+
+
+
 
 
     /**

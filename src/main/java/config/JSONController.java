@@ -5,6 +5,8 @@ package config; /**
 import EntityWrappers.GoodybagWrapper;
 import EntityWrappers.RouteWrapper;
 import entities.Goodybag;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import requestAnswers.LoginAnswer;
 import requestAnswers.RegisterAnswer;
 import entities.User;
@@ -81,8 +83,10 @@ public class JSONController {
     }*/
 
     @RequestMapping(value="/finishGoodybag", method = RequestMethod.POST)
-    public SimpleAnswer finishGoodybag(@RequestHeader(value="accessToken") String accessToken,@RequestParam(value ="goodybagID")long goodybagID, @RequestParam(value="rating")int rating){
-        return db.finishGoodybag(goodybagID, rating, accessToken);
+    public SimpleAnswer finishGoodybag(@RequestHeader(value="accessToken") String accessToken,
+                                       @RequestParam(value ="goodybagID")long goodybagID, @RequestParam(value="rating")int rating,
+                                       @RequestParam(value = "creatorRates")boolean creatorRates){
+        return db.finishGoodybag(goodybagID, rating, creatorRates, accessToken);
     }
 
     @RequestMapping(value="/acceptGoodybag", method = RequestMethod.POST)
@@ -91,7 +95,8 @@ public class JSONController {
     }
 
     @RequestMapping(value="/myGoodybags", method = RequestMethod.POST)
-    public @ResponseBody List<Goodybag> myGoodybags(@RequestHeader(value="accessToken")String accessToken){
+    public @ResponseBody
+    List<Goodybag> myGoodybags(@RequestHeader(value="accessToken")String accessToken){
         return db.myGoodybags(accessToken);
     }
     @RequestMapping(value = "/myMatchedGoodybags", method = RequestMethod.POST)
@@ -105,4 +110,8 @@ public class JSONController {
         return db.getGoodybagbyID(goodybagID, accessToken);
     }
 
+    @RequestMapping(value="/numberOfFinishedGoodybags", method = RequestMethod.POST)
+    public @ResponseBody int numberOfFinishedGoodybags(@RequestHeader(value="accessToken") String accessToken){
+        return db.getNumberOfFinishedGoodybags(accessToken);
+    }
 }
