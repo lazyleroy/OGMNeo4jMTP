@@ -28,8 +28,7 @@ public class Goodybag extends BaseModel{
     private int checkOne;
     private int checkTwo;
 
-    @Relationship(type = "MATCHED_TO", direction = Relationship.OUTGOING)
-    private ArrayList<User> matchedUsers = new ArrayList<>();
+
 
     public Goodybag(){
     }
@@ -54,18 +53,18 @@ public class Goodybag extends BaseModel{
     }
 
 
-     public void changeID(){
-         Random r = new Random();
-         String c = "";
-         for (int i = 1; i<17; i++){
-             int rv = r.nextInt(10);
-             if(i == 1){
-                 rv = r.nextInt(9);
-             }
-             c+= rv;
-         }
-         this.goodybagID = Long.parseLong(c);
-     }
+    public void changeID(){
+        Random r = new Random();
+        String c = "";
+        for (int i = 1; i<9; i++){
+            int rv = r.nextInt(10);
+            if(i == 1){
+                rv = r.nextInt(9);
+            }
+            c+= rv;
+        }
+        this.goodybagID = Long.parseLong(c);
+    }
 
 
 
@@ -149,12 +148,6 @@ public class Goodybag extends BaseModel{
         this.user = user;
     }
 
-    public ArrayList<User> getMatchedUsers() {
-        return matchedUsers;
-    }
-    public void setMatchedUsers(ArrayList<User> matchedUsers){
-        this.matchedUsers = matchedUsers;
-    }
 
 
     public int getCheckOne() {

@@ -21,6 +21,8 @@ import requestAnswers.SimpleAnswer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.CharArrayWriter;
+import java.io.PrintWriter;
 
 @Controller
 public class FileUploadController implements HandlerExceptionResolver {
@@ -60,7 +62,13 @@ public class FileUploadController implements HandlerExceptionResolver {
             return mav;
         }
         e.printStackTrace();
-        mav.addObject(new SimpleAnswer(false, "There was an Exception that was caught by FileuploadController"));
+        CharArrayWriter cw = new CharArrayWriter();
+        PrintWriter w = new PrintWriter(cw);
+        e.printStackTrace(w);
+        w.close();
+        String test = cw.toString();
+
+        mav.addObject(new SimpleAnswer(false, test));
         return mav;
     }
 

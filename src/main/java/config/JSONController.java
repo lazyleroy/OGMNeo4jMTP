@@ -65,9 +65,10 @@ public class JSONController {
     }*/
 
     @RequestMapping(value="/changePassword", method = RequestMethod.POST)
-    public SimpleAnswer changePassword(@RequestParam(value="password")String password,
-                                       @RequestHeader(value="accessToken")String accessToken){
-        return db.changePassword(password, accessToken);
+    public SimpleAnswer changePassword(@RequestParam(value="password")String newPassword,
+                                       @RequestHeader(value="accessToken")String accessToken,
+                                        @RequestParam(value="oldPassword")String oldPassword){
+        return db.changePassword(oldPassword,newPassword, accessToken);
     }
 
     @RequestMapping(value="/storeFirebaseToken", method = RequestMethod.POST)

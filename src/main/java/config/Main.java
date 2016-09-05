@@ -118,9 +118,9 @@ public class Main {
         //db.test(arrayList,waypointArrayList,"MJeXUrf9cv63X5PBWetsvcP98GiTQ6UAwQRgpgdkrMmfNNMdKibWG7NYfCE0BWoWZKovy8");
         //db.register(new User("felix","abc@gmx.de","1234"),"abc@gmx.de",null);
         ArrayList<String> userIDs = new ArrayList<>();
-        userIDs.add("293590347896362");
+        userIDs.add("6294682042811051");
         //userIDs.add("6247335780268493");
-        //DatabaseOperations.matching(userIDs,4632786552915622L);
+        //DatabaseOperations.matching(userIDs,68789639L);
         //DatabaseOperations.acceptGoodybag(4056290895965188L,"CgVZEOjEHdR2WgFW72Wu8dwNhQQhokNEPOLbh6qACpQZWIbNbgYmSUViunGWTTehHBknVR");
 
 

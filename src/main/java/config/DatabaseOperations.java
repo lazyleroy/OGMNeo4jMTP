@@ -27,6 +27,7 @@ import requestAnswers.SimpleAnswer;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import static config.FileUploadController.ROOT;
 
@@ -70,13 +71,13 @@ public class DatabaseOperations {
      */
     public static RegisterAnswer register(User user, String emailAddress, String firebaseToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
+        if(user.getUserName().equals("")|| emailAddress.equals("")){
+            return new RegisterAnswer(false, "Empty username or email");
+        }
         try {
             User t = template.loadByProperty(User.class, "emailAddress", emailAddress);
             return new RegisterAnswer(false, "Emailadress already exists");
         } catch (NotFoundException nfe) {
-            template.purgeSession();
-            template.clear();
-
             try {
                 //noinspection InfiniteLoopStatement
                 while (true) {
@@ -87,10 +88,18 @@ public class DatabaseOperations {
                 UserSession uS = new UserSession(user);
                 Cookie c = new Cookie(user);
                 if (firebaseToken != null) {
-                    FirebaseToken fT = new FirebaseToken(firebaseToken, c);
-                    c.setFirebaseToken(fT);
-                    template.save(user);
-                    template.save(fT);
+                    try{
+                        FirebaseToken token = template.loadByProperty(FirebaseToken.class, "token", firebaseToken);
+                        token.setUser(c);
+                        template.save(user);
+                        template.save(token);
+                    }
+                    catch (NotFoundException nfe2) {
+                        FirebaseToken fT = new FirebaseToken(firebaseToken, c);
+                        c.setFirebaseToken(fT);
+                        template.save(user);
+                        template.save(fT);
+                    }
                 }
 
                 template.save(uS);
@@ -140,7 +149,6 @@ public class DatabaseOperations {
 
     public static LoginAnswer emailLogin(String email, String password, String firebaseToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
-
         try {
             User u = template.loadByProperty(User.class, "emailAddress", email);
             String hash = u.createSHA1(password, u.getSalt());
@@ -154,18 +162,22 @@ public class DatabaseOperations {
                         template.save(fT0);
                     }catch(NotFoundException nfe){
                         FirebaseToken fT = new FirebaseToken(firebaseToken, c);
-                        template.save(fT);
+                        template.save(fT,1);
                     }
-
                 }
-
-                template.save(uS);
-                template.save(c);
+                template.save(uS,1);
+                template.save(c,1);
                 return new LoginAnswer(true, uS.getAccessToken(), 86400000L, c.getRefreshToken(), 15768000000L, u.getProfilePicture(), u.getUserName());
             } else {
                 return new LoginAnswer(false, "Invalid password");
             }
         } catch (NotFoundException nfe) {
+            CharArrayWriter cw = new CharArrayWriter();
+            PrintWriter w = new PrintWriter(cw);
+            nfe.printStackTrace(w);
+            w.close();
+            String test = cw.toString();
+            //nfe.printStackTrace();
             return new LoginAnswer(false, "Email does not exist.");
         }
     }
@@ -301,6 +313,8 @@ public class DatabaseOperations {
         if (checkAccessToken(accessToken).getSuccess()) {
             if (!file.isEmpty()) {
                 try {
+                    Date d = new Date();
+                    long timestamp = d.getTime();
 
                     UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
                     User u = uS.getUser();
@@ -308,18 +322,26 @@ public class DatabaseOperations {
                     String[] extension = file.getOriginalFilename().split("\\.");
                     //noinspection ForLoopReplaceableByForEach
                     for (int i = 0; i < mimeTypes.length; i++) {
-                        if (mimeTypes[i].equals(extension[extension.length - 1])) {
-                            u.setProfilePicture(u.getUserID() + "." + extension[extension.length - 1]);
-                            Files.copy(file.getInputStream(), Paths.get(ROOT, u.getProfilePicture()));
+                        if (mimeTypes[i].equals(extension[extension.length - 1].toLowerCase())) {
+                            u.setProfilePicture(timestamp+file.getOriginalFilename());
+                            File convFile = new File(timestamp+file.getOriginalFilename());
+                            convFile.createNewFile();
+                            FileOutputStream fos = new FileOutputStream(ROOT+"/"+convFile);
+                            fos.write(file.getBytes());
+                            fos.close();
                             template.save(uS);
-                            template.purgeSession();
-                            template.clear();
-                            return new SimpleAnswer(true, u.getProfilePicture());
+                            return new SimpleAnswer(true, timestamp+file.getOriginalFilename());
                         }
                     }
                     return new SimpleAnswer(false, "Bad Filetype");
                 } catch (IOException | RuntimeException nfe) {
-                    return new SimpleAnswer(false, "Some Exception");
+                    nfe.printStackTrace();
+                    CharArrayWriter cw = new CharArrayWriter();
+                    PrintWriter w = new PrintWriter(cw);
+                    nfe.printStackTrace(w);
+                    w.close();
+                    String test = cw.toString();
+                    return new SimpleAnswer(false, "Exception on the Server");
                 }
             } else {
                 return new SimpleAnswer(false, "Empty File");
@@ -331,21 +353,24 @@ public class DatabaseOperations {
 
     /**
      * This function changes the password of a user.
-     * @param password the new password of the user
+     * @param newPassword the new password of the user
      * @param accessToken token to verify the password
      * @return returns a SimpleAnswer with true or a SimpleAnswer holding false + a reason in case of an invalid refreshToken
      */
-    public static SimpleAnswer changePassword(String password, String accessToken) {
+    public static SimpleAnswer changePassword(String oldPassword, String newPassword, String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         if (checkAccessToken(accessToken).getSuccess()) {
             try {
                 UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
                 User u = uS.getUser();
+                if(u.createSHA1(oldPassword, u.getSalt()).equals(u.getPassword())){
                 Date d = new Date();
                 u.setSalt(Long.toString(d.getTime()));
-                u.setPassword(u.createSHA1(password, u.getSalt()));
+                u.setPassword(u.createSHA1(newPassword, u.getSalt()));
                 template.save(u);
                 return new SimpleAnswer(true);
+                }
+                return new SimpleAnswer(false, "Old password was wrong");
             } catch (NotFoundException nfe) {
                 return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
             }
@@ -363,14 +388,22 @@ public class DatabaseOperations {
             Neo4jTemplate template = main.createNeo4JTemplate();
                 try{
                     Cookie c = template.loadByProperty(Cookie.class, "refreshToken", refreshToken);
-                    FirebaseToken fT= new FirebaseToken(fireBaseToken, c);
-                    if(c.getFirebaseToken()!=null){
-                        return new SimpleAnswer(false, "A FirebaseToken for this Cookie is already stored");
+                    try{
+                        FirebaseToken token = template.loadByProperty(FirebaseToken.class, "token", fireBaseToken);
+                        token.setUser(c);
+                        template.save(token);
+                        return new SimpleAnswer(true);
+                    }catch (NotFoundException nfe ) {
+
+
+                        FirebaseToken fT = new FirebaseToken(fireBaseToken, c);
+                        if (c.getFirebaseToken() != null) {
+                            return new SimpleAnswer(false, "A FirebaseToken for this Cookie is already stored");
+                        }
+                        template.save(fT);
+                        return new SimpleAnswer(true);
                     }
-                    c.setFirebaseToken(fT);
-                    template.save(fT);
-                    return new SimpleAnswer(true);
-                }catch (NotFoundException nfe){
+                }catch (NotFoundException nfe2){
                     return new SimpleAnswer(false, "Invalid RefreshToken, Login required");
                 }
         }
@@ -386,7 +419,7 @@ public class DatabaseOperations {
             Neo4jTemplate template = main.createNeo4JTemplate();
             Date d = new Date();
             //Timestamp from now + 12 hours (extra time if goodybag is overdue)
-            long timestamp = d.getTime()+43200000;
+            long timestamp = d.getTime();
             Result result = template.query("MATCH(n:UserSession{accessToken:\'" + accessToken + "\'})-[:USER]-(m:User)-[:OWNS]-(t:Goodybag)" +
                     "MATCH(t:Goodybag)-[:DELIVER_LOCATION]-(k:GeoLocation) " +
                     "MATCH(t:Goodybag)-[:SHOP_LOCATION]-(r:GeoLocation)return t,k,r", Collections.EMPTY_MAP, true);
@@ -400,8 +433,8 @@ public class DatabaseOperations {
                 //noinspection Convert2streamapi
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
                     if (entry.getValue() instanceof Goodybag) {
-                        if (((Goodybag) entry.getValue()).getDeliverTime() < timestamp && ((Goodybag) entry.getValue()).getStatus().equals("Not Accepted")) {
-                            template.query("match (g:Goodybag) where g.goodybagID = "+((Goodybag)entry.getValue()).getGoodybagID()+"set g.status \'Expired\'", Collections.EMPTY_MAP, false);
+                        if (((Goodybag) entry.getValue()).getDeliverTime()+43200000 < timestamp && ((Goodybag) entry.getValue()).getStatus().equals("Not Accepted")) {
+                            template.query("match (g:Goodybag) where g.goodybagID = "+((Goodybag)entry.getValue()).getGoodybagID()+" set g.status = \'Expired\'", Collections.EMPTY_MAP, false);
                             break;
                         }
                         goodybags.add((Goodybag) entry.getValue());
@@ -489,7 +522,7 @@ public class DatabaseOperations {
                         notification.put("data", message);
                         notification.put("to", ((FirebaseToken) entry.getValue()).getToken());
                         HttpClient httpClient = HttpClientBuilder.create().build();
-                        //System.out.println(notification.toString());
+                        System.out.println(notification.toString());
                         HttpPost post = new HttpPost("https://fcm.googleapis.com/fcm/send");
                         try {
 
@@ -498,7 +531,7 @@ public class DatabaseOperations {
                             post.setHeader("Content-type", "application/json");
                             post.addHeader("Authorization", "key=AIzaSyCwYZ4ddd2Ue0DcRCJkhdHSuX1x6AoMC8Q");
                             HttpResponse response = httpClient.execute(post);
-                            System.out.println(EntityUtils.toString(response.getEntity()));
+                            //System.out.println(EntityUtils.toString(response.getEntity()));
 
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -549,7 +582,7 @@ public class DatabaseOperations {
     public static ArrayList<Goodybag> matchedGoodybags(String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         Date d = new Date();
-        long timestamp = d.getTime()+43200000;
+        long timestamp = d.getTime();
         Result result = template.query("MATCH(n:UserSession{accessToken:\'" + accessToken + "\'})-[:USER]-(m:User)-[:MATCHED_TO]-(t:Goodybag)-[:OWNS]-(q:User) where t.status in [\'Accepted\',\'Not Accepted\']" +
                 "MATCH(t:Goodybag)-[:DELIVER_LOCATION]-(k:GeoLocation) " +
                 "MATCH(t:Goodybag)-[:SHOP_LOCATION]-(r:GeoLocation)return t,k,r,q", Collections.EMPTY_MAP, true);
@@ -563,8 +596,8 @@ public class DatabaseOperations {
             //noinspection Convert2streamapi
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 if (entry.getValue() instanceof Goodybag) {
-                    if (((Goodybag) entry.getValue()).getDeliverTime() < timestamp) {
-                        template.query("match (g:Goodybag)-[m:MATCHED_TO] where g.goodybagID = "+((Goodybag)entry.getValue()).getGoodybagID()+"set g.status \'Expired\' delete m", Collections.EMPTY_MAP, false);
+                    if (((Goodybag) entry.getValue()).getDeliverTime()+43200000 < timestamp) {
+                        template.query("match (g:Goodybag)-[m:MATCHED_TO]-(n:User) where g.goodybagID = "+((Goodybag)entry.getValue()).getGoodybagID()+" set g.status = \'Expired\' delete m", Collections.EMPTY_MAP, false);
                         break;
                     }
                     goodybags.add((Goodybag) entry.getValue());
@@ -702,7 +735,6 @@ public class DatabaseOperations {
                 }
                 if (entry.getValue() instanceof Cookie) {
 
-                    gB.setMatchedUsers(null);
                     gB.getUser().setGoodybags(null);
                     gB.getUser().setEmailAddress(null);
                     gB.getUser().setCumulatedRatings(0);
