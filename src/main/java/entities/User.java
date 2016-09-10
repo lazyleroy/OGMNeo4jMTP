@@ -23,6 +23,8 @@ public class User extends BaseModel {
     private static Main main = new Main();
     private double rating;
     private int cumulatedRatings;
+    private int loginCounter;
+    private int changePasswordCounter;
     private boolean isTrackingActivated;
     private GeoLocation location;
     private String profilePicture;
@@ -160,4 +162,19 @@ public class User extends BaseModel {
     }
 
 
+    public int getChangePasswordCounter() {
+        return changePasswordCounter;
+    }
+
+    public void setChangePasswordCounter(int changePasswordCounter) {
+        this.changePasswordCounter = changePasswordCounter;
+    }
+
+    public int getLoginCounter() {
+        return loginCounter;
+    }
+
+    public void setLoginCounter(int loginCounter) {
+        this.loginCounter = loginCounter;
+    }
 }

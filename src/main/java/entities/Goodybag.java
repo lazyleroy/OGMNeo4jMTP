@@ -23,7 +23,7 @@ public class Goodybag extends BaseModel{
     private long deliverTime;
     private GeoLocation deliverLocation;
     private GeoLocation shopLocation;
-    private long goodybagID;
+    private String goodybagID;
     private User user;
     private int checkOne;
     private int checkTwo;
@@ -55,15 +55,16 @@ public class Goodybag extends BaseModel{
 
     public void changeID(){
         Random r = new Random();
-        String c = "";
-        for (int i = 1; i<9; i++){
-            int rv = r.nextInt(10);
-            if(i == 1){
-                rv = r.nextInt(9);
+        char[] c = new char[5];
+        for (int i = 0; i< c.length; i++){
+            int rv = r.nextInt(75)+'0';
+            if((rv >=58 && rv <=64)|| (rv >=91 && rv <=96) ) {
+                i--;
+                continue;
             }
-            c+= rv;
+            c[i] =(char)rv;
         }
-        this.goodybagID = Long.parseLong(c);
+        this.goodybagID = String.copyValueOf(c);
     }
 
 
@@ -124,11 +125,11 @@ public class Goodybag extends BaseModel{
         this.deliverLocation = deliverLocation;
     }
 
-    public long getGoodybagID() {
+    public String getGoodybagID() {
         return goodybagID;
     }
 
-    public void setGoodybagID(long goodybagID) {
+    public void setGoodybagID(String goodybagID) {
         this.goodybagID = goodybagID;
     }
 

@@ -1,10 +1,5 @@
 package config;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import entities.*;
 import entities.Cookie;
 import org.apache.http.HttpResponse;
@@ -13,10 +8,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.json.*;
-import org.json.JSONObject;
 import org.neo4j.ogm.exception.NotFoundException;
-import org.neo4j.ogm.json.*;
 import org.neo4j.ogm.model.Result;
 import org.springframework.data.neo4j.template.Neo4jTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,7 +19,6 @@ import requestAnswers.SimpleAnswer;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 import static config.FileUploadController.ROOT;
 
@@ -151,6 +142,9 @@ public class DatabaseOperations {
         Neo4jTemplate template = main.createNeo4JTemplate();
         try {
             User u = template.loadByProperty(User.class, "emailAddress", email);
+            if(u.getLoginCounter() >= 10){
+                return new LoginAnswer(false, "Entered invalid password too often");
+            }
             String hash = u.createSHA1(password, u.getSalt());
             UserSession uS = new UserSession(u);
             Cookie c = new Cookie(u);
@@ -165,11 +159,15 @@ public class DatabaseOperations {
                         template.save(fT,1);
                     }
                 }
+                u.setLoginCounter(0);
+                u.setChangePasswordCounter(0);
                 template.save(uS,1);
                 template.save(c,1);
                 return new LoginAnswer(true, uS.getAccessToken(), 86400000L, c.getRefreshToken(), 15768000000L, u.getProfilePicture(), u.getUserName());
             } else {
-                return new LoginAnswer(false, "Invalid password");
+                u.setLoginCounter(u.getLoginCounter()+1);
+                template.save(u);
+                return new LoginAnswer(false, "Invalid password. Number of tries left: "+ (10-u.getLoginCounter()));
             }
         } catch (NotFoundException nfe) {
             CharArrayWriter cw = new CharArrayWriter();
@@ -230,7 +228,7 @@ public class DatabaseOperations {
                 try {
                     UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
                     User u = uS.getUser();
-                    if (userName != null && !userName.equals("")&&!u.getUserName().equals(userName)) {
+                    if (userName != null && !userName.equals("")&& !u.getUserName().equals(userName)) {
                         u.setUserName(userName);
                         name = userName;
                     }
@@ -291,6 +289,7 @@ public class DatabaseOperations {
 
                         uS.getUser().getGoodybags().add(gB);
                         template.save(gB);
+                        dummyMatching(gB.getGoodybagID());
                         return new SimpleAnswer(true);
                     }
                 }
@@ -363,14 +362,20 @@ public class DatabaseOperations {
             try {
                 UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
                 User u = uS.getUser();
+                if(u.getLoginCounter() >= 10){
+                    return new SimpleAnswer(false, "Entered invalid password too often");
+                }
                 if(u.createSHA1(oldPassword, u.getSalt()).equals(u.getPassword())){
                 Date d = new Date();
                 u.setSalt(Long.toString(d.getTime()));
                 u.setPassword(u.createSHA1(newPassword, u.getSalt()));
+                u.setChangePasswordCounter(0);
                 template.save(u);
                 return new SimpleAnswer(true);
                 }
-                return new SimpleAnswer(false, "Old password was wrong");
+                u.setChangePasswordCounter(u.getChangePasswordCounter()+1);
+                template.save(u);
+                return new SimpleAnswer(false, "Invalid old password. Number of tries lieft: "+ (10-u.getChangePasswordCounter()));
             } catch (NotFoundException nfe) {
                 return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
             }
@@ -434,7 +439,7 @@ public class DatabaseOperations {
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
                     if (entry.getValue() instanceof Goodybag) {
                         if (((Goodybag) entry.getValue()).getDeliverTime()+43200000 < timestamp && ((Goodybag) entry.getValue()).getStatus().equals("Not Accepted")) {
-                            template.query("match (g:Goodybag) where g.goodybagID = "+((Goodybag)entry.getValue()).getGoodybagID()+" set g.status = \'Expired\'", Collections.EMPTY_MAP, false);
+                            template.query("match (g:Goodybag) where g.goodybagID = \'"+((Goodybag)entry.getValue()).getGoodybagID()+"\' set g.status = \'Expired\'", Collections.EMPTY_MAP, false);
                             break;
                         }
                         goodybags.add((Goodybag) entry.getValue());
@@ -478,7 +483,7 @@ public class DatabaseOperations {
      * @return A SimpleAnswer holding false + reason if the goodybags status is already set on "Done" or if the goodybag does not exist
      * A Simple Answer holding true if everything worked.
      */
-    public static SimpleAnswer finishGoodybag(long goodybagID, int rating, boolean creatorRates, String accessToken) {
+    public static SimpleAnswer finishGoodybag(String goodybagID, int rating, boolean creatorRates, String accessToken) {
         if (checkAccessToken(accessToken).getSuccess()) {
             Neo4jTemplate template = main.createNeo4JTemplate();
             Result result;
@@ -487,8 +492,8 @@ public class DatabaseOperations {
             int numberOfRatings = 0;
             long userID = 0;
 
-            String query1 =" match (ft:FirebaseToken)-[:COOKIE]-(c:Cookie)-[:USER]-(u:User)-[:MATCHED_TO]-(gb:Goodybag{goodybagID:"+goodybagID+"})-[:USER]-(n:User)-[:USER]-(us:UserSession{accessToken:\'" + accessToken + "\'}) set gb.status = \'Done\' return u, ft";
-            String query2 =" match (ft:FirebaseToken)-[:COOKIE]-(c:Cookie)-[:USER]-(u:User)-[:OWNS]-(gb:Goodybag{goodybagID:"+goodybagID+"})-[:MATCHED_TO]-(n:User)-[:USER]-(us:UserSession{accessToken:\'" + accessToken + "\'}) set gb.status = \'Done\' return u, ft";
+            String query1 =" match (ft:FirebaseToken)-[:COOKIE]-(c:Cookie)-[:USER]-(u:User)-[:MATCHED_TO]-(gb:Goodybag{goodybagID:\'"+goodybagID+"\'})-[:USER]-(n:User)-[:USER]-(us:UserSession{accessToken:\'" + accessToken + "\'}) set gb.status = \'Done\' return u, ft";
+            String query2 =" match (ft:FirebaseToken)-[:COOKIE]-(c:Cookie)-[:USER]-(u:User)-[:OWNS]-(gb:Goodybag{goodybagID:\'"+goodybagID+"\'})-[:MATCHED_TO]-(n:User)-[:USER]-(us:UserSession{accessToken:\'" + accessToken + "\'}) set gb.status = \'Done\' return u, ft";
 
 
             if(creatorRates){
@@ -547,11 +552,11 @@ public class DatabaseOperations {
         }
     }
 
-    public static Goodybag getGoodybagbyID(long goodybagID, String accessToken){
+    public static Goodybag getGoodybagbyID(String goodybagID, String accessToken){
         Neo4jTemplate template = main.createNeo4JTemplate();
         Goodybag gB = new Goodybag();
         if (checkAccessToken(accessToken).getSuccess()){
-            Result r = template.query("match (u:UserSession)-[:USER]-(n:User)-[:MATCHED_TO]-(m:Goodybag) where m.goodybagID = "+goodybagID+" and u.accessToken = \'"+accessToken+"\' " +
+            Result r = template.query("match (u:UserSession)-[:USER]-(n:User)-[:MATCHED_TO]-(m:Goodybag) where m.goodybagID = \'"+goodybagID+"\' and u.accessToken = \'"+accessToken+"\' " +
                      "MATCH(m:Goodybag)-[:DELIVER_LOCATION]-(k:GeoLocation) " +
                     "MATCH(m:Goodybag)-[:SHOP_LOCATION]-(r:GeoLocation) return m, k,r", Collections.EMPTY_MAP, false);
             Iterator<Map<String, Object>> iterator = r.iterator();
@@ -597,7 +602,7 @@ public class DatabaseOperations {
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 if (entry.getValue() instanceof Goodybag) {
                     if (((Goodybag) entry.getValue()).getDeliverTime()+43200000 < timestamp) {
-                        template.query("match (g:Goodybag)-[m:MATCHED_TO]-(n:User) where g.goodybagID = "+((Goodybag)entry.getValue()).getGoodybagID()+" set g.status = \'Expired\' delete m", Collections.EMPTY_MAP, false);
+                        template.query("match (g:Goodybag)-[m:MATCHED_TO]-(n:User) where g.goodybagID = \'"+((Goodybag)entry.getValue()).getGoodybagID()+"\' set g.status = \'Expired\' delete m", Collections.EMPTY_MAP, false);
                         break;
                     }
                     goodybags.add((Goodybag) entry.getValue());
@@ -623,14 +628,14 @@ public class DatabaseOperations {
         return goodybags;
     }
 
-    public static SimpleAnswer acceptGoodybag(long goodybagID, String accessToken){
+    public static SimpleAnswer acceptGoodybag(String goodybagID, String accessToken){
         if(checkAccessToken(accessToken).getSuccess()){
             Neo4jTemplate template = main.createNeo4JTemplate();
             Goodybag gB = new Goodybag();
             long userID = 0;
 
             Result result = template.query("match(u:UserSession)-[:USER]-(n:User)-[:MATCHED_TO]-(gb:Goodybag)-[:USER]-(x:User)-[:USER]-" +
-                    "(c:Cookie)-[:COOKIE]-(ft:FirebaseToken) where u.accessToken=\'"+accessToken+"\' and gb.goodybagID="+goodybagID +" return gb, ft,n", Collections.EMPTY_MAP, true);
+                    "(c:Cookie)-[:COOKIE]-(ft:FirebaseToken) where u.accessToken=\'"+accessToken+"\' and gb.goodybagID=\'"+goodybagID +"\' return gb, ft,n", Collections.EMPTY_MAP, true);
 
             Iterator<Map<String, Object>> iterator = result.iterator();
             while (iterator.hasNext()) {
@@ -679,9 +684,9 @@ public class DatabaseOperations {
                     }
                 }
             }
-            template.query("match(n:User)-[p:MATCHED_TO]-(g:Goodybag)where g.goodybagID="+goodybagID+" and " +
+            template.query("match(n:User)-[p:MATCHED_TO]-(g:Goodybag)where g.goodybagID=\'"+goodybagID+"\' and " +
                     "NOT n.userID = "+userID+" delete p", Collections.EMPTY_MAP, false);
-            template.query("match(g:Goodybag) where g.goodybagID="+goodybagID+" set g.status = \'Accepted\' ",Collections.EMPTY_MAP,false);
+            template.query("match(g:Goodybag) where g.goodybagID=\'"+goodybagID+"\' set g.status = \'Accepted\' ",Collections.EMPTY_MAP,false);
             return new SimpleAnswer(true);
 
         }
@@ -702,7 +707,7 @@ public class DatabaseOperations {
      * @param userIDs the IDs of the users who shall be notificated
      * @param goodybagID the ID of the matched goodybag
      */
-    public static void matching(ArrayList<String> userIDs, long goodybagID){
+    public static void matching(ArrayList<String> userIDs, String goodybagID){
         Neo4jTemplate template = main.createNeo4JTemplate();
         String query = "";
         int counter = 0;
@@ -726,7 +731,7 @@ public class DatabaseOperations {
         Result r = template.query("match (x:FirebaseToken)-[:COOKIE]->(y:Cookie)-[:USER]->(n:User) where n.userID IN["+query+"] return x,y,n", Collections.EMPTY_MAP, true);
         Iterator<Map<String, Object>> iterator = r.iterator();
         //noinspection WhileLoopReplaceableByForEach
-        String query2= "merge(gb:Goodybag{goodybagID:"+goodybagID+"})";
+        String query2= "merge(gb:Goodybag{goodybagID:\'"+goodybagID+"\'})";
         while (iterator.hasNext()) {
             Map<String, Object> i = iterator.next();
             for (Map.Entry<String, Object> entry : i.entrySet()) {
@@ -761,6 +766,7 @@ public class DatabaseOperations {
                         post.setHeader("Content-type", "application/json");
                         post.addHeader("Authorization", "key=AIzaSyCwYZ4ddd2Ue0DcRCJkhdHSuX1x6AoMC8Q");
                         HttpResponse response = httpClient.execute(post);
+                        System.out.println(notification.toString());
                         System.out.println(EntityUtils.toString(response.getEntity()));
 
                     } catch (IOException e) {
@@ -819,6 +825,12 @@ public class DatabaseOperations {
         }else {
             return new SimpleAnswer(false, "Invalid AccessToken, refreshToken required");
         }
+    }
+
+    public static void dummyMatching(String goodybagID){
+        Neo4jTemplate template = main.createNeo4JTemplate();
+        template.query("match(m:User)-[:OWNS]-(g:Goodybag) where g.goodybagID = \'"+goodybagID+"\' match(r:User) where not r = m merge (g)-[p:MATCHED_TO]->(r)", Collections.EMPTY_MAP, false);
+
     }
 
 

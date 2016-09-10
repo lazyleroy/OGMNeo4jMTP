@@ -15,23 +15,30 @@ import java.security.SecureRandom;
  */
 public class RegisterTest extends TestCase {
 
+    //Choose values to create a an existing User in the Database --> Checking for duplicate values and correct Answers from the Server
+    static String existingUsername = "abc";
+    static String existingEmail = "def";
+    static String existingPassword = "1234";
+    static String existingFirebaseToken = "asdasd";
+    public User u = new User (existingUsername, existingEmail, existingPassword);
+
     public RegisterTest(String name){
         super(name);
     }
 
     public void testRegister(){
         DatabaseOperations db = new DatabaseOperations();
-        db.register(new User("abc", "def","1234"),"def", "asdasd");
+        db.register(u,existingEmail, existingFirebaseToken);
         SecureRandom random = new SecureRandom();
         User u = new User("","","");
         RegisterAnswer registerAnswer;
-        //Empty, existing, random
+        //Tested Values: Empty, existing, random
         String username="";
-        //Empty, existing, random
+        //Tested Values: Empty, existing, random
         String email="";
-        //Empty, some
+        //Tested Values: Empty, random
         String password="";
-        //Empty, some
+        //Tested Values: Empty, random
         String firebaseToken = "";
 
         for(int i = 0; i < 3; i++){
@@ -81,7 +88,7 @@ public class RegisterTest extends TestCase {
                                             }
                                         }
                                     }case 1: {
-                                        email = "def";
+                                        email = existingEmail;
                                         switch (h) {
                                             case 0: {
                                                 password = "";
@@ -160,7 +167,7 @@ public class RegisterTest extends TestCase {
                                 }
 
                             }case 1: {
-                                username = "abc";
+                                username = existingUsername;
                                 switch (j) {
                                     case 0: {
                                         email = "";
@@ -199,7 +206,7 @@ public class RegisterTest extends TestCase {
                                             }
                                         }
                                     }case 1: {
-                                        email = "def";
+                                        email = existingEmail;
                                         switch (h) {
                                             case 0: {
                                                 password = "";
@@ -317,7 +324,7 @@ public class RegisterTest extends TestCase {
                                             }
                                         }
                                     }case 1: {
-                                        email = "def";
+                                        email = existingEmail;
                                         switch (h) {
                                             case 0: {
                                                 password = "";
