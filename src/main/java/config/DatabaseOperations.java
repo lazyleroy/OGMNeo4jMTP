@@ -544,8 +544,9 @@ public class DatabaseOperations {
                     }
                  }
             }
-            template.query("match(n:User) where n.userID="+userID+" set n.rating = "+userRating+" set n.cumulatedRatings ="+ cumulatedRating+" set n.numberOfRatings = "+numberOfRatings , Collections.EMPTY_MAP, false);
-
+            if(rating >= 0 && rating <= 5) {
+                template.query("match(n:User) where n.userID=" + userID + " set n.rating = " + userRating + " set n.cumulatedRatings =" + cumulatedRating + " set n.numberOfRatings = " + numberOfRatings, Collections.EMPTY_MAP, false);
+            }
             return new SimpleAnswer(true);
         }else {
             return new SimpleAnswer(false, "Invalid Accesstoken");
