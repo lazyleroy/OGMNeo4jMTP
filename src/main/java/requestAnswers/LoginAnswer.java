@@ -15,6 +15,7 @@ public class LoginAnswer {
     private final long refreshDuration;
     private final String picturePath;
     private final String username;
+    private final double rating;
 
     public LoginAnswer(boolean success, String reason){
         this.success = success;
@@ -25,9 +26,10 @@ public class LoginAnswer {
         this.refreshDuration = 0;
         this.picturePath = "";
         this.username = "";
+        this.rating = 0;
     }
 
-    public LoginAnswer(boolean success, String accessToken, Long accessDuration, String refreshToken, Long refreshDuration, String picturePath, String username){
+    public LoginAnswer(boolean success, String accessToken, Long accessDuration, String refreshToken, Long refreshDuration, String picturePath, String username, double rating){
         this.success = success;
         this.reason = "";
         this.accessToken = accessToken;
@@ -36,6 +38,7 @@ public class LoginAnswer {
         this.refreshDuration = refreshDuration;
         this.picturePath = picturePath;
         this.username = username;
+        this.rating = rating;
     }
 
     public boolean isSuccess() {
@@ -68,5 +71,9 @@ public class LoginAnswer {
 
     public String getUsername() {
         return username;
+    }
+
+    public double getRating() {
+        return rating;
     }
 }

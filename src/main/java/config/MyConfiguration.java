@@ -10,12 +10,22 @@ import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.data.neo4j.config.Neo4jConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+/**
+ * This class holds the complete configuration of the program. It configures the database IP + credentials + Driver mode.
+ * In addition it enables Springs AutoConfiguration. From here on Spring takes over the configuration of FileUpload and
+ * the RESTful WebService
+ *
+ */
+
 @Configuration
 @EnableWebMvc
+@PropertySources(value = {@PropertySource("classpath:application.properties")})
 @EnableAutoConfiguration
 @EnableTransactionManagement
 class MyConfiguration extends Neo4jConfiguration {
@@ -42,11 +52,5 @@ class MyConfiguration extends Neo4jConfiguration {
                 new TomcatEmbeddedServletContainerFactory();
         return factory;
     }
-
-
-
-
-
-
 
 }

@@ -18,6 +18,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+/**
+ * This class is used to start the program. It also creates the Neo4JTemplates which is responsible for loading nodes from the database.
+ */
 @SpringBootApplication
 public class Main {
 
@@ -33,9 +36,6 @@ public class Main {
     }
 
     public static void main(String[] args){
-
-
-
 
         SpringApplication.run(Main.class, args);
         if(!Files.exists(Paths.get(FileUploadController.ROOT))){

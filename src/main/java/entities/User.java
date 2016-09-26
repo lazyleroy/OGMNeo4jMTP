@@ -25,7 +25,6 @@ public class User extends BaseModel {
     private int cumulatedRatings;
     private int loginCounter;
     private int changePasswordCounter;
-    private boolean isTrackingActivated;
     private GeoLocation location;
     private String profilePicture;
     private long userID;
@@ -46,7 +45,6 @@ public class User extends BaseModel {
         this.salt = Long.toString(d.getTime());
         this.passWord = createSHA1(passWord, this.salt);
         this.rating = 0;
-        this.isTrackingActivated = true;
         this.profilePicture = "default";
         this.numberOfRatings = 0;
         changeID();
@@ -92,12 +90,6 @@ public class User extends BaseModel {
     }
     public void setRating(double rating) {
         this.rating = rating;
-    }
-    public boolean isTrackingActivated() {
-        return isTrackingActivated;
-    }
-    public void setIsTrackingActivated(boolean isTrackingActivated) {
-        this.isTrackingActivated = isTrackingActivated;
     }
     public List<Route> getRoutes() {
         return routes;

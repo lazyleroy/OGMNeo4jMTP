@@ -19,12 +19,17 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 import requestAnswers.SimpleAnswer;
 
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.CharArrayWriter;
 import java.io.PrintWriter;
 
+/**
+ * This class handles the FileUpload. It is part of the RESTful WebService.
+ */
 @Controller
+@MultipartConfig(maxFileSize = 50)
 public class FileUploadController implements HandlerExceptionResolver {
 
     private static final Logger log = LoggerFactory.getLogger(FileUploadController.class);

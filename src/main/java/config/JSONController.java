@@ -16,6 +16,11 @@ import requestAnswers.SimpleAnswer;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class holds all RESTful WebService methods. They are called via the Request Mappings. Each method of this class will
+ * automatically call its corresponding method in the DatabaseOperations class
+ */
+
 @RestController
 public class JSONController {
 

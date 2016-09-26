@@ -50,7 +50,6 @@ public class DatabaseOperations {
      */
     private static final String CLIENTSECRET = "ab02ndls82md9ak";
 
-
     /**
      * Method to register a user on the database. Returns false + reason if the chosen email is already bound to
      * another user on the database.
@@ -163,19 +162,13 @@ public class DatabaseOperations {
                 u.setChangePasswordCounter(0);
                 template.save(uS,1);
                 template.save(c,1);
-                return new LoginAnswer(true, uS.getAccessToken(), 86400000L, c.getRefreshToken(), 15768000000L, u.getProfilePicture(), u.getUserName());
+                return new LoginAnswer(true, uS.getAccessToken(), 86400000L, c.getRefreshToken(), 15768000000L, u.getProfilePicture(), u.getUserName(), u.getRating());
             } else {
                 u.setLoginCounter(u.getLoginCounter()+1);
                 template.save(u);
                 return new LoginAnswer(false, "Invalid password. Number of tries left: "+ (10-u.getLoginCounter()));
             }
         } catch (NotFoundException nfe) {
-            CharArrayWriter cw = new CharArrayWriter();
-            PrintWriter w = new PrintWriter(cw);
-            nfe.printStackTrace(w);
-            w.close();
-            String test = cw.toString();
-            //nfe.printStackTrace();
             return new LoginAnswer(false, "Email does not exist.");
         }
     }
@@ -289,7 +282,9 @@ public class DatabaseOperations {
 
                         uS.getUser().getGoodybags().add(gB);
                         template.save(gB);
+                        if(uS.getUser().getUserName().equals("Felix")){
                         dummyMatching(gB.getGoodybagID());
+                        }
                         return new SimpleAnswer(true);
                     }
                 }
@@ -413,7 +408,6 @@ public class DatabaseOperations {
                 }
         }
 
-
     /**
      * Function to return all goodybags that are linked to a unique user.
      * @param accessToken token to verfiy the unique user
@@ -423,7 +417,7 @@ public class DatabaseOperations {
         if(checkAccessToken(accessToken).getSuccess()) {
             Neo4jTemplate template = main.createNeo4JTemplate();
             Date d = new Date();
-            //Timestamp from now + 12 hours (extra time if goodybag is overdue)
+            //Timestamp to check for expired Goodybags
             long timestamp = d.getTime();
             Result result = template.query("MATCH(n:UserSession{accessToken:\'" + accessToken + "\'})-[:USER]-(m:User)-[:OWNS]-(t:Goodybag)" +
                     "MATCH(t:Goodybag)-[:DELIVER_LOCATION]-(k:GeoLocation) " +
@@ -438,8 +432,9 @@ public class DatabaseOperations {
                 //noinspection Convert2streamapi
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
                     if (entry.getValue() instanceof Goodybag) {
-                        if (((Goodybag) entry.getValue()).getDeliverTime()+43200000 < timestamp && ((Goodybag) entry.getValue()).getStatus().equals("Not Accepted")) {
+                        if (((Goodybag) entry.getValue()).getDeliverTime()+43200000 < timestamp &&( ((Goodybag) entry.getValue()).getStatus().equals("Not Accepted")|| ((Goodybag) entry.getValue()).getStatus().equals("Accepted"))) {
                             template.query("match (g:Goodybag) where g.goodybagID = \'"+((Goodybag)entry.getValue()).getGoodybagID()+"\' set g.status = \'Expired\'", Collections.EMPTY_MAP, false);
+                            i--;
                             break;
                         }
                         goodybags.add((Goodybag) entry.getValue());
@@ -460,6 +455,11 @@ public class DatabaseOperations {
         return new ArrayList<>();
     }
 
+    /**
+     * Function to return the number of finished Goodybags. User is identified by the accessToken.
+     * @param accessToken token to verfiy the unique user
+     * @return returns the number of overall finished Goodybags
+     */
     public static int getNumberOfFinishedGoodybags(String accessToken){
         if(checkAccessToken(accessToken).getSuccess()){
             Neo4jTemplate template = main.createNeo4JTemplate();
@@ -521,8 +521,9 @@ public class DatabaseOperations {
                         org.json.JSONObject notification = new org.json.JSONObject();
                         org.json.JSONObject message = new org.json.JSONObject();
                         org.json.JSONObject body = new org.json.JSONObject();
-                        body.put("body", "rated");
-                        message.put("rating", userRating);
+                        body.put("body", "Du wurdest bewertet");
+                        message.put("overallRating", userRating);
+                        message.put("rating", rating);
                         notification.put("notification", body);
                         notification.put("data", message);
                         notification.put("to", ((FirebaseToken) entry.getValue()).getToken());
@@ -536,7 +537,7 @@ public class DatabaseOperations {
                             post.setHeader("Content-type", "application/json");
                             post.addHeader("Authorization", "key=AIzaSyCwYZ4ddd2Ue0DcRCJkhdHSuX1x6AoMC8Q");
                             HttpResponse response = httpClient.execute(post);
-                            //System.out.println(EntityUtils.toString(response.getEntity()));
+                            System.out.println(EntityUtils.toString(response.getEntity()));
 
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -553,13 +554,17 @@ public class DatabaseOperations {
         }
     }
 
+    /**
+     * Function to get a single Goodybag from the Database.
+     * @param goodybagID ID of the Goodybag that shall be returned. Should consist of 5 characters / numbers.
+     * @param accessToken toke to verify the unique user
+     * @return returns a single Goodybag identified by its ID.
+     */
     public static Goodybag getGoodybagbyID(String goodybagID, String accessToken){
         Neo4jTemplate template = main.createNeo4JTemplate();
         Goodybag gB = new Goodybag();
         if (checkAccessToken(accessToken).getSuccess()){
-            Result r = template.query("match (u:UserSession)-[:USER]-(n:User)-[:MATCHED_TO]-(m:Goodybag) where m.goodybagID = \'"+goodybagID+"\' and u.accessToken = \'"+accessToken+"\' " +
-                     "MATCH(m:Goodybag)-[:DELIVER_LOCATION]-(k:GeoLocation) " +
-                    "MATCH(m:Goodybag)-[:SHOP_LOCATION]-(r:GeoLocation) return m, k,r", Collections.EMPTY_MAP, false);
+            Result r = template.query("match (u:User)-[:OWNS]-(m:Goodybag) where m.goodybagID = \'"+goodybagID+"\' and m.status = \'Not Accepted\' MATCH(m:Goodybag)-[:DELIVER_LOCATION]-(k:GeoLocation) MATCH(m:Goodybag)-[:SHOP_LOCATION]-(r:GeoLocation) return m, k,r, u", Collections.EMPTY_MAP, false);
             Iterator<Map<String, Object>> iterator = r.iterator();
             //noinspection WhileLoopReplaceableByForEach
             while (iterator.hasNext()) {
@@ -576,7 +581,12 @@ public class DatabaseOperations {
                     }
                     if (entry.getValue() instanceof GeoLocation && !j) {
                         gB.setShopLocation((GeoLocation) entry.getValue());
-
+                    }
+                    if(entry.getValue() instanceof  User){
+                        ((User) entry.getValue()).setPassword("");
+                        ((User) entry.getValue()).setSalt("");
+                        ((User) entry.getValue()).setEmailAddress("");
+                        gB.setUser((User)entry.getValue());
                     }
                 }
             }
@@ -585,6 +595,11 @@ public class DatabaseOperations {
         return null;
     }
 
+    /**
+     * Function to get all Goodybags that are matched to a specific user
+     * @param accessToken token to verify the unique user.
+     * @return returns all Goodybags that are matched to the verified user.
+     */
     public static ArrayList<Goodybag> matchedGoodybags(String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         Date d = new Date();
@@ -629,6 +644,13 @@ public class DatabaseOperations {
         return goodybags;
     }
 
+    /**
+     * Function to accept a single Goodybag after it has been matched to a user.
+     * @param goodybagID ID of the single Goodybag that is to be accepted
+     * @param accessToken token to verify the unique user.
+     * @return changes the state of the Goodybag in the database and returns a SimpleAnswer holding true or a SimpleAnswer holding
+     * false + the reason (Incorrect AccessToken).
+     */
     public static SimpleAnswer acceptGoodybag(String goodybagID, String accessToken){
         if(checkAccessToken(accessToken).getSuccess()){
             Neo4jTemplate template = main.createNeo4JTemplate();
@@ -659,7 +681,7 @@ public class DatabaseOperations {
                         org.json.JSONObject notification = new org.json.JSONObject();
                         org.json.JSONObject message = new org.json.JSONObject();
                         org.json.JSONObject body = new org.json.JSONObject();
-                        body.put("body", "Goodybag Accepted");
+                        body.put("body", "Goodybag akzeptiert");
                         message.put("title", goodybagID);
                         notification.put("notification", body);
                         notification.put("data", message);
@@ -693,13 +715,6 @@ public class DatabaseOperations {
         }
     return new SimpleAnswer(false, "Invalid Accesstoken, refreshToken required");
     }
-
-
-
-
-
-
-
 
     /**
      * Function to add a relationship between Users and their matched Goodybags on the database. This method will
@@ -753,7 +768,7 @@ public class DatabaseOperations {
                     org.json.JSONObject notification = new org.json.JSONObject();
                     org.json.JSONObject goodybag = new org.json.JSONObject(gB);
                     org.json.JSONObject body = new org.json.JSONObject();
-                    body.put("body", "Matched Goodybag");
+                    body.put("body", "Passender Goodybag gefunden");
                     notification.put("notification", body);
                     notification.put("data", goodybag);
                     notification.put("to", firebaseToken);
@@ -833,8 +848,6 @@ public class DatabaseOperations {
         template.query("match(m:User)-[:OWNS]-(g:Goodybag) where g.goodybagID = \'"+goodybagID+"\' match(r:User) where not r = m merge (g)-[p:MATCHED_TO]->(r)", Collections.EMPTY_MAP, false);
 
     }
-
-
 
 
 }
