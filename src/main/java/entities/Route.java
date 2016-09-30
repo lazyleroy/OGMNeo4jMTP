@@ -3,7 +3,7 @@ package entities;
 import java.util.*;
 
 /**
- * Created by Felix on 11.07.2016.
+ * Created by Felix Hambrecht on 11.07.2016.
  */
 public class Route extends BaseModel{
 

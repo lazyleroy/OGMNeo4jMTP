@@ -3,7 +3,7 @@ package EntityWrappers;
 import entities.GeoLocation;
 
 /**
- * Created by Felix on 21.07.2016.
+ * Created by Felix Hambrecht on 21.07.2016.
  */
 public class GoodybagWrapper {
 

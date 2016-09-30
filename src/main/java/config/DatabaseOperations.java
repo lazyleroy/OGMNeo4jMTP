@@ -1,7 +1,6 @@
 package config;
 
 import entities.*;
-import entities.Cookie;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -15,17 +14,17 @@ import org.springframework.web.multipart.MultipartFile;
 import requestAnswers.LoginAnswer;
 import requestAnswers.RegisterAnswer;
 import requestAnswers.SimpleAnswer;
-
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+
 import static config.FileUploadController.ROOT;
 
 /**
  * DatabaseOperations is used to execute operations related to a Database directly on the server.
  * The functions of this class or mostly called in JSON Controller and FileUploadController of this project
- * Created by Felix on 15.07.2016.
+ * Created by Felix Hambrecht on 15.07.2016.
  */
 public class DatabaseOperations {
 
@@ -282,9 +281,8 @@ public class DatabaseOperations {
 
                         uS.getUser().getGoodybags().add(gB);
                         template.save(gB);
-                        if(uS.getUser().getUserName().equals("Felix")){
                         dummyMatching(gB.getGoodybagID());
-                        }
+
                         return new SimpleAnswer(true);
                     }
                 }
@@ -510,7 +508,7 @@ public class DatabaseOperations {
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
                     if (entry.getValue() instanceof User){
                         if(rating ==-1){
-                            continue;
+                            break;
                         }
                         cumulatedRating = ((User) entry.getValue()).getCumulatedRatings()+rating;
                         numberOfRatings = ((User) entry.getValue()).getNumberOfRatings()+1;
@@ -563,6 +561,7 @@ public class DatabaseOperations {
     public static Goodybag getGoodybagbyID(String goodybagID, String accessToken){
         Neo4jTemplate template = main.createNeo4JTemplate();
         Goodybag gB = new Goodybag();
+        long userID = 0;
         if (checkAccessToken(accessToken).getSuccess()){
             Result r = template.query("match (u:User)-[:OWNS]-(m:Goodybag) where m.goodybagID = \'"+goodybagID+"\' and m.status = \'Not Accepted\' MATCH(m:Goodybag)-[:DELIVER_LOCATION]-(k:GeoLocation) MATCH(m:Goodybag)-[:SHOP_LOCATION]-(r:GeoLocation) return m, k,r, u", Collections.EMPTY_MAP, false);
             Iterator<Map<String, Object>> iterator = r.iterator();
@@ -590,6 +589,7 @@ public class DatabaseOperations {
                     }
                 }
             }
+            template.query("match(g:Goodybag) where g.goodybagID = \'"+goodybagID+"\' match(r:User)-[:USER]-(t:UserSession) where t.accessToken=\'"+ accessToken+"\' merge (g)-[p:MATCHED_TO]->(r)", Collections.EMPTY_MAP, false);
             return gB;
         }
         return null;

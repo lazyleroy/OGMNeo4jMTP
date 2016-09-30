@@ -1,10 +1,9 @@
 package config;
 
 /**
- * Created by Felix on 27.07.2016.
+ * Created by Felix Hambrecht on 27.07.2016.
  */
-//import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-//import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,13 +66,8 @@ public class FileUploadController implements HandlerExceptionResolver {
             return mav;
         }
         e.printStackTrace();
-        CharArrayWriter cw = new CharArrayWriter();
-        PrintWriter w = new PrintWriter(cw);
-        e.printStackTrace(w);
-        w.close();
-        String test = cw.toString();
 
-        mav.addObject(new SimpleAnswer(false, test));
+        mav.addObject(new SimpleAnswer(false, "Exception occured"));
         return mav;
     }
 

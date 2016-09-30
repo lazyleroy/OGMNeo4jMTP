@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 import requestAnswers.LoginAnswer;
 
 /**
- * Created by Felix on 04.09.2016.
+ * Created by Felix Hambrecht on 04.09.2016.
  * Package: Tests
  * Project: OGMNeo4jMTP
  */

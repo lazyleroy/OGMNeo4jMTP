@@ -1,7 +1,7 @@
 package entities;
 
 /**
- * Created by Felix on 01.08.2016.
+ * Created by Felix Hambrecht on 01.08.2016.
  */
 public class FirebaseToken extends BaseModel {
 

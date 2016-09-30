@@ -1,19 +1,17 @@
-package config; /**
- * Created by Felix on 17.07.2016.
+package config;
+
+/**
+ * Created by Felix Hambrecht on 17.07.2016.
  */
 
 import EntityWrappers.GoodybagWrapper;
-import EntityWrappers.RouteWrapper;
 import entities.Goodybag;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import requestAnswers.LoginAnswer;
-import requestAnswers.RegisterAnswer;
 import entities.User;
 import org.springframework.web.bind.annotation.*;
+import requestAnswers.LoginAnswer;
+import requestAnswers.RegisterAnswer;
 import requestAnswers.SimpleAnswer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -63,12 +61,7 @@ public class JSONController {
                 params.getCheckTwo(), accessToken);
     }
 
-    /*@RequestMapping(value="/uploadRoute", method = RequestMethod.POST)
-    public SimpleAnswer uploadRoute(
 
-            @RequestBody RouteWrapper route, @RequestHeader(value = "accessToken") String accessToken){
-        return db.uploadRoute(route.getRoute(), accessToken);
-    }*/
 
     @RequestMapping(value="/changePassword", method = RequestMethod.POST)
     public SimpleAnswer changePassword(@RequestParam(value="oldPassword")String oldPassword,
@@ -84,11 +77,6 @@ public class JSONController {
         return db.storeFirebaseToken(refreshToken, firebaseToken);
     }
 
-
-    /*@RequestMapping(value = "/sendGoodybagToUsers", method = RequestMethod.POST)
-    public void sendGoodybagToUsers(@RequestParam (value = "userIDs")ArrayList<Long>userIDs, @RequestParam(value="goodyBagID")String goodybagID){
-        db.sendGoodybagToUsers(userIDs,goodybagID);
-    }*/
 
     @RequestMapping(value="/finishGoodybag", method = RequestMethod.POST)
     public SimpleAnswer finishGoodybag(@RequestHeader(value="accessToken") String accessToken,
@@ -122,4 +110,5 @@ public class JSONController {
     public @ResponseBody int numberOfFinishedGoodybags(@RequestHeader(value="accessToken") String accessToken){
         return db.getNumberOfFinishedGoodybags(accessToken);
     }
+
 }

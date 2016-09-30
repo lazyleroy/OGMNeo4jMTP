@@ -5,12 +5,15 @@ import config.Main;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-//import org.bouncycastle.jcajce.provider.digest.SHA3.DigestSHA3;
-//import org.bouncycastle.jcajce.provider.digest.SHA3.Digest256;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+
 
 /**
- * Created by Felix on 11.07.2016.
+ * Created by Felix Hambrecht on 11.07.2016.
  */
 @NodeEntity
 @JsonIgnoreProperties(ignoreUnknown=true)

@@ -1,7 +1,7 @@
 package requestAnswers;
 
 /**
- * Created by Felix on 08.08.2016.
+ * Created by Julian Schweppe on 08.08.2016.
  * Package: requestAnswers
  * Project: OGMNeo4jMTP
  */

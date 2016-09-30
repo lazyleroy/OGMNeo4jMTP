@@ -8,7 +8,7 @@ import requestAnswers.SimpleAnswer;
 import java.util.Date;
 
 /**
- * Created by Felix on 08.09.2016.
+ * Created by Felix Hambrecht on 08.09.2016.
  * Package: Tests
  * Project: OGMNeo4jMTP
  */

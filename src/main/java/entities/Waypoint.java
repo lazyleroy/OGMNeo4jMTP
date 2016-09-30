@@ -1,7 +1,7 @@
 package entities;
 
 /**
- * Created by Felix on 15.08.2016.
+ * Created by Felix Hambrecht on 15.08.2016.
  * Package: entities
  * Project: OGMNeo4jMTP
  */

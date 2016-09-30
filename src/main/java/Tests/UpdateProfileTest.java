@@ -8,7 +8,7 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 
 /**
- * Created by Felix on 04.09.2016.
+ * Created by Felix Hambrecht on 04.09.2016.
  * Package: Tests
  * Project: OGMNeo4jMTP
  */
@@ -17,11 +17,11 @@ public class UpdateProfileTest extends TestCase {
     //Choose the Values of a User you want to test
     public static String testAccessToken = "au6xXNUlRNlF1P3qqQWuSRSmSp38o3SiONTzhWDxfXye2ISuhBoObflNHnMT31AJRD8PsW";
     // username of the user
-    public static String testUsername = "bastian";
+    public static String testUsername = "Mustermann";
     //email of the user
-    public static String testEmail ="bastian@gmx.de";
+    public static String testEmail ="Mustermann@gmx.de";
     //email of another existing user (testing for duplicate mails)
-    public static String staticExistingEmail = "felix@gmx.de";
+    public static String staticExistingEmail = "FelixHambrecht@gmx.de";
 
     public UpdateProfileTest(String name){
         super(name);

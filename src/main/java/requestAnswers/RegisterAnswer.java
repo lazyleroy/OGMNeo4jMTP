@@ -1,7 +1,7 @@
 package requestAnswers;
 
 /**
- * Created by julianschweppe on 19.07.16.
+ * Created by Julian Schweppe on 19.07.16.
  */
 public class RegisterAnswer {
 

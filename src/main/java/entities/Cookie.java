@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.Random;
 
 /**
- * Created by Felix on 15.07.2016.
+ * Created by Felix Hambrecht on 15.07.2016.
  */
 public class Cookie extends  BaseModel{
 

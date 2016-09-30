@@ -6,7 +6,7 @@ import entities.Spot;
 import java.util.Map;
 
 /**
- * Created by Felix on 22.07.2016.
+ * Created by Felix Hambrecht on 22.07.2016.
  */
 public class RouteWrapper {
 

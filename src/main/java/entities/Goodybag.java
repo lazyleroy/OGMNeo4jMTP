@@ -1,14 +1,10 @@
 package entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.neo4j.ogm.annotation.Relationship;
-
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 
 /**
- * Created by Felix on 14.07.2016.
+ * Created by Felix Hambrecht on 14.07.2016.
  */
 
 public class Goodybag extends BaseModel{
