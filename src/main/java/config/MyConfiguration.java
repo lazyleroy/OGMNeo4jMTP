@@ -25,9 +25,9 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @Configuration
 @EnableWebMvc
-@PropertySources(value = {@PropertySource("classpath:application.properties")})
 @EnableAutoConfiguration
 @EnableTransactionManagement
+@PropertySources(value = {@PropertySource(value = "classpath:application.properties")})
 class MyConfiguration extends Neo4jConfiguration {
 
 

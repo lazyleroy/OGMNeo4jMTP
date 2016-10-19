@@ -4,8 +4,7 @@ import java.util.ArrayList;
 
 import cern.colt.matrix.impl.SparseObjectMatrix2D;
 import LocationProcessorServer.datastructures.GPS_plus;
-import LocationProcessorServer.datastructures.Spot;
-
+import entities.*;
 /**
  * This class represents a grid over the GPS-data
  * 
@@ -160,7 +159,7 @@ public class Grid {
 		}
 		return spot;
 	}
-	static Spot getSpot(int spotID, float lat, float longi) {
+	static Spot getSpot(long spotID, float lat, float longi) {
 		double x = ((lat - getMinLat()) / getGridsize());
 		double y = ((longi - getMinLong()) / getGridsize());
 		int arg1 = (int) x;

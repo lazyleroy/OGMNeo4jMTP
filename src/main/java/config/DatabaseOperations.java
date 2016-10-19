@@ -761,7 +761,6 @@ public class DatabaseOperations {
                     gB.getUser().setCumulatedRatings(0);
                     gB.getUser().setPassword(null);
                     gB.getUser().setSalt(null);
-                    gB.getUser().setRoutes(null);
                     gB.getUser().setSalt(null);
                     gB.setStatus(null);
 
@@ -819,16 +818,7 @@ public class DatabaseOperations {
                     query += "MERGE(S" + j + ":Spot{spotID:" + spot.getSpotID() + "})";
                     query += "MERGE(U)<-[:USER]-(W"+ j+")-[:LOCATED_IN]-(S"+j+")";
                     System.out.println(query);
-                    Iterator<Spot> spotIterator = spot.getConnectedSpots().iterator();
-                    int t = 1;
-                    while (spotIterator.hasNext()) {
-                        j++;
-                        Spot connectedSpot = spotIterator.next();
 
-                        query += "MERGE(S" + j + ":Spot{spotID:" + connectedSpot.getSpotID() + "})";
-                        query += "MERGE(S" + (j - t) + ")-[:CONNECTED_WITH]-(S" + j + ")";
-                        t++;
-                    }
                 }
                 System.out.println(query);
                 template.query(query, Collections.EMPTY_MAP);

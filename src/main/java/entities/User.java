@@ -34,8 +34,6 @@ public class User extends BaseModel {
     private int numberOfRatings;
     private ArrayList<GeoLocation>startedAt;
 
-    @Relationship(type = "WALKS", direction = Relationship.UNDIRECTED)
-    private List<Route> routes = new ArrayList<Route>();
 
     @Relationship(type = "OWNS", direction = Relationship.OUTGOING)
     private ArrayList<Goodybag> goodybags = new ArrayList<Goodybag>();
@@ -93,12 +91,6 @@ public class User extends BaseModel {
     }
     public void setRating(double rating) {
         this.rating = rating;
-    }
-    public List<Route> getRoutes() {
-        return routes;
-    }
-    public void setRoutes(List<Route> routes){
-        this.routes =routes;
     }
     public GeoLocation getLocation() {
         return location;

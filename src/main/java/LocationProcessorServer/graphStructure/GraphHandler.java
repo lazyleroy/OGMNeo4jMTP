@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import LocationProcessorServer.datastructures.GPS_plus;
 import LocationProcessorServer.datastructures.Route;
-import LocationProcessorServer.datastructures.Spot;
+import entities.*;
 
 /**
  * This class maintains the Nodes and Edges of the transfer network graph and
@@ -100,7 +100,7 @@ public class GraphHandler {
 	 *            the Edge this Spot is involved to
 	 */
 	static void deleteEdge(Spot spot) {
-		int IDtoDelete = spot.getSpotID();
+		long IDtoDelete = spot.getSpotID();
 		boolean contained = false;
 		for (int i = 0; i < edges.size(); i++) {
 			ArrayList<Spot> segments = edges.get(i).spotSegments;

@@ -2,7 +2,7 @@ package LocationProcessorServer.graphStructure;
 
 import java.util.ArrayList;
 
-import LocationProcessorServer.datastructures.Spot;
+import entities.*;
 import LocationProcessorServer.trajectoryPreparation.GPSDataProcessor;
 
 /**

@@ -2,8 +2,7 @@ package LocationProcessorServer.graphStructure;
 
 import java.util.ArrayList;
 
-import LocationProcessorServer.datastructures.Spot;
-
+import entities.*;
 /**
  * This class defines a Node of the transfer network graph
  * 

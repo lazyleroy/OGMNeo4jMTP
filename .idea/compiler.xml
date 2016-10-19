@@ -23,6 +23,7 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
         <module name="OGM Neo4J" />
+        <module name="OGMNeo4J" />
         <module name="TEST" />
       </profile>
     </annotationProcessing>

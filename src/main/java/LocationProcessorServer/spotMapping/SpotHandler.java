@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import LocationProcessorServer.datastructures.*;
 import LocationProcessorServer.trajectoryPreparation.GPSDataProcessor;
+import entities.*;
 
 /**
  * The SpotHandler is responsible for the main tasks of mapping routes into
@@ -143,7 +144,7 @@ public class SpotHandler {
 		boolean lastPointInSpot = false;
 		// ID of the last Spot a trajectory point was in range of
 		// default = 0
-		int lastInRangeID = 0;
+		long lastInRangeID = 0;
 		// indicates if trajectory was in the last run in the range of a spot
 		// and now is immediately in the range of another spot
 		boolean changedSpotInRange = false;
@@ -353,7 +354,7 @@ public class SpotHandler {
 		double minDistance_centerGPSdatalat;
 		double minDistance_centerGPSdatalong;
 		// ID of the closest spot
-		int minDistance_spotID;
+		long minDistance_spotID;
 		// indicates if the closest spot is in the range of the input GPS_plus
 		// object
 		boolean inRange = false;

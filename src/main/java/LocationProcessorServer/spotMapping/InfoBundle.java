@@ -12,7 +12,7 @@ public class InfoBundle {
 	/**
 	 * ID of the nearest spot
 	 */
-	int minDistance_spotID;
+	long minDistance_spotID;
 	/**
 	 * Indicates if the nearest spot is in range
 	 */
@@ -39,7 +39,7 @@ public class InfoBundle {
 	 * @param distance:
 	 *            Distance to nearest spot
 	 */
-	InfoBundle(int minDistance_spotID, double minDistance_spotCenterlat, double minDistance_spotCenterlong, boolean inRange, double distance) {
+	InfoBundle(long minDistance_spotID, double minDistance_spotCenterlat, double minDistance_spotCenterlong, boolean inRange, double distance) {
 		this.minDistance_spotID = minDistance_spotID;
 		this.inRange = inRange;
 		this.distance = distance;
@@ -52,7 +52,7 @@ public class InfoBundle {
 	// Getter and Setter methods
 	// --------------------------
 	
-	public int getMinDistance_spotID() {
+	public long getMinDistance_spotID() {
 		return minDistance_spotID;
 	}
 

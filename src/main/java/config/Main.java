@@ -28,6 +28,7 @@ public class Main {
     private static Neo4jTemplate template = new Neo4jTemplate(session);
 
 
+
     public Neo4jTemplate createNeo4JTemplate(){
         return new Neo4jTemplate(sessionFactory.openSession());
     }

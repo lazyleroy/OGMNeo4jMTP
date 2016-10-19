@@ -5,6 +5,7 @@ import java.util.Date;
 
 import LocationProcessorServer.spotMapping.InfoBundle;
 import LocationProcessorServer.trajectoryPreparation.DBSCANCluster;
+import entities.*;
 
 /**
  * This class defines a single GPS location
