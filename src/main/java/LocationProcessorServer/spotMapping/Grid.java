@@ -91,8 +91,8 @@ public class Grid {
 	 *            :Spot to add
 	 */
 	static void add(Spot spot) {
-		double x = ((spot.getSpotCenter().getLatitude() - getMinLat()) / getGridsize());
-		double y = ((spot.getSpotCenter().getLongitude() - getMinLong()) / getGridsize());
+		double x = ((spot.getLatitude() - getMinLat()) / getGridsize());
+		double y = ((spot.getLongitude() - getMinLong()) / getGridsize());
 		int arg1 = (int) x;
 		int arg2 = (int) y;
 
@@ -120,8 +120,8 @@ public class Grid {
 	 *            :Spot to remove
 	 */
 	static void remove(Spot spot) {
-		double x = (spot.getSpotCenter().getLatitude() - getMinLat()) / getGridsize();
-		double y = (spot.getSpotCenter().getLongitude() - getMinLong()) / getGridsize();
+		double x = (spot.getLatitude() - getMinLat()) / getGridsize();
+		double y = (spot.getLongitude() - getMinLong()) / getGridsize();
 		int arg1 = (int) x;
 		int arg2 = (int) y;
 		@SuppressWarnings("unchecked")

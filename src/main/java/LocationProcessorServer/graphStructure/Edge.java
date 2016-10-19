@@ -109,7 +109,7 @@ public class Edge {
 	private static void calculateWeight(Spot now, Spot before, double value) {
 		if (now.weightProcessed == false) {
 			now.weightProcessed = true;
-			value = value + GPSDataProcessor.calcDistance(now.getSpotCenter(), before.getSpotCenter());
+			value = value + GPSDataProcessor.calcDistance(now.getLatitude(), now.getLongitude(), before.getLatitude(), before.getLongitude());
 		}
 		if (!now.isIntersection()) {
 			ArrayList<Spot> n = now.getNeighbors();
