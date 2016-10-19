@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$USER_HOME$/Java eclipse project/GeoDesy/GeoDesy.iml" filepath="$USER_HOME$/Java eclipse project/GeoDesy/GeoDesy.iml" />
       <module fileurl="file://$PROJECT_DIR$/OGMNeo4J.iml" filepath="$PROJECT_DIR$/OGMNeo4J.iml" />
     </modules>
   </component>

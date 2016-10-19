@@ -28,6 +28,8 @@ public class Spot {
 	 * Spot center
 	 */
 	private GPS_plus spotCenter;
+	private float longitude;
+	private float latitude;
 	/**
 	 * Heading of the spot
 	 */
@@ -105,7 +107,8 @@ public class Spot {
 	 *            :heading direction of the spot
 	 */
 	public Spot(GPS_plus center, double head) {
-		this.spotCenter = center;
+		this.latitude = center.getLatitude();
+		this.longitude = center.getLongitude();
 		this.spotID = Spot.spotCounter++;
 		if (head >= 180.0) {
 			head = head - 180.0;
@@ -138,7 +141,7 @@ public class Spot {
 		if (absHeadDiff < headDiffThreshold) {
 			this.spotHeading = this.calcSpotHeading(point.getHead());
 		}
-		double distance = GPSDataProcessor.calcDistance(point, spotCenter);
+		double distance = GPSDataProcessor.calcDistance(point.getLatitude(), point.getLongitude(), latitude, longitude);
 		if (distance < distThreshold) {
 			Line fromSpotCenter = calcLine(spotCenter, spotHeading + 90.0);
 			Line fromNewPoint = calcLine(point, spotHeading);

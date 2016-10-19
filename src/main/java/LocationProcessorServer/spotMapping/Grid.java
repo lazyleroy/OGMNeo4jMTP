@@ -35,7 +35,7 @@ public class Grid {
 	/**
 	 * Grid-size in decimal degree
 	 */
-	private static double gridsize = 0.0001;
+	private static double gridsize = 0.0003;
 
 	/**
 	 * Minimal latitude value to define an area (Frankfurt latitude values: 48

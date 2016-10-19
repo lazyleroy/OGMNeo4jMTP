@@ -146,7 +146,7 @@ public class JSONController {
 
         // map into spots
         route = SpotHandler.learningSpotStructure(route);
-        SystemData.getRoutes().add(route);
+        //SystemData.getRoutes().add(route);
         // abstract routes by spots
         Route abstractedBySpots = new Route(new ArrayList<GPS_plus>(), route.getUser());
         Spot lastSpot = null;
@@ -157,7 +157,7 @@ public class JSONController {
                 lastSpot = spot;
             }
         }
-        SystemData.getAbstractedBySpots().add(abstractedBySpots);
+        //SystemData.getAbstractedBySpots().add(abstractedBySpots);
 
         // maintain graph structue
         GraphHandler.updateGraph(route);
@@ -171,7 +171,7 @@ public class JSONController {
                 lastNode = node;
             }
         }
-        SystemData.getAbstractedByNodes().add(abstractedByNodes);
+        //SystemData.getAbstractedByNodes().add(abstractedByNodes);
         return "Route processed";
     }
     /**

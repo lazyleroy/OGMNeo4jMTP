@@ -647,6 +647,12 @@ public class GPSDataProcessor {
 		return distanceInM;
 	}
 
+	static public double calcDistance(float startLatitude, float startLongitude, float endLatitude, float endLongitude) {
+		double distanceInM = GeoDesy.distanceCalculationGEODESY(startLatitude, startLongitude,
+				endLatitude, endLongitude);
+		return distanceInM;
+	}
+
 	/**
 	 * Calculates the heading direction of a GPS point
 	 * 
