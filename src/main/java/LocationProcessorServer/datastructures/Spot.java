@@ -27,7 +27,6 @@ public class Spot {
 	/**
 	 * Spot center
 	 */
-	private GPS_plus spotCenter;
 	private float longitude;
 	private float latitude;
 	/**
@@ -143,20 +142,22 @@ public class Spot {
 		}
 		double distance = GPSDataProcessor.calcDistance(point.getLatitude(), point.getLongitude(), latitude, longitude);
 		if (distance < distThreshold) {
-			Line fromSpotCenter = calcLine(spotCenter, spotHeading + 90.0);
+			Line fromSpotCenter = calcLine(latitude,longitude, spotHeading + 90.0);
 			Line fromNewPoint = calcLine(point, spotHeading);
 			if (fromNewPoint.isVertical() || fromSpotCenter.isVertical()) {
 				GPS_plus calcPoint = calcIntersectionVertical(fromSpotCenter, fromNewPoint);
-
-				this.spotCenter = this.clacSpotCenter(calcPoint);
+				GPS_plus centerupd = this.clacSpotCenter(calcPoint);
+				this.latitude = centerupd.getLatitude();
+				this.longitude = centerupd.getLongitude();
 			} else {
 				GPS_plus calcPoint = calcIntersection(fromSpotCenter, fromNewPoint);
-
-				this.spotCenter = this.clacSpotCenter(calcPoint);
+				GPS_plus centerupd = this.clacSpotCenter(calcPoint);
+				this.latitude = centerupd.getLatitude();
+				this.longitude = centerupd.getLongitude();
 			}
 		}
-		this.semanticID = String.valueOf((int) (this.spotCenter.getLatitude() * 1000)) + "_"
-				+ String.valueOf((int) (this.spotCenter.getLongitude() * 1000));
+		this.semanticID = String.valueOf((int) (latitude * 1000)) + "_"
+				+ String.valueOf((int) (longitude * 1000));
 	}
 
 	/**
@@ -192,6 +193,20 @@ public class Spot {
 		newCenterPoint.setHead(this.spotHeading);
 		return newCenterPoint;
 	}
+
+	private GPS_plus clacSpotCenter(float latitude, float longitude) {
+		this.numberCenterCalcPoints++;
+		this.latitudeSum = this.latitudeSum + latitude;
+		this.longitudeSum = this.longitudeSum + longitude;
+		float avgLat = latitudeSum / numberCenterCalcPoints;
+		float avgLong = longitudeSum / numberCenterCalcPoints;
+
+		GPS_plus newCenterPoint = new GPS_plus();
+		newCenterPoint.setLatitude(avgLat);
+		newCenterPoint.setLongitude(avgLong);
+		newCenterPoint.setHead(this.spotHeading);
+		return newCenterPoint;
+	}
 	
 	/**
 	 * Adds a new neighbor Spot to the Spot
@@ -200,7 +215,7 @@ public class Spot {
 	 */
 	public void addNeighbor(Spot spot){
 		if(spot != null){
-			double distance = GPSDataProcessor.calcDistance(spot.spotCenter, this.spotCenter);
+			double distance = GPSDataProcessor.calcDistance(spot.latitude, spot.longitude, latitude, longitude);
 			if(distance >= 30 && distance <= 150){
 				if(spot.getSpotID() != this.spotID){
 					ArrayList<Spot> neighbors = this.getNeighbors();
@@ -230,7 +245,7 @@ public class Spot {
 	 * @return true if its in range, else false
 	 */
 	public boolean inRange(GPS_plus point) {
-		double dist = GPSDataProcessor.calcDistance(spotCenter, point);
+		double dist = GPSDataProcessor.calcDistance(latitude,longitude, point.getLatitude(),point.getLongitude());
 		if (dist <= stdRadius) {
 			return true;
 		} else {
@@ -272,6 +287,40 @@ public class Spot {
 			double difference = Math.abs(l.getB()-check);
 			if (difference >
 			0.00000001) {
+				System.out.println("line calc went wrong!");
+				System.out.println(l.getB());
+				System.out.println(check);
+				return null;
+			}
+		}
+		return l;
+	}
+
+	private Line calcLine(float lati, float longi, double head) {
+		GPS_plus temp = new GPS_plus();
+		float[] result = new float[3];
+		// creates a new point after a arbitrary distance in head direction to
+		// calculate a line
+		result = GeoDesy.destinationCalculationGEODESY(lati, longi, 50f, (float) head);
+		temp.setLatitude(result[1]);
+		temp.setLongitude(result[2]);
+
+		Line l = new Line();
+		double numerator = (longi - temp.getLongitude());
+		double denominator = (lati - temp.getLatitude());
+		// set slope m
+		l.setM(numerator / denominator);
+		// set y-intercept
+		l.setB(longi - (l.getM() * lati));
+		// check result for correctness and if its a vertical line
+		double check = temp.getLongitude() - (l.getM() * temp.getLatitude());
+		if (denominator == 0) {
+			l.setVertical(true);
+			l.setX(lati);
+		} else {
+			double difference = Math.abs(l.getB()-check);
+			if (difference >
+					0.00000001) {
 				System.out.println("line calc went wrong!");
 				System.out.println(l.getB());
 				System.out.println(check);
@@ -343,14 +392,6 @@ public class Spot {
 
 	public void setSpotID(int spotID) {
 		this.spotID = spotID;
-	}
-
-	public GPS_plus getSpotCenter() {
-		return spotCenter;
-	}
-
-	public void setSpotCenter(GPS_plus spotCenter) {
-		this.spotCenter = spotCenter;
 	}
 
 	public String getSemanticID() {
