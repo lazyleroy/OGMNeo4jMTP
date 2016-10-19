@@ -94,9 +94,9 @@ public class GPS_plus {
 	 */
 	private DBSCANCluster clusterDBSCAN;
 
-	private boolean clusterProcessed;
+	/*private boolean clusterProcessed;
 	private boolean cluster;
-	private boolean nearestClusterInfo;
+	private boolean nearestClusterInfo;*/
 
 	// -----------------------------------------------------------
 	// Constructor
@@ -284,7 +284,7 @@ public class GPS_plus {
 		this.timediffToNextPoint = timediffToNextPoint;
 	}
 
-	public boolean isClusterProcessed() {
+	/*public boolean isClusterProcessed() {
 		return clusterProcessed;
 	}
 
@@ -306,5 +306,5 @@ public class GPS_plus {
 
 	public void setNearestClusterInfo(boolean nearestClusterInfo) {
 		this.nearestClusterInfo = nearestClusterInfo;
-	}
+	}*/
 }
