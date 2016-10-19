@@ -160,6 +160,21 @@ public class Grid {
 		}
 		return spot;
 	}
+	static Spot getSpot(int spotID, float lat, float longi) {
+		double x = ((lat - getMinLat()) / getGridsize());
+		double y = ((longi - getMinLong()) / getGridsize());
+		int arg1 = (int) x;
+		int arg2 = (int) y;
+		@SuppressWarnings("unchecked")
+		ArrayList<Spot> spots = (ArrayList<Spot>) matrix.getQuick(arg1, arg2);
+		Spot spot = null;
+		for (int i = 0; i < spots.size(); i++) {
+			if (spotID == spots.get(i).getSpotID()) {
+				spot = spots.get(i);
+			}
+		}
+		return spot;
+	}
 
 	/**
 	 * Returns all spots stored in a specific single grid

@@ -24,25 +24,27 @@ public class InfoBundle {
 	/**
 	 * Center-Point from the nearest spot
 	 */
-	GPS_plus minDistance_spotCenter;
+	double minDistance_spotCenterlat;
+	double minDistance_spotCenterlong;
 
 	/**
 	 * InfoBundle Constructor
 	 * 
-	 * @param minDistID:
+	 * @param minDistance_spotID:
 	 *            ID of the nearest spot
-	 * @param minDistPoint:
+	 * @param minDistance_spotID:
 	 *            Center-Point of the nearest spot
 	 * @param inRange:
 	 *            Indicates if nearest spot is in range
 	 * @param distance:
 	 *            Distance to nearest spot
 	 */
-	InfoBundle(int minDistance_spotID, GPS_plus minDistance_spotCenter, boolean inRange, double distance) {
+	InfoBundle(int minDistance_spotID, double minDistance_spotCenterlat, double minDistance_spotCenterlong, boolean inRange, double distance) {
 		this.minDistance_spotID = minDistance_spotID;
 		this.inRange = inRange;
 		this.distance = distance;
-		this.minDistance_spotCenter = minDistance_spotCenter;
+		this.minDistance_spotCenterlat = minDistance_spotCenterlat;
+		this.minDistance_spotCenterlong = minDistance_spotCenterlong;
 	}
 	
 	
@@ -70,13 +72,5 @@ public class InfoBundle {
 
 	public void setDistance(double distance) {
 		this.distance = distance;
-	}
-
-	public GPS_plus getMinDistance_spotCenter() {
-		return minDistance_spotCenter;
-	}
-
-	public void setMinDistance_spotCenter(GPS_plus minDistance_spotCenter) {
-		this.minDistance_spotCenter = minDistance_spotCenter;
 	}
 }

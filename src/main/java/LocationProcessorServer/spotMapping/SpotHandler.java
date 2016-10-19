@@ -76,7 +76,7 @@ public class SpotHandler {
 				System.out.println(spot + " zur Datenbank hinzufügen");
 
 			} else if (infobundle.inRange) {
-				spot = Grid.getSpot(infobundle.minDistance_spotID, infobundle.minDistance_spotCenter);
+				spot = Grid.getSpot(infobundle.minDistance_spotID, (float)infobundle.minDistance_spotCenterlat,(float)infobundle.minDistance_spotCenterlong);
 				System.out.println("Einen Spot aus der Datenbank laden");
 				route.getTrajectory().get(j).setSpot(spot);
 				route.getTrajectory().get(j).setMappedToSpot(true);
@@ -96,7 +96,7 @@ public class SpotHandler {
 				// check for the current point if its in range of a spot
 				if (infobundle.inRange) {
 					System.out.println("Einen Spot aus der Datenbank laden");
-					spot = Grid.getSpot(infobundle.minDistance_spotID, infobundle.minDistance_spotCenter);
+					spot = Grid.getSpot(infobundle.minDistance_spotID, (float)infobundle.minDistance_spotCenterlat,(float)infobundle.minDistance_spotCenterlong);
 					route.getTrajectory().get(j).setSpot(spot);
 					route.getTrajectory().get(j).setMappedToSpot(true);
 				}
@@ -105,7 +105,7 @@ public class SpotHandler {
 				// in range and is to close to build an own spot
 				else {
 					System.out.println("Einen Spot aus der Datenbank laden");
-					spot = Grid.getSpot(infobundle.minDistance_spotID, infobundle.minDistance_spotCenter);
+					spot = Grid.getSpot(infobundle.minDistance_spotID, (float)infobundle.minDistance_spotCenterlat,(float)infobundle.minDistance_spotCenterlong);
 					route.getTrajectory().get(j).setSpot(spot);
 					route.getTrajectory().get(j).setMappedToSpot(true);
 				}
@@ -172,7 +172,7 @@ public class SpotHandler {
 				lastPointInSpot = false;
 			} else if (infobundle.inRange) {
 				// point in range
-				spot = Grid.getSpot(infobundle.minDistance_spotID, infobundle.minDistance_spotCenter);
+				spot = Grid.getSpot(infobundle.minDistance_spotID, (float)infobundle.minDistance_spotCenterlat,(float)infobundle.minDistance_spotCenterlong);
 				route.getTrajectory().get(j).setSpot(spot);
 				route.getTrajectory().get(j).setMappedToSpot(true);
 				// check if the last point was in the same spot
@@ -204,7 +204,7 @@ public class SpotHandler {
 				}
 				InfoBundle nearestClusterInfo = route.getTrajectory().get(minIndex).getClosestSpotInfo();
 				Spot sp = Grid.getSpot(nearestClusterInfo.minDistance_spotID,
-						nearestClusterInfo.minDistance_spotCenter);
+						(float)infobundle.minDistance_spotCenterlat,(float)infobundle.minDistance_spotCenterlong);
 				Grid.remove(sp);
 				// this function will update the spot
 				sp.updateSpot(route.getTrajectory().get(minIndex));
@@ -229,7 +229,7 @@ public class SpotHandler {
 					// exception catching: new search
 					infobundle = currentPoint.getClosestSpotInfo();
 					if (infobundle != null) {
-						Spot spot = Grid.getSpot(infobundle.minDistance_spotID, infobundle.minDistance_spotCenter);
+						Spot spot = Grid.getSpot(infobundle.minDistance_spotID, (float)infobundle.minDistance_spotCenterlat,(float)infobundle.minDistance_spotCenterlong);
 						route.getTrajectory().get(j).setSpot(spot);
 						route.getTrajectory().get(j).setMappedToSpot(true);
 					} else {
@@ -238,11 +238,11 @@ public class SpotHandler {
 				} else {
 					// check for the current point if its in range of a spot
 					if (infobundle.inRange) {
-						Spot spot = Grid.getSpot(infobundle.minDistance_spotID, infobundle.minDistance_spotCenter);
+						Spot spot = Grid.getSpot(infobundle.minDistance_spotID, (float)infobundle.minDistance_spotCenterlat,(float)infobundle.minDistance_spotCenterlong);
 						route.getTrajectory().get(j).setSpot(spot);
 						route.getTrajectory().get(j).setMappedToSpot(true);
 					} else if (infobundle.distance > Spot.stdRadius && infobundle.distance < Spot.stdRadius * 2) {
-						Spot spot = Grid.getSpot(infobundle.minDistance_spotID, infobundle.minDistance_spotCenter);
+						Spot spot = Grid.getSpot(infobundle.minDistance_spotID, (float)infobundle.minDistance_spotCenterlat,(float)infobundle.minDistance_spotCenterlong);
 						route.getTrajectory().get(j).setSpot(spot);
 						route.getTrajectory().get(j).setMappedToSpot(true);
 					}
@@ -350,6 +350,8 @@ public class SpotHandler {
 		double minDistance;
 		// Center GPS_plus object of the closest spot
 		GPS_plus minDistance_centerGPSdata;
+		double minDistance_centerGPSdatalat;
+		double minDistance_centerGPSdatalong;
 		// ID of the closest spot
 		int minDistance_spotID;
 		// indicates if the closest spot is in the range of the input GPS_plus
@@ -357,22 +359,27 @@ public class SpotHandler {
 		boolean inRange = false;
 
 		if (spots.size() != 0) {
-			distance = GPSDataProcessor.calcDistance(spots.get(0).getSpotCenter(), point);
+			distance = GPSDataProcessor.calcDistance(spots.get(0).getLatitude(),spots.get(0).getLongitude(), point.getLatitude(), point.getLongitude());
 			minDistance = distance;
-			minDistance_centerGPSdata = spots.get(0).getSpotCenter();
+			minDistance_centerGPSdatalat = spots.get(0).getLatitude();
+			minDistance_centerGPSdatalong = spots.get(0).getLongitude();
+
 			minDistance_spotID = spots.get(0).getSpotID();
 			for (int i = 1; i < spots.size(); i++) {
-				distance = GPSDataProcessor.calcDistance(spots.get(i).getSpotCenter(), point);
+				distance = GPSDataProcessor.calcDistance(spots.get(i).getLatitude(),spots.get(i).getLongitude(), point.getLatitude(),point.getLongitude());
+
 				if (distance < minDistance) {
 					minDistance = distance;
-					minDistance_centerGPSdata = spots.get(i).getSpotCenter();
+					minDistance_centerGPSdatalat = spots.get(i).getLatitude();
+					minDistance_centerGPSdatalong = spots.get(i).getLongitude();
+
 					minDistance_spotID = spots.get(i).getSpotID();
 				}
 			}
 			if (minDistance < Spot.stdRadius) {
 				inRange = true;
 			}
-			return new InfoBundle(minDistance_spotID, minDistance_centerGPSdata, inRange, minDistance);
+			return new InfoBundle(minDistance_spotID, minDistance_centerGPSdatalat, minDistance_centerGPSdatalong, inRange, minDistance);
 		} else {
 			// if there was no spot within the search
 			return null;
