@@ -55,12 +55,15 @@ public class SpotHandler {
 		calculationLevel++;
 		route.setSpotProcessed(true);
 		// initialize grid-structure
-		Grid.createGrid();
+
+		//Grid.createGrid();
+		System.out.println("Grid erstellt! -- Datenbankverbindung aufbauen!");
 		// create first spot
 		Spot spot = generateSpot(route, 0);
 		route.getTrajectory().get(0).setSpot(spot);
 		route.getTrajectory().get(0).setMappedToSpot(true);
-		Grid.add(spot);
+		//Grid.add(spot);
+		System.out.println(spot + " zur Datenbank hinzufügen");
 		// create further spots
 		for (int j = 1; j < route.getTrajectory().size(); j++) {
 			InfoBundle infobundle = searchClosestSpot(route.getTrajectory().get(j));
@@ -69,9 +72,12 @@ public class SpotHandler {
 				spot = generateSpot(route, j);
 				route.getTrajectory().get(j).setSpot(spot);
 				route.getTrajectory().get(j).setMappedToSpot(true);
-				Grid.add(spot);
+				//Grid.add(spot);
+				System.out.println(spot + " zur Datenbank hinzufügen");
+
 			} else if (infobundle.inRange) {
-				spot = Grid.getSpot(infobundle.minDistance_spotID, infobundle.minDistance_spotCenter);
+				//spot = Grid.getSpot(infobundle.minDistance_spotID, infobundle.minDistance_spotCenter);
+				System.out.println("Einen Spot aus der Datenbank laden");
 				route.getTrajectory().get(j).setSpot(spot);
 				route.getTrajectory().get(j).setMappedToSpot(true);
 			} else if (!infobundle.inRange && infobundle.distance < Spot.stdRadius * 2) {
@@ -89,7 +95,8 @@ public class SpotHandler {
 				route.getTrajectory().get(j).setClosestSpotInfo(infobundle);
 				// check for the current point if its in range of a spot
 				if (infobundle.inRange) {
-					spot = Grid.getSpot(infobundle.minDistance_spotID, infobundle.minDistance_spotCenter);
+					System.out.println("Einen Spot aus der Datenbank laden");
+					//spot = Grid.getSpot(infobundle.minDistance_spotID, infobundle.minDistance_spotCenter);
 					route.getTrajectory().get(j).setSpot(spot);
 					route.getTrajectory().get(j).setMappedToSpot(true);
 				}
@@ -97,7 +104,8 @@ public class SpotHandler {
 				// because the distance to the nearest spot is too high to be
 				// in range and is to close to build an own spot
 				else {
-					spot = Grid.getSpot(infobundle.minDistance_spotID, infobundle.minDistance_spotCenter);
+					System.out.println("Einen Spot aus der Datenbank laden");
+					//spot = Grid.getSpot(infobundle.minDistance_spotID, infobundle.minDistance_spotCenter);
 					route.getTrajectory().get(j).setSpot(spot);
 					route.getTrajectory().get(j).setMappedToSpot(true);
 				}

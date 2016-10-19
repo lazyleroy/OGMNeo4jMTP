@@ -12,6 +12,7 @@ import LocationProcessorServer.datastructures.Spot;
 import LocationProcessorServer.graphStructure.GraphHandler;
 import LocationProcessorServer.graphStructure.Node;
 import LocationProcessorServer.spotMapping.SpotHandler;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import entities.Goodybag;
@@ -133,7 +134,7 @@ public class JSONController {
      */
 
     @RequestMapping(value="/post/singleRoute", method = RequestMethod.POST)
-    public String getRouteInJSON(String jsonRoute) {
+    public String getRouteInJSON(@RequestBody String jsonRoute) {
 
         ObjectMapper mapper = new ObjectMapper();
         Route route = null;
@@ -173,7 +174,6 @@ public class JSONController {
         SystemData.getAbstractedByNodes().add(abstractedByNodes);
         return "Route processed";
     }
-
     /**
      * This method receives multiple Routes of the Client in JSON-Format,
      * afterwards it directly processes the routes.
