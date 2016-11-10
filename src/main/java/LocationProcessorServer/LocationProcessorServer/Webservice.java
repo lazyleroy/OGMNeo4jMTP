@@ -2,16 +2,8 @@ package LocationProcessorServer.LocationProcessorServer;
 
 import java.util.ArrayList;
 
-
-
-
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import LocationProcessorServer.controller.SystemData;
 import LocationProcessorServer.datastructures.*;
-import LocationProcessorServer.graphStructure.*;
 import LocationProcessorServer.spotMapping.SpotHandler;
 
 import static javax.swing.text.html.FormSubmitEvent.MethodType.POST;
