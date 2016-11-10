@@ -1,5 +1,6 @@
 package config;
 
+import Interfaces.DeliveppDatabaseOperations;
 import entities.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -26,7 +27,7 @@ import static config.FileUploadController.ROOT;
  * The functions of this class or mostly called in JSON Controller and FileUploadController of this project
  * Created by Felix Hambrecht on 15.07.2016.
  */
-public class DatabaseOperations {
+public class DatabaseOperations implements DeliveppDatabaseOperations {
 
     /**
      * Instance of the Main class to create Neo4JTemplates in different functions of the DatabaseOperations class.
@@ -58,7 +59,7 @@ public class DatabaseOperations {
      * @return RegisterAnswer consists of false and a reason if the registration fails. If the registration process
      * succeeds the RegisterAnswer will consist of true, refreshToken, accessToken + their expiry dates.
      */
-    public static RegisterAnswer register(User user, String emailAddress, String firebaseToken) {
+    public RegisterAnswer register(User user, String emailAddress, String firebaseToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         if(user.getUserName().equals("")|| emailAddress.equals("")){
             return new RegisterAnswer(false, "Empty username or email");
@@ -108,7 +109,7 @@ public class DatabaseOperations {
      * is wrong or expired, or simply holds true if everything is ok.
      */
     @SuppressWarnings("WeakerAccess")
-    public static SimpleAnswer checkAccessToken(String accesstoken) {
+    public SimpleAnswer checkAccessToken(String accesstoken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         long timestamp = new Date().getTime();
         try {
@@ -136,7 +137,7 @@ public class DatabaseOperations {
      * expiry dates if the login was successful.
      */
 
-    public static LoginAnswer emailLogin(String email, String password, String firebaseToken) {
+    public LoginAnswer emailLogin(String email, String password, String firebaseToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         try {
             User u = template.loadByProperty(User.class, "emailAddress", email);
@@ -181,7 +182,7 @@ public class DatabaseOperations {
      * RegisterAnswer returns true, + a new accesstoken + old refreshtoken + their expiry dates if the call was successful.
      */
 
-    public static RegisterAnswer refreshTokenLogin(String refreshToken, int clientID, String clientSecret) {
+    public RegisterAnswer refreshTokenLogin(String refreshToken, int clientID, String clientSecret) {
         if (clientID != CLIENTID || !(clientSecret.equals(CLIENTSECRET))) {
             return new RegisterAnswer(false, "Client - Credentials wrong.");
         }
@@ -211,7 +212,7 @@ public class DatabaseOperations {
      * invalid (due to expiry date or wrong spelling). SimpleAnswer consists of true + the updated values if everything was ok.
      *
      */
-    public static SimpleAnswer updateProfile(String userName, String email, String accessToken) {
+    public SimpleAnswer updateProfile(String userName, String email, String accessToken) {
         String name = "No changes";
         String mail = "No changes";
         Neo4jTemplate template = main.createNeo4JTemplate();
@@ -255,7 +256,7 @@ public class DatabaseOperations {
      * @return depending on missing or wrong input this method will return a SimpleAnswer holding false + reason
      * what went wrong on the creation process. The SimpleAnswer holds true if the process worked.
      */
-    public static SimpleAnswer uploadGoodybag(String title, String status, String description,
+    public SimpleAnswer uploadGoodybag(String title, String status, String description,
                                               double tip, long deliverTime, GeoLocation deliverLocation,
                                               GeoLocation shopLocation, int checkOne, int checkTwo, String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
@@ -300,7 +301,7 @@ public class DatabaseOperations {
      * @return The returned SimpleAnswer holds true and the filename of the uploaded picture if the process is successful.
      * The returned SimpleAnswer holds wrong and a reason if something went wrong.
      */
-    public static SimpleAnswer uploadProfilePicture(MultipartFile file, String accessToken) {
+    public SimpleAnswer uploadProfilePicture(MultipartFile file, String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         if (checkAccessToken(accessToken).getSuccess()) {
             if (!file.isEmpty()) {
@@ -349,7 +350,7 @@ public class DatabaseOperations {
      * @param accessToken token to verify the password
      * @return returns a SimpleAnswer with true or a SimpleAnswer holding false + a reason in case of an invalid refreshToken
      */
-    public static SimpleAnswer changePassword(String oldPassword, String newPassword, String accessToken) {
+    public SimpleAnswer changePassword(String oldPassword, String newPassword, String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         if (checkAccessToken(accessToken).getSuccess()) {
             try {
@@ -382,7 +383,7 @@ public class DatabaseOperations {
      * @return A SimpleAnswer holding false + reason if a firebasetoken already exists or if the given refreshtoken does not exist.
      * A SimpleAnwer holding true if everything worked.
      */
-    public static SimpleAnswer storeFirebaseToken(String refreshToken, String fireBaseToken){
+    public SimpleAnswer storeFirebaseToken(String refreshToken, String fireBaseToken){
             Neo4jTemplate template = main.createNeo4JTemplate();
                 try{
                     Cookie c = template.loadByProperty(Cookie.class, "refreshToken", refreshToken);
@@ -411,7 +412,7 @@ public class DatabaseOperations {
      * @param accessToken token to verfiy the unique user
      * @return returns an ArrayList of Goodybags.
      */
-    public static ArrayList<Goodybag> myGoodybags(String accessToken) {
+    public ArrayList<Goodybag> myGoodybags(String accessToken) {
         if(checkAccessToken(accessToken).getSuccess()) {
             Neo4jTemplate template = main.createNeo4JTemplate();
             Date d = new Date();
@@ -458,7 +459,7 @@ public class DatabaseOperations {
      * @param accessToken token to verfiy the unique user
      * @return returns the number of overall finished Goodybags
      */
-    public static int getNumberOfFinishedGoodybags(String accessToken){
+    public int getNumberOfFinishedGoodybags(String accessToken){
         if(checkAccessToken(accessToken).getSuccess()){
             Neo4jTemplate template = main.createNeo4JTemplate();
             int counter = 0;
@@ -481,7 +482,7 @@ public class DatabaseOperations {
      * @return A SimpleAnswer holding false + reason if the goodybags status is already set on "Done" or if the goodybag does not exist
      * A Simple Answer holding true if everything worked.
      */
-    public static SimpleAnswer finishGoodybag(String goodybagID, int rating, boolean creatorRates, String accessToken) {
+    public SimpleAnswer finishGoodybag(String goodybagID, int rating, boolean creatorRates, String accessToken) {
         if (checkAccessToken(accessToken).getSuccess()) {
             Neo4jTemplate template = main.createNeo4JTemplate();
             Result result;
@@ -558,7 +559,7 @@ public class DatabaseOperations {
      * @param accessToken toke to verify the unique user
      * @return returns a single Goodybag identified by its ID.
      */
-    public static Goodybag getGoodybagbyID(String goodybagID, String accessToken){
+    public Goodybag getGoodybagbyID(String goodybagID, String accessToken){
         Neo4jTemplate template = main.createNeo4JTemplate();
         Goodybag gB = new Goodybag();
         long userID = 0;
@@ -600,7 +601,7 @@ public class DatabaseOperations {
      * @param accessToken token to verify the unique user.
      * @return returns all Goodybags that are matched to the verified user.
      */
-    public static ArrayList<Goodybag> matchedGoodybags(String accessToken) {
+    public ArrayList<Goodybag> matchedGoodybags(String accessToken) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         Date d = new Date();
         long timestamp = d.getTime();
@@ -651,7 +652,7 @@ public class DatabaseOperations {
      * @return changes the state of the Goodybag in the database and returns a SimpleAnswer holding true or a SimpleAnswer holding
      * false + the reason (Incorrect AccessToken).
      */
-    public static SimpleAnswer acceptGoodybag(String goodybagID, String accessToken){
+    public SimpleAnswer acceptGoodybag(String goodybagID, String accessToken){
         if(checkAccessToken(accessToken).getSuccess()){
             Neo4jTemplate template = main.createNeo4JTemplate();
             Goodybag gB = new Goodybag();
@@ -723,7 +724,7 @@ public class DatabaseOperations {
      * @param userIDs the IDs of the users who shall be notificated
      * @param goodybagID the ID of the matched goodybag
      */
-    public static void matching(ArrayList<String> userIDs, String goodybagID){
+    public void matching(ArrayList<String> userIDs, String goodybagID){
         Neo4jTemplate template = main.createNeo4JTemplate();
         String query = "";
         int counter = 0;
@@ -800,7 +801,7 @@ public class DatabaseOperations {
         template.query(query2, Collections.EMPTY_MAP, false);
     }
 
-    public static SimpleAnswer test(ArrayList<Waypoint> uploadedWaypoints, String accessToken) {
+    public SimpleAnswer test(ArrayList<Waypoint> uploadedWaypoints, String accessToken) {
         long startTime = System.nanoTime();
         if (checkAccessToken(accessToken).getSuccess()) {
             Neo4jTemplate template = main.createNeo4JTemplate();
@@ -833,13 +834,13 @@ public class DatabaseOperations {
         }
     }
 
-    public static void dummyMatching(String goodybagID){
+    public void dummyMatching(String goodybagID){
         Neo4jTemplate template = main.createNeo4JTemplate();
         template.query("match(m:User)-[:OWNS]-(g:Goodybag) where g.goodybagID = \'"+goodybagID+"\' match(r:User) where not r = m merge (g)-[p:MATCHED_TO]->(r)", Collections.EMPTY_MAP, false);
 
     }
 
-    public static void saveDataEntity(String userName, double longitude, double latitude, double acceleration, double volume, long track, long time){
+    public void saveDataEntity(String userName, double longitude, double latitude, double acceleration, double volume, long track, long time){
         Neo4jTemplate template = main.createNeo4JTemplate();
         Result result = template.query("match(m:DataEntity{track:"+track+", user:\""+userName+"\"})return m", Collections.EMPTY_MAP, true);
         Iterator<Map<String, Object>> iterator = result.iterator();

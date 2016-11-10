@@ -20,13 +20,13 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-neo4j</artifactId>
-            <version>4.1.4.RELEASE</version>
+            <version>4.1.1.RELEASE</version>
         </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm</artifactId>
-            <version>2.0.0</version>
+            <version>2.0.1</version>
         </dependency>
 
         <dependency>
@@ -54,12 +54,6 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-spatial</artifactId>
-            <version>0.19-neo4j-3.0.3</version>
         </dependency>
 
 
@@ -94,27 +88,6 @@
             <url>https://repo.spring.io/libs-release</url>
         </repository>
 
-
-        <repository>
-            <id>neo4j-contrib-releases</id>
-            <url>https://raw.github.com/neo4j-contrib/m2/master/releases</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>neo4j-contrib-snapshots</id>
-            <url>https://raw.github.com/neo4j-contrib/m2/master/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
 
 
 

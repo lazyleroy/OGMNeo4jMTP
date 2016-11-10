@@ -4,10 +4,7 @@ package config;
  * Created by Felix Hambrecht on 05.07.2016.
  */
 
-import org.neo4j.collections.graphdb.DatabaseService;
-import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.unsafe.batchinsert.SpatialBatchGraphDatabaseService;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
