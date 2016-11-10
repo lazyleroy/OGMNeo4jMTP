@@ -26,6 +26,8 @@ public class Main {
     private static SessionFactory sessionFactory = new MyConfiguration().getSessionFactory();
     private static Session session = sessionFactory.openSession();
     private static Neo4jTemplate template = new Neo4jTemplate(session);
+    private static DatabaseOperations db = new DatabaseOperations();
+
 
 
 
@@ -43,7 +45,16 @@ public class Main {
                 e.printStackTrace();
             }
         }
+        db.saveDataEntity("Felix",1,2,3,4,2,100);
+        db.saveDataEntity("Felix",1,3,4,5,2,120);
+        db.saveDataEntity("Felix",1,4,5,6,3,140);
+        db.saveDataEntity("Felix",1,5,6,7,3,160);
+        db.saveDataEntity("Felix",1,6,7,8,3,180);
+        db.saveDataEntity("Felix",1,7,8,9,3,200);
+        db.saveDataEntity("Felix",1,8,9,1,2,200);
+
     }
+
 
 
 

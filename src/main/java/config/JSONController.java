@@ -11,14 +11,12 @@ import LocationProcessorServer.datastructures.Route;
 import LocationProcessorServer.graphStructure.GraphHandler;
 import LocationProcessorServer.graphStructure.Node;
 import LocationProcessorServer.spotMapping.SpotHandler;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import entities.Goodybag;
 import entities.Spot;
 import entities.User;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor;
 import requestAnswers.LoginAnswer;
 import requestAnswers.RegisterAnswer;
 import requestAnswers.SimpleAnswer;
@@ -225,6 +223,16 @@ public class JSONController {
             SystemData.getAbstractedByNodes().add(abstractedByNodes);
         }
         return "Routes processed";
+    }
+
+
+    @RequestMapping(value="/saveDataEntity", method = RequestMethod.POST)
+    public void saveDataEntity(@RequestParam(value="username")String username, @RequestParam(value="longitude")double longitude,
+                               @RequestParam(value="latitude")double latitude, @RequestParam(value = "acceleration")double acceleration,
+                               @RequestParam(value="volume")double volume, @RequestParam(value="track")long track,
+                               @RequestParam(value="time")long time){
+        db.saveDataEntity(username, longitude, latitude, acceleration, volume, track, time);
+
     }
 
 

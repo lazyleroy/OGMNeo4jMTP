@@ -23,15 +23,17 @@ public class User extends BaseModel {
     private String emailAddress;
     private String salt;
     private String passWord;
+    private String profilePicture;
     private static Main main = new Main();
     private double rating;
     private int cumulatedRatings;
     private int loginCounter;
     private int changePasswordCounter;
-    private GeoLocation location;
-    private String profilePicture;
-    private long userID;
     private int numberOfRatings;
+    private long userID;
+    private GeoLocation location;
+
+
     private ArrayList<GeoLocation>startedAt;
 
 

@@ -26,7 +26,7 @@ import java.util.Set;
  * @author simon_000
  */
 @NodeEntity
-public class Spot {
+public class Spot extends BaseModel {
     /**
      * ID of the spot
      */

@@ -839,5 +839,41 @@ public class DatabaseOperations {
 
     }
 
+    public static void saveDataEntity(String userName, double longitude, double latitude, double acceleration, double volume, long track, long time){
+        Neo4jTemplate template = main.createNeo4JTemplate();
+        Result result = template.query("match(m:DataEntity{track:"+track+", user:\""+userName+"\"})return m", Collections.EMPTY_MAP, true);
+        Iterator<Map<String, Object>> iterator = result.iterator();
+        ArrayList<Long> nodes = new ArrayList<Long>();
+        nodes.add(0L);
+        while (iterator.hasNext()) {
+            boolean j = true;
+            Map<String, Object> map = iterator.next();
+            //System.out.println("test");
+            //noinspection Convert2streamapi
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                if(entry.getValue()instanceof DataEntity){
+                    nodes.add(((DataEntity) entry.getValue()).getNodeNumber());
+                }
+            }
+        }
+        long l = Collections.max(nodes);
+        System.out.println(l);
+        if(l ==0){
+            template.query("Merge(n:User{user:\""+userName+"\"})" +
+                    "merge (m:DataEntity{track:"+track+", user:\""+userName+"\",longitude:"+longitude
+        +", latitude:"+latitude+", acceleration:"+acceleration+",volume:"+volume+",nodeNumber:"+(l+1L)+",time:"+time+"})" +
+                    "merge (n)-[:START]-(m)", Collections.EMPTY_MAP, false);
+        }
+        else{
+            template.query("match(n:DataEntity{user:\""+userName+"\", track:"+track+",nodeNumber:"+l+"}) Merge(m:DataEntity{track:"+track+", user:\""+userName+"\",longitude:"+longitude
+                    +", latitude:"+latitude+", acceleration:"+acceleration+",volume:"+volume+", nodeNumber:"+(l+1L)+", time:"+time+"})" +
+                    "merge (n)-[:CONNECTED]-(m)", Collections.EMPTY_MAP, false);
+        }
+
+
+    }
+
+
+
 
 }
