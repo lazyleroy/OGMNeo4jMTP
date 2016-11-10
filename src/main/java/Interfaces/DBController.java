@@ -1,4 +1,4 @@
-package LocationProcessorServer.controller;
+package Interfaces;
 
 import LocationProcessorServer.datastructures.GPS_plus;
 import entities.Spot;
