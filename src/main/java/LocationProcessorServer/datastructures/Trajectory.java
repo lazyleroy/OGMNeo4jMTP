@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import entities.*;
 
 /**
  * This class defines a trajectory that is comprised of a sequence of GPS

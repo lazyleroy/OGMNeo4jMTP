@@ -1,7 +1,6 @@
 package LocationProcessorServer.spotMapping;
 
-import LocationProcessorServer.datastructures.GPS_plus;
-
+import entities.*;
 /**
  * This class represents a auxiliary class for the spot mapping algorithm
  * 

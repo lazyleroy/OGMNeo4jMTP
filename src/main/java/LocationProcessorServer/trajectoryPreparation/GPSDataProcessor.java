@@ -1,6 +1,7 @@
 package LocationProcessorServer.trajectoryPreparation;
 
 import java.util.ArrayList;
+import entities.*;
 import java.util.Date;
 import cern.colt.matrix.impl.SparseObjectMatrix2D;
 import LocationProcessorServer.datastructures.*;

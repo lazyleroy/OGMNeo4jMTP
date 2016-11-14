@@ -6,10 +6,8 @@ package config;
 
 import EntityWrappers.GoodybagWrapper;
 import LocationProcessorServer.controller.SystemData;
-import LocationProcessorServer.datastructures.GPS_plus;
+import entities.*;
 import LocationProcessorServer.datastructures.Route;
-import LocationProcessorServer.graphStructure.GraphHandler;
-import LocationProcessorServer.graphStructure.Node;
 import LocationProcessorServer.spotMapping.SpotHandler;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -157,18 +155,7 @@ public class JSONController {
         }
         //SystemData.getAbstractedBySpots().add(abstractedBySpots);
 
-        // maintain graph structue
-        GraphHandler.updateGraph(route);
-        // abstract by nodes
-        Route abstractedByNodes = new Route(new ArrayList<GPS_plus>(), route.getUser());
-        Node lastNode = null;
-        for (int j = 0; j < route.size(); j++) {
-            Node node = route.getTrajectory().get(j).getSpot().node;
-            if (node != lastNode && node != null) {
-                abstractedByNodes.getTrajectory().add(route.getTrajectory().get(j));
-                lastNode = node;
-            }
-        }
+
         //SystemData.getAbstractedByNodes().add(abstractedByNodes);
         return "Route processed";
     }
@@ -206,21 +193,6 @@ public class JSONController {
                     lastSpot = spot;
                 }
             }
-            SystemData.getAbstractedBySpots().add(abstractedBySpots);
-
-            // maintain graph structue
-            GraphHandler.updateGraph(route);
-            // abstract by nodes
-            Route abstractedByNodes = new Route(new ArrayList<GPS_plus>(), route.getUser());
-            Node lastNode = null;
-            for (int j = 0; j < route.size(); j++) {
-                Node node = route.getTrajectory().get(j).getSpot().node;
-                if (node != lastNode && node != null) {
-                    abstractedByNodes.getTrajectory().add(route.getTrajectory().get(j));
-                    lastNode = node;
-                }
-            }
-            SystemData.getAbstractedByNodes().add(abstractedByNodes);
         }
         return "Routes processed";
     }

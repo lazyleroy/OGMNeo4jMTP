@@ -1,8 +1,6 @@
 package entities;
 
-import LocationProcessorServer.datastructures.GPS_plus;
 import LocationProcessorServer.geoLibrary.GeoDesy;
-import LocationProcessorServer.graphStructure.Node;
 import LocationProcessorServer.spotMapping.Line;
 import LocationProcessorServer.trajectoryPreparation.GPSDataProcessor;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -48,7 +46,6 @@ public class Spot extends BaseModel {
     private boolean nodeProcessed;
     private boolean edgeProcessed;
     public boolean weightProcessed;
-    public Node node;
 
     /**
      * Default constructor

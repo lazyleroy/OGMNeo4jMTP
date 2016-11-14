@@ -2,8 +2,7 @@ package LocationProcessorServer.trajectoryPreparation;
 
 import java.util.ArrayList;
 
-import LocationProcessorServer.datastructures.GPS_plus;
-
+import entities.*;
 /**
  * This class is a data-structure for DBSCAN. It represents a cluster of points
  * defined by DBSCAN.

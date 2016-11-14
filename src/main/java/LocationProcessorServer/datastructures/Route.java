@@ -1,6 +1,7 @@
 package LocationProcessorServer.datastructures;
 
 import java.util.ArrayList;
+import entities.*;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 

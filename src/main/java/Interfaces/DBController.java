@@ -1,7 +1,8 @@
 package Interfaces;
 
-import LocationProcessorServer.datastructures.GPS_plus;
-import entities.Spot;
+import entities.*;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -21,6 +22,9 @@ public interface DBController {
      * @param spot :Spot to remove from the db
      */
     void removeSpot(Spot spot);
+
+
+
 
     /**
      * Returns a particular spot with a given ID and center-point
@@ -50,4 +54,12 @@ public interface DBController {
      * @return ArrayList<Spot> :searched Spots
      */
     ArrayList<Spot> getSpots(int arg1, int arg2, double radius);
+
+    /**
+     *
+     * @param latitude : latitude of GPS location
+     * @param longitude: longitude of GPS location
+     * @return Spot: list of searched Spots
+     */
+    ArrayList<Spot> getSpots(float latitude, float longitude);
 }

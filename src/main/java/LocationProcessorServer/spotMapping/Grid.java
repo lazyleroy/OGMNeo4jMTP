@@ -3,7 +3,6 @@ package LocationProcessorServer.spotMapping;
 import java.util.ArrayList;
 
 import cern.colt.matrix.impl.SparseObjectMatrix2D;
-import LocationProcessorServer.datastructures.GPS_plus;
 import entities.*;
 /**
  * This class represents a grid over the GPS-data
