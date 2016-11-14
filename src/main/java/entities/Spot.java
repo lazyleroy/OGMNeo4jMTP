@@ -25,24 +25,26 @@ import java.util.Set;
  */
 @NodeEntity
 public class Spot extends BaseModel {
-    /**
-     * ID of the spot
-     */
-    private long spotID;
-    //Center coordinates
-    private float longitude;
-    private float latitude;
-    private double spotHeading;
+
+
     public static int stdRadius = 25;
     private static double headDiffThreshold = 30;
     private static double distThreshold = 8;
+
+    private long spotID; //!
+    private float longitude; //!
+    private float latitude; //!
+    private double spotHeading; //!
+    private boolean intersection; //!
+
+    private int numberCenterCalcPoints; //!
+    private double headSum; //!
+    private int headCalcPoints; //!
+    private float latitudeSum; //!
+    private float longitudeSum; //!
+
     private ArrayList<Spot> neighbors;
-    private boolean intersection;
-    private float latitudeSum;
-    private float longitudeSum;
-    private int numberCenterCalcPoints;
-    private double headSum;
-    private int headCalcPoints;
+
     private boolean nodeProcessed;
     private boolean edgeProcessed;
     public boolean weightProcessed;
