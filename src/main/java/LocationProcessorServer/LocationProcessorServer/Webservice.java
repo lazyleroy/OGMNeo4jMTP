@@ -3,7 +3,6 @@ package LocationProcessorServer.LocationProcessorServer;
 import java.util.ArrayList;
 
 import Interfaces.DBController;
-import LocationProcessorServer.controller.SystemData;
 import LocationProcessorServer.datastructures.*;
 import LocationProcessorServer.spotMapping.SpotHandler;
 import entities.Spot;

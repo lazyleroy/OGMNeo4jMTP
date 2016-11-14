@@ -119,6 +119,7 @@ public class JSONController {
         return db.getNumberOfFinishedGoodybags(accessToken);
     }
 
+    SpotHandler spotHandler = new SpotHandler();
 
     /**
      * This method receives a Route of the Client in JSON-Format, afterwards it
@@ -141,7 +142,7 @@ public class JSONController {
         }
 
         // map into spots
-        route = SpotHandler.learningSpotStructure(route);
+        route = spotHandler.learningSpotStructure(route);
         //SystemData.getRoutes().add(route);
         // abstract routes by spots
         Route abstractedBySpots = new Route(new ArrayList<GPS_plus>(), route.getUser());
@@ -181,7 +182,7 @@ public class JSONController {
         for (int i = 0; i < routes.size(); i++) {
             Route route = routes.get(i);
             // map into spots
-            route = SpotHandler.learningSpotStructure(route);
+            route = spotHandler.learningSpotStructure(route);
             SystemData.getRoutes().add(route);
             // abstract routes by spots
             Route abstractedBySpots = new Route(new ArrayList<GPS_plus>(), route.getUser());

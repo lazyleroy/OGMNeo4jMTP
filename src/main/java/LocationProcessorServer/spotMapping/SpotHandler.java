@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import LocationProcessorServer.datastructures.*;
 import LocationProcessorServer.trajectoryPreparation.GPSDataProcessor;
+import config.Neo4jGraphController;
 import entities.*;
 
 /**
@@ -14,6 +15,7 @@ import entities.*;
  */
 public class SpotHandler {
 
+	Neo4jGraphController neo4j = new Neo4jGraphController();
 	/**
 	 * The calculation level increases every time a trajectory is processed
 	 */
@@ -31,7 +33,7 @@ public class SpotHandler {
 	 * @return Route with information about the assigned Spot at each trajectory
 	 *         point
 	 */
-	public static Route learningSpotStructure(Route route) {
+	public Route learningSpotStructure(Route route) {
 		if (route == null || route.isSpotProcessed()) {
 		} else {
 			if (calculationLevel == 0) {
@@ -51,7 +53,7 @@ public class SpotHandler {
 	 * @return Route with information about the assigned Spot at each trajectory
 	 *         point
 	 */
-	static private Route initialSpotMapping(Route route) {
+	private Route initialSpotMapping(Route route) {
 		// increment calculation-level & mark route as processed
 		calculationLevel++;
 		route.setSpotProcessed(true);
@@ -134,7 +136,7 @@ public class SpotHandler {
 	 * @return Route with information about the assigned Spot at each trajectory
 	 *         point
 	 */
-	static private Route extendSpotStructure(Route route) {
+	private Route extendSpotStructure(Route route) {
 		calculationLevel++;
 		route.setSpotProcessed(true);
 		// counts the points that are in the range of the same (already
@@ -288,62 +290,10 @@ public class SpotHandler {
 	 * @return InfoBundle, gives information about the closest Spot (see
 	 *         documentation InfoBundle)
 	 */
-	static private InfoBundle searchClosestSpot(GPS_plus point) {
+	private InfoBundle searchClosestSpot(GPS_plus point) {
 
 		ArrayList<Spot> spots = new ArrayList<Spot>();
-		// search close spots with the help of the grid structure
-		int x = (int) ((point.getLatitude() - Grid.getMinLat()) / Grid.getGridsize());
-		int y = (int) ((point.getLongitude() - Grid.getMinLong()) / Grid.getGridsize());
-		// maxsearch: indicates the area of grids around the grid the GPS_plus
-		// points lies in that should be searched for spots
-		int maxsearch = 4;
-		if (Grid.getGridsize() <= 0.005) {
-			maxsearch = 6;
-		}
-		if (Grid.getGridsize() <= 0.001) {
-			maxsearch = 10;
-		}
-		if (Grid.getGridsize() <= 0.0005) {
-			maxsearch = 14;
-		}
-		if (Grid.getGridsize() <= 0.0001) {
-			maxsearch = 18;
-		}
-		ArrayList<Spot> tempSpotList = Grid.getSpots(x, y);
-		boolean deepsearch = true;
-		if (tempSpotList != null && tempSpotList.size() != 0) {
-			for (int i = 0; i < tempSpotList.size();) {
-				Spot tempSpot = tempSpotList.get(i);
-				if (tempSpot == null) {
-					tempSpotList.remove(i);
-				} else {
-					i++;
-				}
-			}
-			if (tempSpotList.size() != 0) {
-				spots.addAll(tempSpotList);
-				deepsearch = false;
-			}
-		}
-		if (deepsearch) {
-			for (int counter = 1; counter <= maxsearch; counter++) {
-				for (int i = (x - counter); i <= (x + counter); i++) {
-					for (int j = (y - counter); j <= (y + counter); j++) {
-						if ((i > (int) ((Grid.getMaxLat() - Grid.getMinLat()) / Grid.getGridsize())) || (i < 0)) {
-
-						} else if ((j > (int) ((Grid.getMaxLong() - Grid.getMinLong()) / Grid.getGridsize()))
-								|| (j < 0)) {
-
-						} else {
-							tempSpotList = Grid.getSpots(i, j);
-							if (tempSpotList != null) {
-								spots.addAll(tempSpotList);
-							}
-						}
-					}
-				}
-			}
-		}
+		ArrayList<Spot> tempSpotList =  neo4j.getSpots(point.getLatitude(),point.getLongitude());
 
 		// the search finished
 		// now the closest spot of the found spots must be identified
