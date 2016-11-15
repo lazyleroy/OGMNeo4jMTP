@@ -39,5 +39,5 @@ public interface DBController {
      */
     ArrayList<Spot> getSpots(float latitude, float longitude);
 
-    void addGPSPoints(ArrayList<GPS_plus> gpspoints);
+    void addGPSPoints(ArrayList<GPS_plus> gpspoints, String username);
 }

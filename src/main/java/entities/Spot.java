@@ -38,6 +38,7 @@ public class Spot extends BaseModel {
     private boolean intersection; //!
 
     private int numberCenterCalcPoints; //!
+
     private double headSum; //!
     private int headCalcPoints; //!
     private float latitudeSum; //!
@@ -54,6 +55,8 @@ public class Spot extends BaseModel {
      */
     public Spot() {
         // Default
+        Random random = new Random();
+        this.spotID = random.nextLong();
     }
 
     /**
@@ -410,6 +413,52 @@ public class Spot extends BaseModel {
 
     public void setLatitude(float latitude) {
         this.latitude = latitude;
+    }
+
+    public double getSpotHeading() {
+        return spotHeading;
+    }
+
+    public void setSpotHeading(double spotHeading) {
+        this.spotHeading = spotHeading;
+    }
+    public int getNumberCenterCalcPoints() {
+        return numberCenterCalcPoints;
+    }
+
+    public void setNumberCenterCalcPoints(int numberCenterCalcPoints) {
+        this.numberCenterCalcPoints = numberCenterCalcPoints;
+    }
+    public double getHeadSum() {
+        return headSum;
+    }
+
+    public void setHeadSum(double headSum) {
+        this.headSum = headSum;
+    }
+
+    public int getHeadCalcPoints() {
+        return headCalcPoints;
+    }
+
+    public void setHeadCalcPoints(int headCalcPoints) {
+        this.headCalcPoints = headCalcPoints;
+    }
+
+    public float getLatitudeSum() {
+        return latitudeSum;
+    }
+
+    public void setLatitudeSum(float latitudeSum) {
+        this.latitudeSum = latitudeSum;
+    }
+
+    public float getLongitudeSum() {
+        return longitudeSum;
+    }
+
+    public void setLongitudeSum(float longitudeSum) {
+        this.longitudeSum = longitudeSum;
     }
 }
 

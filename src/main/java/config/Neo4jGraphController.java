@@ -4,7 +4,6 @@ import Interfaces.DBController;
 import entities.*;
 import org.neo4j.ogm.model.Result;
 import org.springframework.data.neo4j.template.Neo4jTemplate;
-
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,15 +23,48 @@ public class Neo4jGraphController implements DBController {
     public void addSpot(Spot spot) {
         Neo4jTemplate template = main.createNeo4JTemplate();
 
-        template.query("match(n:Spot)", Collections.EMPTY_MAP,false);
+        long spotID = spot.getSpotID();
+        ArrayList<Spot> neighbors = spot.getNeighbors();
+        spot.setNeighbors(null);
+        String spotNeighborsQuery = "MERGE (n:Spot{spotID:"+spotID+", longitude:"+spot.getLongitude()+", latitude:"+spot.getLatitude()+", " +
+                "spotHeading:"+spot.getSpotHeading()+", intersection:"+spot.isIntersection()+", numberCenterCalcPoints:"+spot.getNumberCenterCalcPoints()+", " +
+                "headSum:"+spot.getHeadSum()+", headCalcPoints:"+spot.getHeadCalcPoints()+", latitudeSum:"+spot.getLatitudeSum()+", " +
+                "longitudeSum:"+spot.getLongitudeSum()+"}) ";
+        for(int i = 0; i < neighbors.size(); i++){
+            long neighborID = neighbors.get(i).getSpotID();
+            spotNeighborsQuery+= "MERGE (t"+i+":Spot{spotID:"+neighborID+"}) ";
+        }
+        for(int i = 0; i < neighbors.size(); i++){
+            spotNeighborsQuery+= "MERGE (n)-[:CONNECTED_WITH]-(t"+i+") ";
+        }
+        template.query(spotNeighborsQuery, Collections.EMPTY_MAP, false);
+
     }
 
     @Override
-    public void removeSpot(Spot spot) {
+    public void updateSpot(Spot spot) {
+        spot.setNeighbors(null);
         Neo4jTemplate template = main.createNeo4JTemplate();
-
-
+        Spot s = template.loadByProperty(Spot.class, "spotID", spot.getSpotID());
+        s.setNeighbors(null);
+        s.setLatitude(spot.getLatitude());
+        s.setLongitude(spot.getLongitude());
+        s.setSpotHeading(spot.getSpotHeading());
+        s.setIntersection(spot.isIntersection());
+        s.setNumberCenterCalcPoints(spot.getNumberCenterCalcPoints());
+        s.setHeadSum(spot.getHeadSum());
+        s.setHeadCalcPoints(spot.getHeadCalcPoints());
+        s.setLatitudeSum(spot.getLatitudeSum());
+        s.setLongitudeSum(spot.getLongitudeSum());
+        template.save(s);
     }
+
+    @Override
+    public Spot getSpot(long spotID) {
+        Neo4jTemplate template = main.createNeo4JTemplate();
+        return template.loadByProperty(Spot.class, "spotID", spotID);
+    }
+
 
     @Override
     public ArrayList<Spot> getSpots(float latitude, float longitude) {
@@ -56,24 +88,29 @@ public class Neo4jGraphController implements DBController {
     }
 
     @Override
-    public Spot getSpot(int spotID, GPS_plus point) {
-        Neo4jTemplate template = main.createNeo4JTemplate();
+    public void addGPSPoints(ArrayList<GPS_plus> gpspoints, String username) {
 
-        return null;
+        Neo4jTemplate template = main.createNeo4JTemplate();
+        String gpsPlusQuery = "MERGE (n:User{username:\'"+username+"\'}) ";
+        int j = 0;
+        for(int i = 0; i < gpspoints.size(); i++){
+            long spotID = gpspoints.get(i).getSpot().getSpotID();
+            GPS_plus tempGPS = gpspoints.get(i);
+            gpsPlusQuery +=  "MERGE (t"+i+":GPS_Plus{date:\'"+tempGPS.getTime()+"\', latitude:"+tempGPS.getLatitude()
+                    +", longitude:"+tempGPS.getLongitude()+", head:"+tempGPS.getHead()+", speed:"+tempGPS.getSpeed()+", timeDiffToNextPoint:" +
+                    tempGPS.getTimediffToNextPoint()+", distanceToNextPoint:"+tempGPS.getTimediffToNextPoint()+", dataID:"+tempGPS.getDataID()+"}) " +
+                    "MERGE (r"+i+":Spot{spotID:"+spotID+"}) " +
+                    "MERGE (t"+i+")-[:MAPPED_TO_SPOT]-(r"+i+") ";
+            if(i >0){
+            gpsPlusQuery += "MERGE (t"+j+")-[:NEXT_GPS]-(t"+i+") ";
+                j++;
+            }
+            gpsPlusQuery += "MERGE (n)-[:STARTING_POINT]-(t0)";
+        }
+        System.out.println(gpsPlusQuery);
+        template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
+
+
     }
 
-    @Override
-    public Spot getSpot(long spotID, float latitude, float longitude) {
-        Neo4jTemplate template = main.createNeo4JTemplate();
-
-
-        return null;
-    }
-
-    @Override
-    public ArrayList<Spot> getSpots(int arg1, int arg2, double radius) {
-        Neo4jTemplate template = main.createNeo4JTemplate();
-
-        return null;
-    }
 }
