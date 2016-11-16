@@ -1,6 +1,5 @@
 package LocationProcessorServer.spotMapping;
 
-import entities.*;
 /**
  * This class represents a auxiliary class for the spot mapping algorithm
  * 
@@ -11,7 +10,7 @@ public class InfoBundle {
 	/**
 	 * ID of the nearest spot
 	 */
-	long minDistance_spotID;
+	String minDistance_spotID;
 	/**
 	 * Indicates if the nearest spot is in range
 	 */
@@ -38,7 +37,7 @@ public class InfoBundle {
 	 * @param distance:
 	 *            Distance to nearest spot
 	 */
-	InfoBundle(long minDistance_spotID, double minDistance_spotCenterlat, double minDistance_spotCenterlong, boolean inRange, double distance) {
+	InfoBundle(String minDistance_spotID, double minDistance_spotCenterlat, double minDistance_spotCenterlong, boolean inRange, double distance) {
 		this.minDistance_spotID = minDistance_spotID;
 		this.inRange = inRange;
 		this.distance = distance;
@@ -51,11 +50,11 @@ public class InfoBundle {
 	// Getter and Setter methods
 	// --------------------------
 	
-	public long getMinDistance_spotID() {
+	public String getMinDistance_spotID() {
 		return minDistance_spotID;
 	}
 
-	public void setMinDistance_spotID(int minDistance_spotID) {
+	public void setMinDistance_spotID(String minDistance_spotID) {
 		this.minDistance_spotID = minDistance_spotID;
 	}
 	public boolean isInRange() {
