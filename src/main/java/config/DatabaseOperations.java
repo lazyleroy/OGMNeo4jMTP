@@ -24,7 +24,7 @@ import static config.FileUploadController.ROOT;
 
 /**
  * DatabaseOperations is used to execute operations related to a Database directly on the server.
- * The functions of this class or mostly called in JSON Controller and FileUploadController of this project
+ * The functions of this class or mostly called in JSON Test and FileUploadController of this project
  * Created by Felix Hambrecht on 15.07.2016.
  */
 public class DatabaseOperations implements DeliveppDatabaseOperations {

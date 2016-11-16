@@ -122,6 +122,7 @@ public class SpotHandler {
 				if (sp.getSpotID() != lastSpot.getSpotID()) {
 					sp.addNeighbor(lastSpot);
 					lastSpot.addNeighbor(sp);
+					neo4j.addNeigbour(lastSpot.getSpotID(),sp.getSpotID());
 				}
 			}
 			lastSpot = sp;
@@ -267,8 +268,7 @@ public class SpotHandler {
 				if (spot.getSpotID() != lastSpot.getSpotID()) {
 					spot.addNeighbor(lastSpot);
 					lastSpot.addNeighbor(spot);
-					//neo4j.updateSpot(spot);
-					//neo4j.updateSpot(lastSpot);
+					neo4j.addNeigbour(lastSpot.getSpotID(),spot.getSpotID());
 				}
 			}
 			lastSpot = spot;
@@ -320,7 +320,8 @@ public class SpotHandler {
 		// object
 		boolean inRange = false;
 
-		if (spots.size() != 0) {
+
+		if (spots != null && spots.size() != 0) {
 			distance = GPSDataProcessor.calcDistance(spots.get(0).getLatitude(),spots.get(0).getLongitude(), point.getLatitude(), point.getLongitude());
 			minDistance = distance;
 			minDistance_centerGPSdatalat = spots.get(0).getLatitude();
