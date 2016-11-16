@@ -53,28 +53,28 @@ public class Main {
         }
 
         Spot s1 = new Spot();
-        s1.setSpotID(1);
+        s1.setSpotID("1");
         s1.setNeighbors(new ArrayList<>());
         Spot s2 = new Spot();
-        s2.setSpotID(2);
+        s2.setSpotID("2");
         s2.setNeighbors(new ArrayList<>());
         Spot s3 = new Spot();
-        s3.setSpotID(3);
+        s3.setSpotID("3");
         s3.setNeighbors(new ArrayList<>());
         Spot s4 = new Spot();
-        s4.setSpotID(4);
+        s4.setSpotID("4");
         s4.setNeighbors(new ArrayList<>());
         Spot s5 = new Spot();
-        s5.setSpotID(5);
+        s5.setSpotID("5");
         s5.setNeighbors(new ArrayList<>());
         Spot s6 = new Spot();
-        s6.setSpotID(6);
+        s6.setSpotID("6");
         s6.setNeighbors(new ArrayList<>());
         Spot s7 = new Spot();
-        s7.setSpotID(7);
+        s7.setSpotID("7");
         s7.setNeighbors(new ArrayList<>());
         Spot s8 = new Spot();
-        s8.setSpotID(8);
+        s8.setSpotID("8");
         s8.setNeighbors(new ArrayList<>());
 
         s1.getNeighbors().add(s2);

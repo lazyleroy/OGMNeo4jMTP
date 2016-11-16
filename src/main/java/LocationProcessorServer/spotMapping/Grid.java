@@ -143,7 +143,7 @@ public class Grid {
 	 *            :GPS location of the Spot
 	 * @return Spot :searched Spot
 	 */
-	static Spot getSpot(int spotID, GPS_plus point) {
+	static Spot getSpot(String spotID, GPS_plus point) {
 		double x = ((point.getLatitude() - getMinLat()) / getGridsize());
 		double y = ((point.getLongitude() - getMinLong()) / getGridsize());
 		int arg1 = (int) x;
@@ -158,7 +158,7 @@ public class Grid {
 		}
 		return spot;
 	}
-	static Spot getSpot(long spotID, float lat, float longi) {
+	static Spot getSpot(String spotID, float lat, float longi) {
 		double x = ((lat - getMinLat()) / getGridsize());
 		double y = ((longi - getMinLong()) / getGridsize());
 		int arg1 = (int) x;

@@ -31,7 +31,7 @@ public class Spot extends BaseModel {
     private static double headDiffThreshold = 30;
     private static double distThreshold = 8;
 
-    private long spotID; //!
+    private String spotID; //!
     private float longitude; //!
     private float latitude; //!
     private double spotHeading; //!
@@ -56,7 +56,16 @@ public class Spot extends BaseModel {
     public Spot() {
         // Default
         Random random = new Random();
-        this.spotID = random.nextLong();
+        char[] c = new char[20];
+        for(int i = 0; i < c.length; i++){
+            int rv = random.nextInt(75)+'0';
+            if((rv>=58 && rv<=64)||(rv>=91 && rv<=96)){
+                i--;
+                continue;
+            }
+            c[i] = (char)rv;
+        }
+        this.spotID = c.toString();
     }
 
     /**
@@ -67,9 +76,19 @@ public class Spot extends BaseModel {
      */
     public Spot(GPS_plus center, double head) {
         Random random = new Random();
+        char[] c = new char[20];
+        for(int i = 0; i < c.length; i++){
+            int rv = random.nextInt(75)+'0';
+            if((rv>=58 && rv<=64)||(rv>=91 && rv<=96)){
+                i--;
+                continue;
+            }
+            c[i] = (char)rv;
+        }
+        this.spotID = c.toString();
+
         this.latitude = center.getLatitude();
         this.longitude = center.getLongitude();
-        this.spotID = random.nextLong();
         if (head >= 180.0) {
             head = head - 180.0;
         }
@@ -335,11 +354,11 @@ public class Spot extends BaseModel {
 
     // Getter & Setter -------------------------------------------------------
 
-    public long getSpotID() {
+    public String getSpotID() {
         return spotID;
     }
 
-    public void setSpotID(long spotID) {
+    public void setSpotID(String spotID) {
         this.spotID = spotID;
     }
 

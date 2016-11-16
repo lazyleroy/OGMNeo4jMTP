@@ -29,7 +29,7 @@ public interface DBController {
      * @param spotID :ID of the Spot
      * @return Spot :searched Spot
      */
-    Spot getSpot(long spotID);
+    Spot getSpot(String spotID);
 
     /**
      *
