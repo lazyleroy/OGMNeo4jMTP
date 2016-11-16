@@ -109,8 +109,13 @@ public class Neo4jGraphController implements DBController {
         }
         System.out.println(gpsPlusQuery);
         template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
+    }
 
+    public void addNeigbour(long spotID, long updatedSpotID){
+        Neo4jTemplate template = main.createNeo4JTemplate();
+        String addQuery = "MATCH (n:Spot{spotID:"+spotID+"}) MATCH (r:Spot{spotID:" +updatedSpotID +"}) MERGE (n)-[:CONNECTED_WITH]-(r)";
 
+        template.query(addQuery, Collections.EMPTY_MAP, false);
     }
 
 }
