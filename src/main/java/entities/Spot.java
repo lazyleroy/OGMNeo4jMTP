@@ -66,6 +66,7 @@ public class Spot extends BaseModel {
             c[i] = (char)rv;
         }
         this.spotID = c.toString();
+        neighbors = new ArrayList<Spot>();
     }
 
     /**
@@ -192,10 +193,11 @@ public class Spot extends BaseModel {
         if (spot != null) {
             double distance = GPSDataProcessor.calcDistance(spot.latitude, spot.longitude, latitude, longitude);
             if (distance >= 30 && distance <= 150) {
-                if (spot.getSpotID() != this.spotID) {
+                if (!spot.getSpotID().equals(this.spotID)) {
                     ArrayList<Spot> neighbors = this.getNeighbors();
-                    System.out.println(neighbors+ "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ");
+                    System.out.println(neighbors);
                     boolean contained = false;
+
                     for (int i = 0; i < neighbors.size(); i++) {
                         if (spot.getSpotID().equals(neighbors.get(i).spotID)) {
                             contained = true;

@@ -186,7 +186,7 @@ public class SpotHandler {
 				route.getTrajectory().get(j).setMappedToSpot(true);
 				// check if the last point was in the same spot
 				if (lastPointInSpot) {
-					if (infobundle.minDistance_spotID != lastInRangeID) {
+					if (!infobundle.minDistance_spotID.equals(lastInRangeID)) {
 						inRangeCounter = 0;
 						changedSpotInRange = true;
 					} else {
@@ -265,7 +265,7 @@ public class SpotHandler {
 			// set neighbors of the created spots
 			Spot spot = route.getTrajectory().get(j).getSpot();
 			if (spot != null && lastSpot != null) {
-				if (spot.getSpotID() != lastSpot.getSpotID()) {
+				if (!spot.getSpotID().equals(lastSpot.getSpotID())) {
 					spot.addNeighbor(lastSpot);
 					lastSpot.addNeighbor(spot);
 					neo4j.addNeighbour(lastSpot.getSpotID(),spot.getSpotID());

@@ -88,9 +88,9 @@ public class Test {
 	 */
 	public static void getTestdata(ArrayList<GPS_plus> gps_list) {
 		List<GPS_plus> gps_points = new ArrayList<GPS_plus>();
-		gps_points.addAll(GPXHandler.readGPXFile("C:\\Users\\Felix\\IdeaProjects\\OGMNeo4jMTP\\src\\main\\resources\\GPXfiles\\track1.gpx"));
-		gps_points.addAll(GPXHandler.readGPXFile("C:\\Users\\Felix\\IdeaProjects\\OGMNeo4jMTP\\src\\main\\resources\\GPXfiles\\track2.gpx"));
-		gps_points.addAll(GPXHandler.readGPXFile("C:\\Users\\Felix\\IdeaProjects\\OGMNeo4jMTP\\src\\main\\resources\\GPXfiles\\track3.gpx"));
+		gps_points.addAll(GPXHandler.readGPXFile("src\\main\\resources\\GPXfiles\\track1.gpx"));
+		gps_points.addAll(GPXHandler.readGPXFile("src\\main\\resources\\GPXfiles\\track2.gpx"));
+		gps_points.addAll(GPXHandler.readGPXFile("src\\main\\resources\\GPXfiles\\track3.gpx"));
 		for (int i = 0; i < gps_points.size(); i++) {
 			gps_points.get(i).setUserID("007");
 			gps_list.add(gps_points.get(i));
