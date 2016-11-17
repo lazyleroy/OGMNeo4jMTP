@@ -101,7 +101,7 @@ public class Grid {
 		}
 		// if already contained, overwrite
 		for (int i = 0; i < spots.size();) {
-			if (spot.getSpotID() == spots.get(i).getSpotID()) {
+			if (spot.getSpotID().equals(spots.get(i).getSpotID())) {
 				spots.remove(i);
 			} else {
 				i++;
@@ -125,7 +125,7 @@ public class Grid {
 		@SuppressWarnings("unchecked")
 		ArrayList<Spot> spots = (ArrayList<Spot>) matrix.getQuick(arg1, arg2);
 		for (int i = 0; i < spots.size();) {
-			if (spot.getSpotID() == spots.get(i).getSpotID()) {
+			if (spot.getSpotID().equals(spots.get(i).getSpotID())) {
 				spots.remove(i);
 			} else {
 				i++;
@@ -152,7 +152,7 @@ public class Grid {
 		ArrayList<Spot> spots = (ArrayList<Spot>) matrix.getQuick(arg1, arg2);
 		Spot spot = null;
 		for (int i = 0; i < spots.size(); i++) {
-			if (spotID == spots.get(i).getSpotID()) {
+			if (spotID.equals(spots.get(i).getSpotID())) {
 				spot = spots.get(i);
 			}
 		}
@@ -167,7 +167,7 @@ public class Grid {
 		ArrayList<Spot> spots = (ArrayList<Spot>) matrix.getQuick(arg1, arg2);
 		Spot spot = null;
 		for (int i = 0; i < spots.size(); i++) {
-			if (spotID == spots.get(i).getSpotID()) {
+			if (spotID.equals(spots.get(i).getSpotID())) {
 				spot = spots.get(i);
 			}
 		}

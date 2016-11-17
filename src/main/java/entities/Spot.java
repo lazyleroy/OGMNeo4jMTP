@@ -196,7 +196,7 @@ public class Spot extends BaseModel {
                     ArrayList<Spot> neighbors = this.getNeighbors();
                     boolean contained = false;
                     for (int i = 0; i < neighbors.size(); i++) {
-                        if (spot.getSpotID() == neighbors.get(i).spotID) {
+                        if (spot.getSpotID().equals(neighbors.get(i).spotID)) {
                             contained = true;
                         }
                     }
