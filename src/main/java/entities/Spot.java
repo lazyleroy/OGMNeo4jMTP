@@ -208,7 +208,11 @@ public class Spot extends BaseModel {
                     }
                     if (!contained) {
                         neighbors.add(spot);
-                        if (neighbors.size() >= 3 || neighbors.size() == 1) {
+                        //if (neighbors.size() >= 3) {
+                            //this.setIntersection(true);
+                        //}
+                        numberOfNeighbours++;
+                        if(this.numberOfNeighbours >= 3){
                             this.setIntersection(true);
                         }
                         this.setNeighbors(neighbors);

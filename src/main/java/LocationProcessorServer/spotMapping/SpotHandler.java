@@ -122,7 +122,7 @@ public class SpotHandler {
 				if (!sp.getSpotID().equals(lastSpot.getSpotID())) {
 					sp.addNeighbor(lastSpot);
 					lastSpot.addNeighbor(sp);
-					neo4j.addNeighbour(lastSpot.getSpotID(),sp.getSpotID());
+					neo4j.addNeighbour(lastSpot.getSpotID(),sp.getSpotID(),lastSpot.isIntersection(),sp.isIntersection());
 				}
 			}
 			lastSpot = sp;
@@ -268,7 +268,7 @@ public class SpotHandler {
 				if (!spot.getSpotID().equals(lastSpot.getSpotID())) {
 					spot.addNeighbor(lastSpot);
 					lastSpot.addNeighbor(spot);
-					neo4j.addNeighbour(lastSpot.getSpotID(),spot.getSpotID());
+					neo4j.addNeighbour(lastSpot.getSpotID(),spot.getSpotID(),lastSpot.isIntersection(),spot.isIntersection());
 				}
 			}
 			lastSpot = spot;
