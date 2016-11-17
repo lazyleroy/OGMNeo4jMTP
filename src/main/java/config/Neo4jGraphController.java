@@ -2,7 +2,9 @@ package config;
 
 import Interfaces.DBController;
 import entities.*;
+import org.neo4j.ogm.exception.NotFoundException;
 import org.neo4j.ogm.model.Result;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.springframework.data.neo4j.template.Neo4jTemplate;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -60,12 +62,17 @@ public class Neo4jGraphController implements DBController {
     @Override
     public Spot getSpot(String spotID) {
         Neo4jTemplate template = main.createNeo4JTemplate();
-        Spot spot = template.loadByProperty(Spot.class, "spotID", spotID,1);
-        if(spot.getNeighbors() == null){
-            spot.setNeighbors(new ArrayList<Spot>());
-            System.out.println(spot.getNeighbors()+"FFFFFFFFFFFFFFFFFFFFFFFFFFF");
+        try{
+            Spot spot = template.loadByProperty(Spot.class, "spotID", spotID);
+            if(spot.getNeighbors() == null){
+                spot.setNeighbors(new ArrayList<Spot>());
+                System.out.println(spot.getNeighbors()+"FFFFFFFFFFFFFFFFFFFFFFFFFFF");
+            }
+            return spot;
+        }catch(NotFoundException nfe){
+            return null;
         }
-        return spot;
+
     }
 
 
@@ -114,9 +121,11 @@ public class Neo4jGraphController implements DBController {
         template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
     }
 
-    public void addNeighbour(String spotID, String updatedSpotID){
+    public void addNeighbour(String spotID, String updatedSpotID, boolean intersectionCheck, boolean updatedIntersectionCheck){
         Neo4jTemplate template = main.createNeo4JTemplate();
-        String addQuery = "MATCH (n:Spot{spotID:\'"+spotID+"\'}) MATCH (r:Spot{spotID:\'" +updatedSpotID +"\'}) MERGE (n)-[:CONNECTED_WITH]-(r)";
+        String addQuery = "MATCH (n:Spot{spotID:\'"+spotID+"\'}) MATCH (r:Spot{spotID:\'" +updatedSpotID +"\'}) set n.intersection = "+intersectionCheck+" " +
+                "set r.intersection ="+updatedIntersectionCheck+" MERGE (n)-[:CONNECTED_WITH]-(r)";
+
 
         template.query(addQuery, Collections.EMPTY_MAP, false);
     }

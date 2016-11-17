@@ -41,5 +41,5 @@ public interface DBController {
 
     void addGPSPoints(ArrayList<GPS_plus> gpspoints, String username);
 
-    void addNeighbour(String neigbourID, String updatedSpotID);
+    void addNeighbour(String neigbourID, String updatedSpotID, boolean intersectionCheck, boolean updatedIntersectionCheck);
 }
