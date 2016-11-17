@@ -63,8 +63,8 @@ public class Neo4jGraphController implements DBController {
         Spot spot = template.loadByProperty(Spot.class, "spotID", spotID,1);
         if(spot.getNeighbors() == null){
             spot.setNeighbors(new ArrayList<Spot>());
+            System.out.println(spot.getNeighbors()+"FFFFFFFFFFFFFFFFFFFFFFFFFFF");
         }
-        System.out.println(spot.getNeighbors());
         return spot;
     }
 
