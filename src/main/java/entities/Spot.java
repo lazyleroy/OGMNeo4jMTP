@@ -193,6 +193,43 @@ public class Spot extends BaseModel {
      *
      * @param spot :Spot to add as neighbor
      */
+    public boolean addNeighborAlternative(Spot spot) {
+        ArrayList<Spot> neighbors = this.getNeighbors();
+        boolean contained = false;
+
+        for (int i = 0; i < neighbors.size(); i++) {
+            if (spot.getSpotID().equals(neighbors.get(i).spotID)) {
+                contained = true;
+            }
+        }
+
+        if (!contained) {
+            neighbors.add(spot);
+            numberOfNeighbours++;
+            this.setNeighbors(neighbors);
+
+            if (neighbors.size() >= 3) {
+                this.setIntersection(true);
+                System.out.println("SpotID: "+this.getSpotID());
+                System.out.println("NBS:");
+                for(int i = 0; i < neighbors.size(); i++){
+                    System.out.println(neighbors.get(i).getSpotID());
+                }
+            }
+            if(this.numberOfNeighbours >= 3){
+                //this.setIntersection(true);
+            }
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    /**
+     * Adds a new neighbor Spot to the Spot
+     *
+     * @param spot :Spot to add as neighbor
+     */
     public void addNeighbor(Spot spot) {
         if (spot != null) {
             double distance = GPSDataProcessor.calcDistance(spot.latitude, spot.longitude, latitude, longitude);

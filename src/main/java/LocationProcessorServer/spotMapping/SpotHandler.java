@@ -120,9 +120,10 @@ public class SpotHandler {
 			Spot sp = route.getTrajectory().get(j).getSpot();
 			if (sp != null && lastSpot != null) {
 				if (!sp.getSpotID().equals(lastSpot.getSpotID())) {
-					sp.addNeighbor(lastSpot);
-					lastSpot.addNeighbor(sp);
-					neo4j.addNeighbour(lastSpot.getSpotID(),sp.getSpotID(),lastSpot.isIntersection(),sp.isIntersection());
+                    addNeighbor(lastSpot,spot);
+					//sp.addNeighbor(lastSpot);
+					//lastSpot.addNeighbor(sp);
+					//neo4j.addNeighbour(lastSpot.getSpotID(),sp.getSpotID(),lastSpot.isIntersection(),sp.isIntersection());
 				}
 			}
 			lastSpot = sp;
@@ -266,9 +267,10 @@ public class SpotHandler {
 			Spot spot = route.getTrajectory().get(j).getSpot();
 			if (spot != null && lastSpot != null) {
 				if (!spot.getSpotID().equals(lastSpot.getSpotID())) {
-					spot.addNeighbor(lastSpot);
-					lastSpot.addNeighbor(spot);
-					neo4j.addNeighbour(lastSpot.getSpotID(),spot.getSpotID(),lastSpot.isIntersection(),spot.isIntersection());
+					addNeighbor(lastSpot,spot);
+                    //spot.addNeighbor(lastSpot);
+					//lastSpot.addNeighbor(spot);
+					//neo4j.addNeighbour(lastSpot.getSpotID(),spot.getSpotID(),lastSpot.isIntersection(),spot.isIntersection());
 				}
 			}
 			lastSpot = spot;
@@ -276,6 +278,24 @@ public class SpotHandler {
 		lastSpot = null;
 		return route;
 	}
+
+    /**
+     * Adds a new neighbor Spot to the Spot
+     *
+     * @param spot :Spot to add as neighbor
+     */
+    public void addNeighbor(Spot spot, Spot spot2) {
+        if (spot != null) {
+            double distance = GPSDataProcessor.calcDistance(spot.getLatitude(), spot.getLongitude(), spot2.getLatitude(), spot2.getLongitude());
+            if (distance >= 25 && distance <= 150) {
+                if (!spot.getSpotID().equals(spot2.getSpotID())) {
+                    if(spot.addNeighborAlternative(spot2) && spot2.addNeighborAlternative(spot)){
+                        neo4j.addNeighbour(spot.getSpotID(),spot2.getSpotID(),spot.isIntersection(),spot2.isIntersection());
+                    }
+                }
+            }
+        }
+    }
 
 	/**
 	 * Generates a new spot out of a point(GPS_plus object) with given index in
