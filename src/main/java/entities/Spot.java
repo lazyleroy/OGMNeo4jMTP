@@ -194,6 +194,7 @@ public class Spot extends BaseModel {
             if (distance >= 30 && distance <= 150) {
                 if (spot.getSpotID() != this.spotID) {
                     ArrayList<Spot> neighbors = this.getNeighbors();
+                    System.out.println(neighbors);
                     boolean contained = false;
                     for (int i = 0; i < neighbors.size(); i++) {
                         if (spot.getSpotID() == neighbors.get(i).spotID) {
