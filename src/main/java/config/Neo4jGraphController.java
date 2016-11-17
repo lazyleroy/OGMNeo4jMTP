@@ -25,14 +25,13 @@ public class Neo4jGraphController implements DBController {
 
         String spotID = spot.getSpotID();
         ArrayList<Spot> neighbors = spot.getNeighbors();
-        spot.setNeighbors(null);
-        String spotNeighborsQuery = "MERGE (n:Spot{spotID:"+spotID+", longitude:"+spot.getLongitude()+", latitude:"+spot.getLatitude()+", " +
+        String spotNeighborsQuery = "MERGE (n:Spot{spotID:\'"+spotID+"\', longitude:"+spot.getLongitude()+", latitude:"+spot.getLatitude()+", " +
                 "spotHeading:"+spot.getSpotHeading()+", intersection:"+spot.isIntersection()+", numberCenterCalcPoints:"+spot.getNumberCenterCalcPoints()+", " +
                 "headSum:"+spot.getHeadSum()+", headCalcPoints:"+spot.getHeadCalcPoints()+", latitudeSum:"+spot.getLatitudeSum()+", " +
                 "longitudeSum:"+spot.getLongitudeSum()+"}) ";
         for(int i = 0; i < neighbors.size(); i++){
             String neighborID = neighbors.get(i).getSpotID();
-            spotNeighborsQuery+= "MERGE (t"+i+":Spot{spotID:"+neighborID+"}) ";
+            spotNeighborsQuery+= "MERGE (t"+i+":Spot{spotID:\'"+neighborID+"\'}) ";
         }
         for(int i = 0; i < neighbors.size(); i++){
             spotNeighborsQuery+= "MERGE (n)-[:CONNECTED_WITH]-(t"+i+") ";
@@ -43,7 +42,6 @@ public class Neo4jGraphController implements DBController {
 
     @Override
     public void updateSpot(Spot spot) {
-        spot.setNeighbors(null);
         Neo4jTemplate template = main.createNeo4JTemplate();
         Spot s = template.loadByProperty(Spot.class, "spotID", spot.getSpotID());
         s.setNeighbors(null);
@@ -62,7 +60,12 @@ public class Neo4jGraphController implements DBController {
     @Override
     public Spot getSpot(String spotID) {
         Neo4jTemplate template = main.createNeo4JTemplate();
-        return template.loadByProperty(Spot.class, "spotID", spotID);
+        Spot spot = template.loadByProperty(Spot.class, "spotID", spotID,1);
+        if(spot.getNeighbors() == null){
+            spot.setNeighbors(new ArrayList<Spot>());
+        }
+        System.out.println(spot.getNeighbors());
+        return spot;
     }
 
 
@@ -99,7 +102,7 @@ public class Neo4jGraphController implements DBController {
             gpsPlusQuery +=  "MERGE (t"+i+":GPS_Plus{date:\'"+tempGPS.getTime()+"\', latitude:"+tempGPS.getLatitude()
                     +", longitude:"+tempGPS.getLongitude()+", head:"+tempGPS.getHead()+", speed:"+tempGPS.getSpeed()+", timeDiffToNextPoint:" +
                     tempGPS.getTimediffToNextPoint()+", distanceToNextPoint:"+tempGPS.getTimediffToNextPoint()+", dataID:"+tempGPS.getDataID()+"}) " +
-                    "MERGE (r"+i+":Spot{spotID:"+spotID+"}) " +
+                    "MERGE (r"+i+":Spot{spotID:\'"+spotID+"\'}) " +
                     "MERGE (t"+i+")-[:MAPPED_TO_SPOT]-(r"+i+") ";
             if(i >0){
             gpsPlusQuery += "MERGE (t"+j+")-[:NEXT_GPS]-(t"+i+") ";
@@ -111,9 +114,9 @@ public class Neo4jGraphController implements DBController {
         template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
     }
 
-    public void addNeigbour(String spotID, String updatedSpotID){
+    public void addNeighbour(String spotID, String updatedSpotID){
         Neo4jTemplate template = main.createNeo4JTemplate();
-        String addQuery = "MATCH (n:Spot{spotID:"+spotID+"}) MATCH (r:Spot{spotID:" +updatedSpotID +"}) MERGE (n)-[:CONNECTED_WITH]-(r)";
+        String addQuery = "MATCH (n:Spot{spotID:\'"+spotID+"\'}) MATCH (r:Spot{spotID:\'" +updatedSpotID +"\'}) MERGE (n)-[:CONNECTED_WITH]-(r)";
 
         template.query(addQuery, Collections.EMPTY_MAP, false);
     }
