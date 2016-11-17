@@ -19,7 +19,7 @@ public class SpotHandler {
 	/**
 	 * The calculation level increases every time a trajectory is processed
 	 */
-	static private int calculationLevel = 0;
+	static private int calculationLevel = 1;
 	/**
 	 * Saves the last spot that the trajectory crossed to check for crossroads
 	 */
@@ -119,7 +119,7 @@ public class SpotHandler {
 			// set neighbors of the created spots
 			Spot sp = route.getTrajectory().get(j).getSpot();
 			if (sp != null && lastSpot != null) {
-				if (sp.getSpotID() != lastSpot.getSpotID()) {
+				if (!sp.getSpotID().equals(lastSpot.getSpotID())) {
 					sp.addNeighbor(lastSpot);
 					lastSpot.addNeighbor(sp);
 					neo4j.addNeighbour(lastSpot.getSpotID(),sp.getSpotID());

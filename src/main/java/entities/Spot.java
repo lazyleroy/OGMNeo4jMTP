@@ -3,6 +3,7 @@ package entities;
 import LocationProcessorServer.geoLibrary.GeoDesy;
 import LocationProcessorServer.spotMapping.Line;
 import LocationProcessorServer.trajectoryPreparation.GPSDataProcessor;
+import config.Neo4jGraphController;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -50,6 +51,8 @@ public class Spot extends BaseModel {
     private boolean edgeProcessed;
     public boolean weightProcessed;
 
+    Neo4jGraphController neo4j;
+
     /**
      * Default constructor
      */
@@ -86,7 +89,7 @@ public class Spot extends BaseModel {
             }
             c[i] = (char)rv;
         }
-        this.spotID = c.toString();
+        this.spotID = String.copyValueOf(c);
 
         this.latitude = center.getLatitude();
         this.longitude = center.getLongitude();
@@ -195,7 +198,6 @@ public class Spot extends BaseModel {
             if (distance >= 30 && distance <= 150) {
                 if (!spot.getSpotID().equals(this.spotID)) {
                     ArrayList<Spot> neighbors = this.getNeighbors();
-                    System.out.println(neighbors);
                     boolean contained = false;
 
                     for (int i = 0; i < neighbors.size(); i++) {
@@ -205,10 +207,11 @@ public class Spot extends BaseModel {
                     }
                     if (!contained) {
                         neighbors.add(spot);
-                        if (neighbors.size() >= 3) {
+                        if (neighbors.size() >= 3 || neighbors.size() == 1) {
                             this.setIntersection(true);
                         }
                         this.setNeighbors(neighbors);
+
                     }
                 }
             }
