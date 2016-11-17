@@ -56,6 +56,7 @@ public class Neo4jGraphController implements DBController {
         s.setHeadCalcPoints(spot.getHeadCalcPoints());
         s.setLatitudeSum(spot.getLatitudeSum());
         s.setLongitudeSum(spot.getLongitudeSum());
+        s.setNumberOfNeighbours(spot.getNumberOfNeighbours());
         template.save(s);
     }
 
@@ -124,8 +125,8 @@ public class Neo4jGraphController implements DBController {
     public void addNeighbour(String spotID, String updatedSpotID, boolean intersectionCheck, boolean updatedIntersectionCheck){
         Neo4jTemplate template = main.createNeo4JTemplate();
         String addQuery = "MATCH (n:Spot{spotID:\'"+spotID+"\'}) MATCH (r:Spot{spotID:\'" +updatedSpotID +"\'}) set n.intersection = "+intersectionCheck+" " +
-                "set n.numberOfNeighbours = n.numberOfNeighbours+1 set r.intersection ="+updatedIntersectionCheck+ "" +
-                "set r.numberOfNeighbours = r.numberOfNeighbours+1 MERGE (n)-[:CONNECTED_WITH]-(r)";
+                ", n.numberOfNeighbours = n.numberOfNeighbours+1, r.intersection ="+updatedIntersectionCheck+ "" +
+                ", r.numberOfNeighbours = r.numberOfNeighbours+1 MERGE (n)-[:CONNECTED_WITH]-(r)";
 
 
         template.query(addQuery, Collections.EMPTY_MAP, false);
