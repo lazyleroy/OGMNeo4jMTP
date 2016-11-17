@@ -158,7 +158,7 @@ public class Main {
         points.add(gp12);
 
         //neo4jGraphController.addGPSPoints(points, "Felix");
-        neo4jGraphController.addNeighbour("2","5");
+        //neo4jGraphController.addNeighbour("2","5");
 
 
     }

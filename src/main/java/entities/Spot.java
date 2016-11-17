@@ -50,6 +50,7 @@ public class Spot extends BaseModel {
     private boolean nodeProcessed;
     private boolean edgeProcessed;
     public boolean weightProcessed;
+    public int numberOfNeighbours;
 
     Neo4jGraphController neo4j;
 
@@ -484,6 +485,14 @@ public class Spot extends BaseModel {
 
     public void setLongitudeSum(float longitudeSum) {
         this.longitudeSum = longitudeSum;
+    }
+
+    public int getNumberOfNeighbours() {
+        return numberOfNeighbours;
+    }
+
+    public void setNumberOfNeighbours(int numberOfNeighbours) {
+        this.numberOfNeighbours = numberOfNeighbours;
     }
 }
 

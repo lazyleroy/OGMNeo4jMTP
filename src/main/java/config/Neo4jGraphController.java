@@ -30,10 +30,10 @@ public class Neo4jGraphController implements DBController {
         String spotNeighborsQuery = "MERGE (n:Spot{spotID:\'"+spotID+"\', longitude:"+spot.getLongitude()+", latitude:"+spot.getLatitude()+", " +
                 "spotHeading:"+spot.getSpotHeading()+", intersection:"+spot.isIntersection()+", numberCenterCalcPoints:"+spot.getNumberCenterCalcPoints()+", " +
                 "headSum:"+spot.getHeadSum()+", headCalcPoints:"+spot.getHeadCalcPoints()+", latitudeSum:"+spot.getLatitudeSum()+", " +
-                "longitudeSum:"+spot.getLongitudeSum()+"}) ";
+                "longitudeSum:"+spot.getLongitudeSum()+" numberOfNeighbours:"+spot.getNeighbors().size()+"}) ";
         for(int i = 0; i < neighbors.size(); i++){
             String neighborID = neighbors.get(i).getSpotID();
-            spotNeighborsQuery+= "MERGE (t"+i+":Spot{spotID:\'"+neighborID+"\'}) ";
+            spotNeighborsQuery+= "MERGE (t"+i+":Spot{spotID:\'"+neighborID+"\'})";
         }
         for(int i = 0; i < neighbors.size(); i++){
             spotNeighborsQuery+= "MERGE (n)-[:CONNECTED_WITH]-(t"+i+") ";
@@ -124,7 +124,8 @@ public class Neo4jGraphController implements DBController {
     public void addNeighbour(String spotID, String updatedSpotID, boolean intersectionCheck, boolean updatedIntersectionCheck){
         Neo4jTemplate template = main.createNeo4JTemplate();
         String addQuery = "MATCH (n:Spot{spotID:\'"+spotID+"\'}) MATCH (r:Spot{spotID:\'" +updatedSpotID +"\'}) set n.intersection = "+intersectionCheck+" " +
-                "set r.intersection ="+updatedIntersectionCheck+" MERGE (n)-[:CONNECTED_WITH]-(r)";
+                "set n.numberOfNeighbours = n.numberOfNeighbours+1 set r.intersection ="+updatedIntersectionCheck+ "" +
+                "set r.numberOfNeighbours = r.numberOfNeighbours+1 MERGE (n)-[:CONNECTED_WITH]-(r)";
 
 
         template.query(addQuery, Collections.EMPTY_MAP, false);
