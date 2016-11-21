@@ -1,6 +1,8 @@
 package LocationProcessorServer.spotMapping;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 
 import LocationProcessorServer.datastructures.*;
 import LocationProcessorServer.trajectoryPreparation.GPSDataProcessor;
@@ -142,6 +144,7 @@ public class SpotHandler {
 	 *         point
 	 */
 	private Route extendSpotStructure(Route route) {
+		ArrayList<String> spotIDs = new ArrayList<>();
 		calculationLevel++;
 		route.setSpotProcessed(true);
 		// counts the points that are in the range of the same (already
@@ -265,17 +268,33 @@ public class SpotHandler {
 			}
 			// set neighbors of the created spots
 			Spot spot = route.getTrajectory().get(j).getSpot();
+			if(j==0){
+				spotIDs.add(spot.getSpotID());
+			}
 			if (spot != null && lastSpot != null) {
 				if (!spot.getSpotID().equals(lastSpot.getSpotID())) {
 					addNeighbor(lastSpot,spot);
+					spotIDs.add(spot.getSpotID());
                     //spot.addNeighbor(lastSpot);
 					//lastSpot.addNeighbor(spot);
 					//neo4j.addNeighbour(lastSpot.getSpotID(),spot.getSpotID(),lastSpot.isIntersection(),spot.isIntersection());
 				}
 			}
+
 			lastSpot = spot;
 		}
+
 		lastSpot = null;
+		Collections.sort(spotIDs);
+		String lastValue = null;
+		for(Iterator<String> i = spotIDs.iterator(); i.hasNext();) {
+			String currentValue = i.next();
+			if(lastValue != null && currentValue.equals(lastValue)) {
+				i.remove();
+			}
+			lastValue = currentValue;
+		}
+		neo4j.setIntersections((String[]) spotIDs.toArray());
 		return route;
 	}
 
@@ -289,8 +308,8 @@ public class SpotHandler {
             double distance = GPSDataProcessor.calcDistance(spot.getLatitude(), spot.getLongitude(), spot2.getLatitude(), spot2.getLongitude());
             if (distance >= 25 && distance <= 150) {
                 if (!spot.getSpotID().equals(spot2.getSpotID())) {
-                    if(spot.addNeighborAlternative(spot2) && spot2.addNeighborAlternative(spot)){
-                        neo4j.addNeighbour(spot.getSpotID(),spot2.getSpotID(),spot.isIntersection(),spot2.isIntersection());
+                    if(spot.addNeighborAlternative(spot2) & spot2.addNeighborAlternative(spot)){
+                        //neo4j.addNeighbour(spot.getSpotID(),spot2.getSpotID(),spot.isIntersection(),spot2.isIntersection());
                     }
                 }
             }
