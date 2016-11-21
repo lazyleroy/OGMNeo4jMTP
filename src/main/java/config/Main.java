@@ -10,8 +10,10 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.data.neo4j.template.Neo4jTemplate;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -52,7 +54,7 @@ public class Main {
             }
         }
 
-        Spot s1 = new Spot();
+      /*  Spot s1 = new Spot();
         s1.setSpotID("1");
         s1.setNeighbors(new ArrayList<>());
         Spot s2 = new Spot();
@@ -156,9 +158,47 @@ public class Main {
         points.add(gp10);
         points.add(gp11);
         points.add(gp12);
-
+*/
         //neo4jGraphController.addGPSPoints(points, "Felix");
         //neo4jGraphController.addNeighbour("2","5");
+        String[] ids = new String[31];
+        ids[0] = "JuKQIB5F1Cfes6tNsCQq";
+        ids[1] = "XffNF37IyvTCCq9GpgJ3";
+        ids[2] = "cVwaVZxGS2n1T9CSGuf3";
+        ids[3] = "n9kI87WxCFtstda1vwpe";
+        ids[4] = "irRVoJFPI6va5k35juqK";
+        ids[5] = "Z4g3g0yIlOhtCXB39xuf";
+        ids[6] = "IhKX9zswuX1szIbbKtJ0";
+        ids[7] = "Z4g3g0yIlOhtCXB39xuf";
+        ids[8] = "YkgvAdPcXGXVSWUpxLml";
+        ids[9] = "OxvJjPDopjhNbThKBqlO";
+        ids[10] = "GIlwKkHY6tR8sAG5FCog";
+        ids[11] = "uHAxRr57w3aOr2vbwE0Z";
+        ids[12] = "aYLELrFIae6VW6yP9lah";
+        ids[13] = "lUbiIPMKN6QaaD19rm3U";
+        ids[14] = "uyEtkemCuGqeuhOR0zEw";
+        ids[15] = "k5fS2J3jYd1yruuPNyy0";
+        ids[16] = "IgvpVA85Kp0mTvDrxPIz";
+        ids[17] = "xNGAkwZ0YYo8mq1ruSvK";
+        ids[18] = "AYJ6nBfgvi41jTVj9pua";
+        ids[19] = "WFkFbw9qeo4tyI30k3WE";
+        ids[20] = "ch9KhO0GjekUqLiSupCi";
+        ids[21] = "pKNYitM35504XNQBAPgy";
+        ids[22] = "S1iDxfAtRLsACijjWMIS";
+        ids[23] = "VeBX2T3lpBORpETHpr4q";
+        ids[24] = "yU5Q3xj1mZag385IX8x4";
+        ids[25] = "zj1jJWr8vHM9EJLU7ya2";
+        ids[26] = "rf1IavBqH6LMm06ckaCC";
+        ids[27] = "zHR4LIXpL2Ro7zpFEYYa";
+        ids[28] = "GLBmWUJQHWpNpoYyZ9Wa";
+        ids[29] = "ltCPadzbGC8JRInaqoO5";
+        ids[30] = "kzIURGwOFxrPFF7IhUnw";
+
+
+
+
+
+        //neo4jGraphController.setIntersections(ids);
 
 
     }

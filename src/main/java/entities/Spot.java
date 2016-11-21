@@ -210,10 +210,10 @@ public class Spot extends BaseModel {
 
             if (neighbors.size() >= 3) {
                 this.setIntersection(true);
-                System.out.println("SpotID: "+this.getSpotID());
-                System.out.println("NBS:");
+                //System.out.println("SpotID: "+this.getSpotID());
+                //System.out.println("NBS:");
                 for(int i = 0; i < neighbors.size(); i++){
-                    System.out.println(neighbors.get(i).getSpotID());
+                    //System.out.println(neighbors.get(i).getSpotID());
                 }
             }
             if(this.numberOfNeighbours >= 3){

@@ -33,6 +33,7 @@ public class FileUploadController implements HandlerExceptionResolver {
 
     private static final Logger log = LoggerFactory.getLogger(FileUploadController.class);
 
+
     public static final String ROOT = "var/www/html/pics/";
 
     private final ResourceLoader resourceLoader;

@@ -30,7 +30,7 @@ public class Neo4jGraphController implements DBController {
         String spotNeighborsQuery = "MERGE (n:Spot{spotID:\'"+spotID+"\', longitude:"+spot.getLongitude()+", latitude:"+spot.getLatitude()+", " +
                 "spotHeading:"+spot.getSpotHeading()+", intersection:"+spot.isIntersection()+", numberCenterCalcPoints:"+spot.getNumberCenterCalcPoints()+", " +
                 "headSum:"+spot.getHeadSum()+", headCalcPoints:"+spot.getHeadCalcPoints()+", latitudeSum:"+spot.getLatitudeSum()+", " +
-                "longitudeSum:"+spot.getLongitudeSum()+" numberOfNeighbours:"+spot.getNeighbors().size()+"}) ";
+                "longitudeSum:"+spot.getLongitudeSum()+", numberOfNeighbours:"+spot.getNeighbors().size()+"}) ";
         for(int i = 0; i < neighbors.size(); i++){
             String neighborID = neighbors.get(i).getSpotID();
             spotNeighborsQuery+= "MERGE (t"+i+":Spot{spotID:\'"+neighborID+"\'})";
@@ -40,12 +40,14 @@ public class Neo4jGraphController implements DBController {
         }
         template.query(spotNeighborsQuery, Collections.EMPTY_MAP, false);
 
+
     }
 
     @Override
     public void updateSpot(Spot spot) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         Spot s = template.loadByProperty(Spot.class, "spotID", spot.getSpotID());
+        ArrayList<Spot> neighbors = s.getNeighbors();
         s.setNeighbors(null);
         s.setLatitude(spot.getLatitude());
         s.setLongitude(spot.getLongitude());
@@ -58,6 +60,7 @@ public class Neo4jGraphController implements DBController {
         s.setLongitudeSum(spot.getLongitudeSum());
         s.setNumberOfNeighbours(spot.getNumberOfNeighbours());
         template.save(s);
+        s.setNeighbors(neighbors);
     }
 
     @Override
@@ -67,7 +70,6 @@ public class Neo4jGraphController implements DBController {
             Spot spot = template.loadByProperty(Spot.class, "spotID", spotID);
             if(spot.getNeighbors() == null){
                 spot.setNeighbors(new ArrayList<Spot>());
-                System.out.println(spot.getNeighbors()+"FFFFFFFFFFFFFFFFFFFFFFFFFFF");
             }
             return spot;
         }catch(NotFoundException nfe){
@@ -75,7 +77,6 @@ public class Neo4jGraphController implements DBController {
         }
 
     }
-
 
     @Override
     public ArrayList<Spot> getSpots(float latitude, float longitude) {
@@ -118,18 +119,34 @@ public class Neo4jGraphController implements DBController {
             }
             gpsPlusQuery += "MERGE (n)-[:STARTING_POINT]-(t0)";
         }
-        System.out.println(gpsPlusQuery);
         template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
     }
 
     public void addNeighbour(String spotID, String updatedSpotID, boolean intersectionCheck, boolean updatedIntersectionCheck){
         Neo4jTemplate template = main.createNeo4JTemplate();
-        String addQuery = "MATCH (n:Spot{spotID:\'"+spotID+"\'}) MATCH (r:Spot{spotID:\'" +updatedSpotID +"\'}) set n.intersection = "+intersectionCheck+" " +
-                ", n.numberOfNeighbours = n.numberOfNeighbours+1, r.intersection ="+updatedIntersectionCheck+ "" +
-                ", r.numberOfNeighbours = r.numberOfNeighbours+1 MERGE (n)-[:CONNECTED_WITH]-(r)";
-
+        String addQuery = "MATCH (n:Spot{spotID:\'"+spotID+"\'}) MATCH (r:Spot{spotID:\'" +updatedSpotID +"\'}) MERGE (n)-[:CONNECTED_WITH]-(r)";
+            System.out.println("spotID: " +spotID +" updatedSpotID: "+ updatedSpotID);
 
         template.query(addQuery, Collections.EMPTY_MAP, false);
     }
 
+    public void setIntersections(String[] spots){
+        Neo4jTemplate template = main.createNeo4JTemplate();
+
+        String inList = "p.spotID IN ";
+        for(int i = 0; i < spots.length; i++){
+            if(i == 0){
+                inList += "[\'"+spots[i]+"\', ";
+            }else if (i == spots.length-1){
+                inList += "\'"+spots[i]+"\']";
+            }else {
+                inList += "\'"+spots[i]+"\', ";
+            }
+        }
+
+        String finalizeQuery = "MATCH (p:Spot)-[:CONNECTED_WITH]-(c:Spot) WITH p,count(c) as rels WHERE rels > 2 AND "+inList+" set p.intersection = true";
+
+        template.query(finalizeQuery, Collections.EMPTY_MAP, false);
+
+    }
 }

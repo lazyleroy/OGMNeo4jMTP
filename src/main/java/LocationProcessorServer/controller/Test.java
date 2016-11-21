@@ -6,8 +6,20 @@ import LocationProcessorServer.gpxParser.GPXHandler;
 import LocationProcessorServer.spotMapping.Grid;
 import LocationProcessorServer.spotMapping.SpotHandler;
 import LocationProcessorServer.trajectoryPreparation.GPSDataProcessor;
+import config.MyConfiguration;
 import entities.GPS_plus;
 import entities.Spot;
+import org.neo4j.ogm.session.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
+
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,10 +29,10 @@ import java.util.List;
  * 
  * @author simon_000
  */
+@SpringBootApplication
 public class Test {
-
+	private static SessionFactory sessionFactory = new MyConfiguration().getSessionFactory();
 	static SpotHandler spotHandler = new SpotHandler();
-
 	/**
 	 * Main method to test the program
 	 * 
@@ -28,6 +40,7 @@ public class Test {
 	 */
 	public static void main(String[] args) {
 
+		SpringApplication.run(Test.class, args);
 		// record time for performance
 		Date start_time = new Date();
 
@@ -50,7 +63,7 @@ public class Test {
 		ArrayList<Route> routes = new ArrayList<Route>();
 		routes.addAll(GPSDataProcessor.splitTrajectoryByRoutes(traTestData));
 
-		System.out.println(routes.size());
+		//System.out.println(routes.size());
 
 		for (int i = 0; i < routes.size(); i++) {
 			Route route = routes.get(i);

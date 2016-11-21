@@ -28,7 +28,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableAutoConfiguration
 @EnableTransactionManagement
 @PropertySources(value = {@PropertySource(value = "classpath:application.properties")})
-class MyConfiguration extends Neo4jConfiguration {
+public class MyConfiguration extends Neo4jConfiguration {
 
 
 
@@ -43,7 +43,6 @@ class MyConfiguration extends Neo4jConfiguration {
                 .driverConfiguration()
                 .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
                 .setURI("http://neo4j:mtp123456@134.155.48.48:7474");
-
 
         return config;
     }
