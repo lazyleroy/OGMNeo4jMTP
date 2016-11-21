@@ -130,17 +130,17 @@ public class Neo4jGraphController implements DBController {
         template.query(addQuery, Collections.EMPTY_MAP, false);
     }
 
-    public void setIntersections(String[] spots){
+    public void setIntersections(ArrayList<String> spots){
         Neo4jTemplate template = main.createNeo4JTemplate();
 
         String inList = "p.spotID IN ";
-        for(int i = 0; i < spots.length; i++){
+        for(int i = 0; i < spots.size(); i++){
             if(i == 0){
-                inList += "[\'"+spots[i]+"\', ";
-            }else if (i == spots.length-1){
-                inList += "\'"+spots[i]+"\']";
+                inList += "[\'"+spots.get(i)+"\', ";
+            }else if (i == spots.size()-1){
+                inList += "\'"+spots.get(i)+"\']";
             }else {
-                inList += "\'"+spots[i]+"\', ";
+                inList += "\'"+spots.get(i)+"\', ";
             }
         }
 
