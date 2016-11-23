@@ -7,10 +7,7 @@ import org.neo4j.ogm.model.Result;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.springframework.data.neo4j.template.Neo4jTemplate;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Felix on 10.11.2016.
@@ -39,7 +36,7 @@ public class Neo4jGraphController implements DBController {
             spotNeighborsQuery+= "MERGE (n)-[:CONNECTED_WITH]-(t"+i+") ";
         }
         template.query(spotNeighborsQuery, Collections.EMPTY_MAP, false);
-
+        System.out.println("addSpot: "+ spotNeighborsQuery);
 
     }
 
@@ -61,6 +58,8 @@ public class Neo4jGraphController implements DBController {
         s.setNumberOfNeighbours(spot.getNumberOfNeighbours());
         template.save(s);
         s.setNeighbors(neighbors);
+        System.out.println("updateSpot QUERY");
+
     }
 
     @Override
@@ -71,11 +70,11 @@ public class Neo4jGraphController implements DBController {
             if(spot.getNeighbors() == null){
                 spot.setNeighbors(new ArrayList<Spot>());
             }
+            System.out.println("getSpot QUERY");
             return spot;
         }catch(NotFoundException nfe){
             return null;
         }
-
     }
 
     @Override
@@ -96,15 +95,44 @@ public class Neo4jGraphController implements DBController {
         if(spots.isEmpty()){
             return null;
         }
+        System.out.println("getSpots: match(n:Spot) where distance(point(n),point({latitude:"+latitude+", longitude:"+longitude+"}))<50 return n");
         return spots;
     }
 
     @Override
-    public void addGPSPoints(ArrayList<GPS_plus> gpspoints, String username) {
+    public void addGPSPoints(ArrayList<GPS_plus> gpspoints, String username, ArrayList<String> spots) {
 
         Neo4jTemplate template = main.createNeo4JTemplate();
+        HashSet<String> intersectionSpotStrings = new HashSet<>();
+
+        String inList = "p.spotID IN ";
+        for(int i = 0; i < spots.size(); i++){
+            if(i == 0){
+                inList += "[\'"+spots.get(i)+"\', ";
+            }else if (i == spots.size()-1){
+                inList += "\'"+spots.get(i)+"\']";
+            }else {
+                inList += "\'"+spots.get(i)+"\', ";
+            }
+        }
+        String finalizeQuery = "MATCH (p:Spot)-[:CONNECTED_WITH]-(c:Spot) WITH p,count(c) as rels WHERE rels > 2 AND "+inList+" set p.intersection = true return p";
+        Result result = template.query(finalizeQuery, Collections.EMPTY_MAP, false);
+
+        Iterator<Map<String, Object>> iterator = result.iterator();
+        while(iterator.hasNext()){
+            Map<String, Object> map = iterator.next();
+            for(Map.Entry<String, Object> entry : map.entrySet()) {
+                if (entry.getValue() instanceof Spot) {
+                    intersectionSpotStrings.add(((Spot) entry.getValue()).getSpotID());
+                }
+            }
+        }
+
+
         String gpsPlusQuery = "MERGE (n:User{username:\'"+username+"\'}) ";
         int j = 0;
+        int x = 0;
+        boolean repeatedGPSinSpot = true;
         for(int i = 0; i < gpspoints.size(); i++){
             String spotID = gpspoints.get(i).getSpot().getSpotID();
             GPS_plus tempGPS = gpspoints.get(i);
@@ -113,23 +141,46 @@ public class Neo4jGraphController implements DBController {
                     tempGPS.getTimediffToNextPoint()+", distanceToNextPoint:"+tempGPS.getTimediffToNextPoint()+", dataID:"+tempGPS.getDataID()+"}) " +
                     "MERGE (r"+i+":Spot{spotID:\'"+spotID+"\'}) " +
                     "MERGE (t"+i+")-[:MAPPED_TO_SPOT]-(r"+i+") ";
+            if(i==0){
+                gpsPlusQuery += "MERGE (x+"+x+":Waypoint) MERGE (n)-[:ROUTE_START]-(x0) ";
+                gpsPlusQuery += "MERGE (t"+i+")-[:WAYPOINT]-(x0) ";
+                x++;
+            }
+            if(intersectionSpotStrings.contains(spotID)){
+                if(!repeatedGPSinSpot){
+                    gpsPlusQuery += "MERGE (x+"+x+":Waypoint) MERGE (t"+i+")-[:WAYPOINT]-(x"+x+") ";
+                    gpsPlusQuery += "MERGE (x+"+(x-1)+")-[:WAYPOINT]-(x"+x+") ";
+                    x++;
+                }
+            }else{
+                repeatedGPSinSpot = false;
+            }
+
             if(i >0){
             gpsPlusQuery += "MERGE (t"+j+")-[:NEXT_GPS]-(t"+i+") ";
                 j++;
             }
-            gpsPlusQuery += "MERGE (n)-[:STARTING_POINT]-(t0)";
         }
+        gpsPlusQuery += "MERGE (n)-[:STARTING_POINT]-(t0)";
+
         template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
+        System.out.println("addGPSPoints: "+ gpsPlusQuery);
+
+
     }
 
+    @Override
     public void addNeighbour(String spotID, String updatedSpotID, boolean intersectionCheck, boolean updatedIntersectionCheck){
         Neo4jTemplate template = main.createNeo4JTemplate();
         String addQuery = "MATCH (n:Spot{spotID:\'"+spotID+"\'}) MATCH (r:Spot{spotID:\'" +updatedSpotID +"\'}) MERGE (n)-[:CONNECTED_WITH]-(r)";
             System.out.println("spotID: " +spotID +" updatedSpotID: "+ updatedSpotID);
 
         template.query(addQuery, Collections.EMPTY_MAP, false);
+        System.out.println("addNeighbour: "+addQuery);
+
     }
 
+    @Override
     public void setIntersections(ArrayList<String> spots){
         Neo4jTemplate template = main.createNeo4JTemplate();
 
@@ -144,9 +195,11 @@ public class Neo4jGraphController implements DBController {
             }
         }
 
-        String finalizeQuery = "MATCH (p:Spot)-[:CONNECTED_WITH]-(c:Spot) WITH p,count(c) as rels WHERE rels > 2 AND "+inList+" set p.intersection = true";
+        String finalizeQuery = "MATCH (p:Spot)-[:CONNECTED_WITH]-(c:Spot) WITH p,count(c) as rels WHERE rels > 2 AND "+inList+" set p.intersection = true return p";
 
-        template.query(finalizeQuery, Collections.EMPTY_MAP, false);
+        Result result = template.query(finalizeQuery, Collections.EMPTY_MAP, false);
+        System.out.println("setIntersections: "+finalizeQuery);
+
 
     }
 }

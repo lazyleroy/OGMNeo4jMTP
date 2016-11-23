@@ -54,7 +54,7 @@ public class Main {
             }
         }
 
-      /*  Spot s1 = new Spot();
+        Spot s1 = new Spot();
         s1.setSpotID("1");
         s1.setNeighbors(new ArrayList<>());
         Spot s2 = new Spot();
@@ -88,7 +88,7 @@ public class Main {
         s3.getNeighbors().add(s5);
         s4.getNeighbors().add(s5);
 
-        neo4jGraphController.addSpot(s8);
+        /*neo4jGraphController.addSpot(s8);
         neo4jGraphController.addSpot(s7);
         neo4jGraphController.addSpot(s6);
         neo4jGraphController.addSpot(s5);
@@ -101,7 +101,7 @@ public class Main {
         s1.setLongitude(1.456f);
         s1.setIntersection(true);
         s1.setLongitudeSum(9999.9f);
-        //neo4jGraphController.updateSpot(s1);
+        //neo4jGraphController.updateSpot(s1);*/
 
         Date date = new Date();
         GPS_plus gp1 = new GPS_plus();
@@ -158,7 +158,7 @@ public class Main {
         points.add(gp10);
         points.add(gp11);
         points.add(gp12);
-*/
+/*
         //neo4jGraphController.addGPSPoints(points, "Felix");
         //neo4jGraphController.addNeighbour("2","5");
         String[] ids = new String[31];
@@ -193,7 +193,7 @@ public class Main {
         ids[28] = "GLBmWUJQHWpNpoYyZ9Wa";
         ids[29] = "ltCPadzbGC8JRInaqoO5";
         ids[30] = "kzIURGwOFxrPFF7IhUnw";
-
+*/
 
 
 

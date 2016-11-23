@@ -39,7 +39,9 @@ public interface DBController {
      */
     ArrayList<Spot> getSpots(float latitude, float longitude);
 
-    void addGPSPoints(ArrayList<GPS_plus> gpspoints, String username);
+    void addGPSPoints(ArrayList<GPS_plus> gpspoints, String username, ArrayList<String> spots);
 
     void addNeighbour(String neigbourID, String updatedSpotID, boolean intersectionCheck, boolean updatedIntersectionCheck);
+
+    public void setIntersections(ArrayList<String> spots);
 }

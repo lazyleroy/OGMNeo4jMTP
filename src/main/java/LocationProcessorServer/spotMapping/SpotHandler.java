@@ -125,7 +125,7 @@ public class SpotHandler {
                     addNeighbor(lastSpot,spot);
 					//sp.addNeighbor(lastSpot);
 					//lastSpot.addNeighbor(sp);
-					//neo4j.addNeighbour(lastSpot.getSpotID(),sp.getSpotID(),lastSpot.isIntersection(),sp.isIntersection());
+					neo4j.addNeighbour(lastSpot.getSpotID(),sp.getSpotID(),lastSpot.isIntersection(),sp.isIntersection());
 				}
 			}
 			lastSpot = sp;
@@ -277,7 +277,7 @@ public class SpotHandler {
 					spotIDs.add(spot.getSpotID());
                     //spot.addNeighbor(lastSpot);
 					//lastSpot.addNeighbor(spot);
-					//neo4j.addNeighbour(lastSpot.getSpotID(),spot.getSpotID(),lastSpot.isIntersection(),spot.isIntersection());
+					neo4j.addNeighbour(lastSpot.getSpotID(),spot.getSpotID(),lastSpot.isIntersection(),spot.isIntersection());
 				}
 			}
 
@@ -309,7 +309,7 @@ public class SpotHandler {
             if (distance >= 25 && distance <= 150) {
                 if (!spot.getSpotID().equals(spot2.getSpotID())) {
                     if(spot.addNeighborAlternative(spot2) & spot2.addNeighborAlternative(spot)){
-                        //neo4j.addNeighbour(spot.getSpotID(),spot2.getSpotID(),spot.isIntersection(),spot2.isIntersection());
+                        neo4j.addNeighbour(spot.getSpotID(),spot2.getSpotID(),spot.isIntersection(),spot2.isIntersection());
                     }
                 }
             }
