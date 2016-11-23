@@ -294,7 +294,8 @@ public class SpotHandler {
 			}
 			lastValue = currentValue;
 		}
-		neo4j.setIntersections(spotIDs);
+		//neo4j.setIntersections(spotIDs);
+		neo4j.addGPSPoints(route.getTrajectory(), route.getUser(),spotIDs);
 		return route;
 	}
 
