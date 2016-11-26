@@ -38,7 +38,6 @@ public class Main {
     private static Neo4jTemplate template = new Neo4jTemplate(session);
     private static DatabaseOperations db = new DatabaseOperations();
     private static Neo4jGraphController neo4jGraphController = new Neo4jGraphController();
-    private static GraphDatabaseService graphDB = new GraphDatabaseFactory().newEmbeddedDatabase("C:/TPNeo4jDB");
 
 
 
@@ -204,23 +203,6 @@ public class Main {
 
 
         //neo4jGraphController.setIntersections(ids);
-
-        try (Transaction tx = graphDB.beginTx()) {
-            // Perform DB operations
-            Result r = graphDB.execute("CREATE (n:Waypoint) return n", Collections.EMPTY_MAP);
-            while (r.hasNext()){
-                Map<String,Object> row = r.next();
-                for(Map.Entry<String, Object> entry : row.entrySet()){
-                    System.out.println(entry.getValue());
-                    if(entry.getValue() instanceof Waypoint){
-                        System.out.println(entry.getValue());
-                    }
-                }
-                //System.out.println(row);
-            }
-
-            tx.success();
-        }
 
 
     }

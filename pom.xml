@@ -20,13 +20,19 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-neo4j</artifactId>
-            <version>4.1.1.RELEASE</version>
+            <version>4.1.0.M1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
+            <version>1.12.0.M1</version>
         </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-ogm</artifactId>
-            <version>2.0.1</version>
+            <artifactId>neo4j-ogm-embedded-driver</artifactId>
+            <version>2.1.0-M01</version>
         </dependency>
 
         <dependency>
@@ -56,12 +62,6 @@
             <artifactId>junit</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j</artifactId>
-            <version>2.2.2</version>
-        </dependency>
-
 
     </dependencies>
 
@@ -89,12 +89,12 @@
     </build>
 
     <repositories>
+
+
         <repository>
-            <id>spring-releases</id>
-            <url>https://repo.spring.io/libs-release</url>
+            <id>spring-milestones</id>
+            <url>http://repo.spring.io/milestone</url>
         </repository>
-
-
 
 
     </repositories>

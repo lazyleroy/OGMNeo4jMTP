@@ -31,7 +31,7 @@ import java.util.List;
  */
 @SpringBootApplication
 public class Test {
-	private static SessionFactory sessionFactory = new MyConfiguration().getSessionFactory();
+	public static SessionFactory sessionFactory = new MyConfiguration().getSessionFactory();
 	static SpotHandler spotHandler = new SpotHandler();
 	/**
 	 * Main method to test the program
