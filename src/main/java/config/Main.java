@@ -6,6 +6,11 @@ package config;
 
 import entities.GPS_plus;
 import entities.Spot;
+import entities.Waypoint;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Result;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.boot.SpringApplication;
@@ -17,8 +22,7 @@ import javax.swing.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
 
 /**
  * This class is used to start the program. It also creates the Neo4JTemplates which is responsible for loading and storing nodes from and to
@@ -34,6 +38,7 @@ public class Main {
     private static Neo4jTemplate template = new Neo4jTemplate(session);
     private static DatabaseOperations db = new DatabaseOperations();
     private static Neo4jGraphController neo4jGraphController = new Neo4jGraphController();
+    private static GraphDatabaseService graphDB = new GraphDatabaseFactory().newEmbeddedDatabase("C:/TPNeo4jDB");
 
 
 
@@ -199,6 +204,23 @@ public class Main {
 
 
         //neo4jGraphController.setIntersections(ids);
+
+        try (Transaction tx = graphDB.beginTx()) {
+            // Perform DB operations
+            Result r = graphDB.execute("CREATE (n:Waypoint) return n", Collections.EMPTY_MAP);
+            while (r.hasNext()){
+                Map<String,Object> row = r.next();
+                for(Map.Entry<String, Object> entry : row.entrySet()){
+                    System.out.println(entry.getValue());
+                    if(entry.getValue() instanceof Waypoint){
+                        System.out.println(entry.getValue());
+                    }
+                }
+                //System.out.println(row);
+            }
+
+            tx.success();
+        }
 
 
     }

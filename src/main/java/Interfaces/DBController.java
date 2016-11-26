@@ -43,5 +43,5 @@ public interface DBController {
 
     void addNeighbour(String neigbourID, String updatedSpotID, boolean intersectionCheck, boolean updatedIntersectionCheck);
 
-    public void setIntersections(ArrayList<String> spots);
+    void setIntersections(ArrayList<String> spots);
 }
