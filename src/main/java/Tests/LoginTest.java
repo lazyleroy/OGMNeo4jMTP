@@ -1,6 +1,5 @@
 package Tests;
 
-import com.google.api.client.util.Data;
 import config.DatabaseOperations;
 import entities.User;
 import junit.framework.TestCase;

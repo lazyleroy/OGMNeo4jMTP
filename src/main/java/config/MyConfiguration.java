@@ -5,6 +5,7 @@ package config;
  */
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.*;
@@ -26,6 +27,7 @@ import org.neo4j.ogm.session.SessionFactory;
 @EnableAutoConfiguration
 @EnableTransactionManagement
 @PropertySources(value = {@PropertySource(value = "classpath:application.properties")})
+@SpringBootApplication
 public class MyConfiguration extends Neo4jConfiguration {
 
 
@@ -41,7 +43,7 @@ public class MyConfiguration extends Neo4jConfiguration {
 
         return config;
     }
-    
+
     @Bean
     public SessionFactory getSessionFactory(){
         return new SessionFactory(getConfiguration(), "entities");

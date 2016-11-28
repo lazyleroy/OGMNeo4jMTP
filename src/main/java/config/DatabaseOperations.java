@@ -9,6 +9,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.neo4j.ogm.exception.NotFoundException;
+import org.neo4j.ogm.json.JSONException;
+import org.neo4j.ogm.json.JSONObject;
 import org.neo4j.ogm.model.Result;
 import org.springframework.data.neo4j.template.Neo4jTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -517,19 +519,19 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
                         userID = ((User) entry.getValue()).getUserID();
                     }
                     if(entry.getValue() instanceof FirebaseToken){
-                        org.json.JSONObject notification = new org.json.JSONObject();
-                        org.json.JSONObject message = new org.json.JSONObject();
-                        org.json.JSONObject body = new org.json.JSONObject();
-                        body.put("body", "Du wurdest bewertet");
-                        message.put("overallRating", userRating);
-                        message.put("rating", rating);
-                        notification.put("notification", body);
-                        notification.put("data", message);
-                        notification.put("to", ((FirebaseToken) entry.getValue()).getToken());
-                        HttpClient httpClient = HttpClientBuilder.create().build();
-                        System.out.println(notification.toString());
-                        HttpPost post = new HttpPost("https://fcm.googleapis.com/fcm/send");
                         try {
+                            JSONObject notification = new JSONObject();
+                            JSONObject message = new JSONObject();
+                            JSONObject body = new JSONObject();
+                            body.put("body", "Du wurdest bewertet");
+                            message.put("overallRating", userRating);
+                            message.put("rating", rating);
+                            notification.put("notification", body);
+                            notification.put("data", message);
+                            notification.put("to", ((FirebaseToken) entry.getValue()).getToken());
+                            HttpClient httpClient = HttpClientBuilder.create().build();
+                            System.out.println(notification.toString());
+                            HttpPost post = new HttpPost("https://fcm.googleapis.com/fcm/send");
 
                             StringEntity se = new StringEntity(notification.toString());
                             post.setEntity(se);
@@ -538,9 +540,10 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
                             HttpResponse response = httpClient.execute(post);
                             System.out.println(EntityUtils.toString(response.getEntity()));
 
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                        }catch(JSONException | IOException ex){
+                            ex.printStackTrace();
                         }
+
                     }
                  }
             }
@@ -678,10 +681,10 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
                         gB = (Goodybag)entry.getValue();
                     }
                     if (entry.getValue() instanceof FirebaseToken) {
-
-                        org.json.JSONObject notification = new org.json.JSONObject();
-                        org.json.JSONObject message = new org.json.JSONObject();
-                        org.json.JSONObject body = new org.json.JSONObject();
+                        try {
+                        JSONObject notification = new JSONObject();
+                        JSONObject message = new JSONObject();
+                        JSONObject body = new JSONObject();
                         body.put("body", "Goodybag akzeptiert");
                         message.put("title", goodybagID);
                         notification.put("notification", body);
@@ -690,7 +693,7 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
 
                         HttpClient httpClient = HttpClientBuilder.create().build();
                         HttpPost post = new HttpPost("https://fcm.googleapis.com/fcm/send");
-                        try {
+
 
                             StringEntity se = new StringEntity(notification.toString());
                             post.setEntity(se);
@@ -699,7 +702,7 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
                             HttpResponse response = httpClient.execute(post);
 
 
-                        } catch (IOException e) {
+                        } catch (IOException |JSONException e) {
                             e.printStackTrace();
                         }
                     }
@@ -765,9 +768,11 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
                     gB.getUser().setSalt(null);
                     gB.setStatus(null);
 
-                    org.json.JSONObject notification = new org.json.JSONObject();
-                    org.json.JSONObject goodybag = new org.json.JSONObject(gB);
-                    org.json.JSONObject body = new org.json.JSONObject();
+                    try {
+
+                    JSONObject notification = new JSONObject();
+                    JSONObject goodybag = new JSONObject(gB);
+                    JSONObject body = new JSONObject();
                     body.put("body", "Passender Goodybag gefunden");
                     notification.put("notification", body);
                     notification.put("data", goodybag);
@@ -775,7 +780,7 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
 
                     HttpClient httpClient = HttpClientBuilder.create().build();
                     HttpPost post = new HttpPost("https://fcm.googleapis.com/fcm/send");
-                    try {
+
 
                         StringEntity se = new StringEntity(notification.toString());
                         post.setEntity(se);
@@ -785,7 +790,7 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
                         System.out.println(notification.toString());
                         System.out.println(EntityUtils.toString(response.getEntity()));
 
-                    } catch (IOException e) {
+                    } catch (IOException | JSONException e) {
                         e.printStackTrace();
                     }
                 }if(entry.getValue() instanceof User){
