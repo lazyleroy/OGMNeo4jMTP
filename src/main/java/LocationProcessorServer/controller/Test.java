@@ -15,9 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.annotation.PropertySources;
+
 
 
 import java.util.ArrayList;

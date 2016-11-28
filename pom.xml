@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.javahelps</groupId>
-    <artifactId>Neo4JOGMHelloWorld</artifactId>
+    <groupId>com.InEs</groupId>
+    <artifactId>Neo4JOGM</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
 
@@ -26,25 +26,26 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-commons</artifactId>
-            <version>1.12.0.M1</version>
+            <version>RELEASE</version>
         </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-embedded-driver</artifactId>
-            <version>2.1.0-M01</version>
+            <version>RELEASE</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-ogm-api</artifactId>
-            <version>2.1.0-M01</version>
-        </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-core</artifactId>
             <version>2.1.0-M01</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cern</groupId>
+            <artifactId>colt</artifactId>
+            <version>1.1</version>
         </dependency>
 
 
@@ -66,20 +67,43 @@
             <artifactId>junit</artifactId>
         </dependency>
 
+
     </dependencies>
 
 
     <properties>
         <java.version>1.8</java.version>
+            <!-- The main class to start by executing java -jar -->
+            <start-class>LocationProcessorServer.controller.Test</start-class>
     </properties>
 
 
     <build>
+
+
+
         <plugins>
+
+
+
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>1.4.2.RELEASE</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
+
+
+
+
+
         </plugins>
         <resources>
             <resource>
