@@ -172,9 +172,9 @@ public class Neo4jGraphController implements DBController {
                 gpsPlusQuery += "MERGE (GPS_Plus0)-[:NEXT_GPS]->(GPS_Plus1) \n";
             }
             gpsPlusIDcheck = gpsPlusID;
-            System.out.println(gpsPlusQuery);
-            System.out.println();
-            System.out.println();
+            //.println(gpsPlusQuery);
+            //System.out.println();
+            //System.out.println();
             template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
 
         }
@@ -188,7 +188,7 @@ public class Neo4jGraphController implements DBController {
     public void addNeighbour(String spotID, String updatedSpotID, boolean intersectionCheck, boolean updatedIntersectionCheck){
         Neo4jTemplate template = main.createNeo4JTemplate();
         String addQuery = "MATCH (n:Spot{spotID:\'"+spotID+"\'}) MATCH (r:Spot{spotID:\'" +updatedSpotID +"\'}) MERGE (n)-[:CONNECTED_WITH]-(r)";
-            System.out.println("spotID: " +spotID +" updatedSpotID: "+ updatedSpotID);
+            //System.out.println("spotID: " +spotID +" updatedSpotID: "+ updatedSpotID);
 
         template.query(addQuery, Collections.EMPTY_MAP, false);
         //System.out.println("addNeighbour: "+addQuery);

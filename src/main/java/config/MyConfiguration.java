@@ -39,7 +39,7 @@ public class MyConfiguration extends Neo4jConfiguration {
                 //.setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
                 .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver")
                 //.setURI("http://neo4j:mtp123456@134.155.48.48:7474");
-                .setURI("file:/C:/Users/Hambe//Documents/Neo4j/default.graphdb");
+                .setURI("file:/C:/Users/Felix/Documents/Neo4j/default.graphdb");
 
         return config;
     }

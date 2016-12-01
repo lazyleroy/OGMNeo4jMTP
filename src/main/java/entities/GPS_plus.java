@@ -11,6 +11,8 @@ import java.util.Date;
 
 import LocationProcessorServer.spotMapping.InfoBundle;
 import LocationProcessorServer.trajectoryPreparation.DBSCANCluster;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import entities.*;
 
 /**
@@ -91,6 +93,8 @@ public class GPS_plus {
     /**
      * neighbors within a specific distance
      */
+    @JsonIgnore
+    @JsonIgnoreProperties
     private ArrayList<GPS_plus> neighborsDBSCAN;
     /**
      * true if GPS-point was already processed while DBSCAN-clustering

@@ -6,6 +6,10 @@ import LocationProcessorServer.gpxParser.GPXHandler;
 import LocationProcessorServer.spotMapping.Grid;
 import LocationProcessorServer.spotMapping.SpotHandler;
 import LocationProcessorServer.trajectoryPreparation.GPSDataProcessor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import config.MyConfiguration;
 import entities.GPS_plus;
 import entities.Spot;
@@ -15,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 
 import java.util.ArrayList;
@@ -36,6 +40,7 @@ public class Test {
 	 * 
 	 * @param args
 	 */
+
 	public static void main(String[] args) {
 
 		SpringApplication.run(Test.class, args);
@@ -60,6 +65,16 @@ public class Test {
 		// clean data and search for routes in the input trajectories
 		ArrayList<Route> routes = new ArrayList<Route>();
 		routes.addAll(GPSDataProcessor.splitTrajectoryByRoutes(traTestData));
+
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String test = mapper.writeValueAsString(routes);
+			System.out.println(test);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+
 
 		//System.out.println(routes.size());
 
@@ -88,6 +103,8 @@ public class Test {
 		double time = stop_time.getTime() - start_time.getTime();
 		time = time / 1000;
 		System.out.println("Processing-Time: " + time + " seconds");
+
+
 	}
 
 

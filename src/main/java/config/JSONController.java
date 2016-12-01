@@ -19,6 +19,7 @@ import requestAnswers.LoginAnswer;
 import requestAnswers.RegisterAnswer;
 import requestAnswers.SimpleAnswer;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -125,75 +126,31 @@ public class JSONController {
      * This method receives a Route of the Client in JSON-Format, afterwards it
      * directly processes it
      *
-     * @param jsonRoute
+     * @param route
      *            :Route in JSON-format
      * @return String as response to the client
      */
 
-    @RequestMapping(value="/post/singleRoute", method = RequestMethod.POST)
-    public String getRouteInJSON(@RequestBody String jsonRoute) {
-
-        ObjectMapper mapper = new ObjectMapper();
-        Route route = null;
-        try {
-            route = mapper.readValue(jsonRoute, Route.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+    @RequestMapping(value="/singleRoute", method = RequestMethod.POST)
+    public String getRouteInJSON(@RequestBody Route route) {
         // map into spots
         route = spotHandler.learningSpotStructure(route);
-        //SystemData.getRoutes().add(route);
-        // abstract routes by spots
-        Route abstractedBySpots = new Route(new ArrayList<GPS_plus>(), route.getUser());
-        Spot lastSpot = null;
-        for (int j = 0; j < route.size(); j++) {
-            Spot spot = route.getTrajectory().get(j).getSpot();
-            if (spot != lastSpot && spot != null) {
-                abstractedBySpots.getTrajectory().add(route.getTrajectory().get(j));
-                lastSpot = spot;
-            }
-        }
-        //SystemData.getAbstractedBySpots().add(abstractedBySpots);
-
-
-        //SystemData.getAbstractedByNodes().add(abstractedByNodes);
         return "Route processed";
     }
     /**
      * This method receives multiple Routes of the Client in JSON-Format,
      * afterwards it directly processes the routes.
      *
-     * @param jsonRoutes
+     * @param routes
      *            :Routes in JSON-format
      * @return String as response to the client
      */
-    @RequestMapping(value="/post/multipleRoutes", method = RequestMethod.POST)
-    public String getRoutesInJSON(String jsonRoutes) {
-
-        ObjectMapper mapper = new ObjectMapper();
-        ArrayList<Route> routes = null;
-        try {
-            routes = mapper.readValue(jsonRoutes, new TypeReference<ArrayList<Route>>() {
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    @RequestMapping(value="/multipleRoutes", method = RequestMethod.POST)
+    public String getRoutesInJSON(@RequestBody ArrayList<Route> routes) {
         for (int i = 0; i < routes.size(); i++) {
             Route route = routes.get(i);
             // map into spots
             route = spotHandler.learningSpotStructure(route);
-            SystemData.getRoutes().add(route);
-            // abstract routes by spots
-            Route abstractedBySpots = new Route(new ArrayList<GPS_plus>(), route.getUser());
-            Spot lastSpot = null;
-            for (int j = 0; j < route.size(); j++) {
-                Spot spot = route.getTrajectory().get(j).getSpot();
-                if (spot != lastSpot && spot != null) {
-                    abstractedBySpots.getTrajectory().add(route.getTrajectory().get(j));
-                    lastSpot = spot;
-                }
-            }
         }
         return "Routes processed";
     }
