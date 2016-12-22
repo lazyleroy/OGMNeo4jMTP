@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.CharArrayWriter;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * This class handles the FileUpload. It is part of the RESTful WebService.
@@ -64,11 +65,15 @@ public class FileUploadController implements HandlerExceptionResolver {
         ModelAndView mav = new ModelAndView(new MappingJackson2JsonView());
         if (e instanceof MultipartException){
             mav.addObject(new SimpleAnswer(false, "Filesize too large"));
+            e.printStackTrace();
             return mav;
         }
-        e.printStackTrace();
 
-        mav.addObject(new SimpleAnswer(false, "Exception occured"));
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        System.out.println("ACHTUNG");
+        System.out.println(sw.toString());
+        mav.addObject(new SimpleAnswer(false, sw.toString()));
         return mav;
     }
 
