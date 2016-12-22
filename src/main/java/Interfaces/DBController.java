@@ -1,6 +1,7 @@
 package Interfaces;
 
 import entities.*;
+import org.neo4j.ogm.model.Result;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -44,4 +45,6 @@ public interface DBController {
     void addNeighbour(String neigbourID, String updatedSpotID, boolean intersectionCheck, boolean updatedIntersectionCheck);
 
     void setIntersections(ArrayList<String> spots);
+
+    Result sendQuery(String query);
 }

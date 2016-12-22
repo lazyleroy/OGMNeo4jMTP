@@ -6,6 +6,9 @@ import LocationProcessorServer.gpxParser.GPXHandler;
 import LocationProcessorServer.spotMapping.Grid;
 import LocationProcessorServer.spotMapping.SpotHandler;
 import LocationProcessorServer.trajectoryPreparation.GPSDataProcessor;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import config.MyConfiguration;
 import entities.GPS_plus;
 import entities.Spot;
@@ -42,9 +45,6 @@ public class Test {
 		// record time for performance
 		Date start_time = new Date();
 
-		// initialize
-		SystemData.setRoutes(new ArrayList<Route>());
-		SystemData.setAbstractedBySpots(new ArrayList<Route>());
 
 		Grid.setMinLat(48);
 		Grid.setMaxLat(52);
@@ -59,15 +59,25 @@ public class Test {
 
 		// clean data and search for routes in the input trajectories
 		ArrayList<Route> routes = new ArrayList<Route>();
+
+
 		routes.addAll(GPSDataProcessor.splitTrajectoryByRoutes(traTestData));
+
 
 		//System.out.println(routes.size());
 
 		for (int i = 0; i < routes.size(); i++) {
 			Route route = routes.get(i);
+
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                System.out.println(mapper.writeValueAsString(route));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+
 			// map into spots
 			route = spotHandler.learningSpotStructure(route);
-			SystemData.getRoutes().add(route);
 			// abstract routes by spots
 			Route abstractedBySpots = new Route(new ArrayList<GPS_plus>(), route.getUser());
 
@@ -80,10 +90,12 @@ public class Test {
 				}
 			}
 
-			SystemData.getAbstractedBySpots().add(abstractedBySpots);
 		}
 
-		// measure time for performance
+
+
+
+        // measure time for performance
 		Date stop_time = new Date();
 		double time = stop_time.getTime() - start_time.getTime();
 		time = time / 1000;

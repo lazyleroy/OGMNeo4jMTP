@@ -5,6 +5,7 @@ import entities.*;
 import org.neo4j.ogm.exception.NotFoundException;
 import org.neo4j.ogm.model.Result;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
+import org.springframework.data.neo4j.config.Neo4jConfiguration;
 import org.springframework.data.neo4j.template.Neo4jTemplate;
 import java.lang.reflect.Array;
 import java.util.*;
@@ -172,9 +173,9 @@ public class Neo4jGraphController implements DBController {
                 gpsPlusQuery += "MERGE (GPS_Plus0)-[:NEXT_GPS]->(GPS_Plus1) \n";
             }
             gpsPlusIDcheck = gpsPlusID;
-            System.out.println(gpsPlusQuery);
-            System.out.println();
-            System.out.println();
+            //System.out.println(gpsPlusQuery);
+            //System.out.println();
+            //System.out.println();
             template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
 
         }
@@ -188,7 +189,7 @@ public class Neo4jGraphController implements DBController {
     public void addNeighbour(String spotID, String updatedSpotID, boolean intersectionCheck, boolean updatedIntersectionCheck){
         Neo4jTemplate template = main.createNeo4JTemplate();
         String addQuery = "MATCH (n:Spot{spotID:\'"+spotID+"\'}) MATCH (r:Spot{spotID:\'" +updatedSpotID +"\'}) MERGE (n)-[:CONNECTED_WITH]-(r)";
-            System.out.println("spotID: " +spotID +" updatedSpotID: "+ updatedSpotID);
+            //System.out.println("spotID: " +spotID +" updatedSpotID: "+ updatedSpotID);
 
         template.query(addQuery, Collections.EMPTY_MAP, false);
         //System.out.println("addNeighbour: "+addQuery);
@@ -216,5 +217,12 @@ public class Neo4jGraphController implements DBController {
         //System.out.println("setIntersections: "+finalizeQuery);
 
 
+    }
+
+    @Override
+    public Result sendQuery(String query) {
+        Neo4jTemplate template = main.createNeo4JTemplate();
+        Result r = template.query(query, Collections.EMPTY_MAP, false);
+        return r;
     }
 }

@@ -5,7 +5,6 @@ package config;
  */
 
 import EntityWrappers.GoodybagWrapper;
-import LocationProcessorServer.controller.SystemData;
 import entities.*;
 import LocationProcessorServer.datastructures.Route;
 import LocationProcessorServer.spotMapping.SpotHandler;
@@ -14,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import entities.Goodybag;
 import entities.Spot;
 import entities.User;
+import org.neo4j.ogm.model.Result;
 import org.springframework.web.bind.annotation.*;
 import requestAnswers.LoginAnswer;
 import requestAnswers.RegisterAnswer;
@@ -31,6 +31,7 @@ import java.util.List;
 public class JSONController {
 
     private DatabaseOperations db = new DatabaseOperations();
+    private Neo4jGraphController neo4jGraphController = new Neo4jGraphController();
 
     @CrossOrigin(origins = "134.155.48.48:8080")
     @RequestMapping(value = "/register",method = RequestMethod.POST)
@@ -169,21 +170,19 @@ public class JSONController {
      * @return String as response to the client
      */
     @RequestMapping(value="/post/multipleRoutes", method = RequestMethod.POST)
-    public String getRoutesInJSON(String jsonRoutes) {
+    public String getRoutesInJSON(@RequestBody String jsonRoutes) {
 
         ObjectMapper mapper = new ObjectMapper();
-        ArrayList<Route> routes = null;
         try {
-            routes = mapper.readValue(jsonRoutes, new TypeReference<ArrayList<Route>>() {
+            ArrayList<Route> routes = mapper.readValue(jsonRoutes, new TypeReference<ArrayList<Route>>() {
             });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
         for (int i = 0; i < routes.size(); i++) {
             Route route = routes.get(i);
             // map into spots
             route = spotHandler.learningSpotStructure(route);
-            SystemData.getRoutes().add(route);
+            //System.out.println(SystemData.getRoutes());
+            //SystemData.getRoutes().add(route);
             // abstract routes by spots
             Route abstractedBySpots = new Route(new ArrayList<GPS_plus>(), route.getUser());
             Spot lastSpot = null;
@@ -195,6 +194,9 @@ public class JSONController {
                 }
             }
         }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return "Routes processed";
     }
 
@@ -205,7 +207,11 @@ public class JSONController {
                                @RequestParam(value="volume")double volume, @RequestParam(value="track")long track,
                                @RequestParam(value="time")long time){
         db.saveDataEntity(username, longitude, latitude, acceleration, volume, track, time);
+    }
 
+    @RequestMapping(value="/sendQuery", method = RequestMethod.POST)
+    public Result sendQuery(@RequestParam(value="query") String query){
+        return neo4jGraphController.sendQuery(query);
     }
 
 
