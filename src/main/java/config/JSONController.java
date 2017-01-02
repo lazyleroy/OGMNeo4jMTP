@@ -4,7 +4,7 @@ package config;
  * Created by Felix Hambrecht on 17.07.2016.
  */
 
-import EntityWrappers.GoodybagWrapper;
+import EntityWrappers.*;
 import entities.*;
 import LocationProcessorServer.datastructures.Route;
 import LocationProcessorServer.spotMapping.SpotHandler;
@@ -213,11 +213,5 @@ public class JSONController {
     public Result sendQuery(@RequestParam(value="query") String query){
         return neo4jGraphController.sendQuery(query);
     }
-
-
-
-
-
-
 
 }

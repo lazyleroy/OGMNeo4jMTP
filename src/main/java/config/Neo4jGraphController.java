@@ -103,18 +103,23 @@ public class Neo4jGraphController implements DBController {
 
         Neo4jTemplate template = main.createNeo4JTemplate();
         HashSet<String> intersectionSpotStrings = new HashSet<>();
+        Date date = new Date();
 
 
-        String inList = "p.spotID IN ";
+        String inList = "p.spotID IN [";
         for(int i = 0; i < intersectionSpots.size(); i++){
             if(i == 0){
-                inList += "[\'"+intersectionSpots.get(i)+"\', ";
-            }else if (i == intersectionSpots.size()-1){
-                inList += "\'"+intersectionSpots.get(i)+"\']";
+                inList += "\'"+intersectionSpots.get(i)+"\' ";
             }else {
-                inList += "\'"+intersectionSpots.get(i)+"\', ";
+                inList += ",\'"+intersectionSpots.get(i)+"\'";
             }
+            /*if (i == intersectionSpots.size()-1){
+                inList += "\'"+intersectionSpots.get(i)+"\']";
+            }*/
         }
+        inList += "]";
+        //System.out.println("GRÖSSE DER ROUTE: "+intersectionSpots.size());
+
         String finalizeQuery = "MATCH (p:Spot)-[:CONNECTED_WITH]-(c:Spot) WITH p,count(c) as rels WHERE rels > 2 AND "+inList+" set p.intersection = true return p";
         Result result = template.query(finalizeQuery, Collections.EMPTY_MAP, false);
 
@@ -151,15 +156,15 @@ public class Neo4jGraphController implements DBController {
             gpsPlusQuery += "MERGE (GPS_Plus0)-[:MAPPED_TO_SPOT]->(spot)";
             if(i==0){
                 gpsPlusQuery += "MERGE (n)-[:STARTING_POINT]->(GPS_Plus0) \n";
-                gpsPlusQuery += "MERGE (waypoint:Waypoint{id:"+String.valueOf(waypointNumber)+"}) \n MERGE (n)-[:ROUTE_START]->(waypoint) \n";
+                gpsPlusQuery += "MERGE (waypoint:Waypoint{waypointID:\'"+String.valueOf(date.getTime())+username+"\'}) \n MERGE (n)-[:ROUTE_START]->(waypoint) \n";
                 gpsPlusQuery += "MERGE (GPS_Plus0)-[:WAYPOINT]->(waypoint) \n";
 
                 waypointNumber++;
             }
             if(intersectionSpotStrings.contains(spotID)){
                 if(!repeatedGPSinSpot){
-                    gpsPlusQuery += "MERGE (waypoint1:Waypoint{id:"+String.valueOf(waypointNumber)+"}) \n MERGE (GPS_Plus0)-[:WAYPOINT]-(waypoint1) \n";
-                    gpsPlusQuery += "MERGE(waypoint0:Waypoint{id:"+String.valueOf(waypointNumber-1)+"})";
+                    gpsPlusQuery += "MERGE (waypoint1:Waypoint{waypointID:'"+String.valueOf(date.getTime())+username+"\'}) \n MERGE (GPS_Plus0)-[:WAYPOINT]-(waypoint1) \n";
+                    gpsPlusQuery += "MERGE(waypoint0:Waypoint{waypointID:\'" + String.valueOf(date.getTime()+1) + username + "\'})";
                     gpsPlusQuery += "MERGE (waypoint0)-[:NEXT_WAYPOINT]->(waypoint1) \n ";
                     repeatedGPSinSpot = true;
                     waypointNumber++;
@@ -200,19 +205,18 @@ public class Neo4jGraphController implements DBController {
     public void setIntersections(ArrayList<String> spots){
         Neo4jTemplate template = main.createNeo4JTemplate();
 
-        String inList = "p.spotID IN ";
+        String inList = "p.spotID IN [";
         for(int i = 0; i < spots.size(); i++){
             if(i == 0){
-                inList += "[\'"+spots.get(i)+"\', ";
-            }else if (i == spots.size()-1){
-                inList += "\'"+spots.get(i)+"\']";
+                inList += "\'"+spots.get(i)+"\' ";
             }else {
-                inList += "\'"+spots.get(i)+"\', ";
+                inList += ",\'"+spots.get(i)+"\' ";
             }
         }
+        inList += "]";
+
 
         String finalizeQuery = "MATCH (p:Spot)-[:CONNECTED_WITH]-(c:Spot) WITH p,count(c) as rels WHERE rels > 2 AND "+inList+" set p.intersection = true return p";
-
         Result result = template.query(finalizeQuery, Collections.EMPTY_MAP, false);
         //System.out.println("setIntersections: "+finalizeQuery);
 

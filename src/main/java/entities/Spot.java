@@ -3,6 +3,8 @@ package entities;
 import LocationProcessorServer.geoLibrary.GeoDesy;
 import LocationProcessorServer.spotMapping.Line;
 import LocationProcessorServer.trajectoryPreparation.GPSDataProcessor;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import config.Neo4jGraphController;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -45,6 +47,8 @@ public class Spot extends BaseModel {
     private float latitudeSum; //!
     private float longitudeSum; //!
 
+    @JsonBackReference
+    @Relationship(type = "CONNECTED_WITH", direction = Relationship.UNDIRECTED)
     private ArrayList<Spot> neighbors;
 
     private boolean nodeProcessed;

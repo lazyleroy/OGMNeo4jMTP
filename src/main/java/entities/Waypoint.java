@@ -8,14 +8,22 @@ package entities;
 public class Waypoint extends BaseModel {
 
     private User user;
+    private String waypointID;
+
+    public Spot getSpot() {
+        return spot;
+    }
+
+    public void setSpot(Spot spot) {
+        this.spot = spot;
+    }
+
     private Spot spot;
-    private long waypointID;
 
     public Waypoint(){
     }
 
-    public Waypoint(Spot spot, Long waypointID){
-        this.spot = spot;
+    public Waypoint(Spot spot, String waypointID){
         this.waypointID = waypointID;
     }
 
@@ -27,15 +35,8 @@ public class Waypoint extends BaseModel {
         this.user = user;
     }
 
-    public Spot getSpot() {
-        return spot;
-    }
 
-    public void setSpot(Spot spot) {
-        this.spot = spot;
-    }
-
-    public long getWaypointID() {
+    public String getWaypointID() {
         return waypointID;
     }
 }
