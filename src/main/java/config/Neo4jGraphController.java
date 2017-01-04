@@ -113,12 +113,8 @@ public class Neo4jGraphController implements DBController {
             }else {
                 inList += ",\'"+intersectionSpots.get(i)+"\'";
             }
-            /*if (i == intersectionSpots.size()-1){
-                inList += "\'"+intersectionSpots.get(i)+"\']";
-            }*/
         }
         inList += "]";
-        //System.out.println("GRÖSSE DER ROUTE: "+intersectionSpots.size());
 
         String finalizeQuery = "MATCH (p:Spot)-[:CONNECTED_WITH]-(c:Spot) WITH p,count(c) as rels WHERE rels > 2 AND "+inList+" set p.intersection = true return p";
         Result result = template.query(finalizeQuery, Collections.EMPTY_MAP, false);
@@ -133,11 +129,12 @@ public class Neo4jGraphController implements DBController {
             }
         }
 
-
-        int waypointNumber = 0;
         boolean repeatedGPSinSpot = true;
         String gpsPlusID;
         String gpsPlusIDcheck = "";
+        Random random = new Random();
+
+        String waypointID ="";
 
         for(int i = 0; i < gpspoints.size(); i++){
             GPS_plus tempGPS = gpspoints.get(i);
@@ -155,19 +152,25 @@ public class Neo4jGraphController implements DBController {
 
             gpsPlusQuery += "MERGE (GPS_Plus0)-[:MAPPED_TO_SPOT]->(spot)";
             if(i==0){
+                waypointID =  String.valueOf(date.getTime())+String.valueOf(random.nextLong())+username;
                 gpsPlusQuery += "MERGE (n)-[:STARTING_POINT]->(GPS_Plus0) \n";
-                gpsPlusQuery += "MERGE (waypoint:Waypoint{waypointID:\'"+String.valueOf(date.getTime())+username+"\'}) \n MERGE (n)-[:ROUTE_START]->(waypoint) \n";
+                gpsPlusQuery += "MERGE (waypoint:Waypoint{waypointID:\'"+waypointID+"\'}) \n MERGE (n)-[:ROUTE_START]->(waypoint) \n";
                 gpsPlusQuery += "MERGE (GPS_Plus0)-[:WAYPOINT]->(waypoint) \n";
-
-                waypointNumber++;
+                System.out.println("START - WAYPOINT ERSTELLT!");
+                System.out.println(String.valueOf(date.getTime())+username);
             }
-            if(intersectionSpotStrings.contains(spotID)){
+            else if(intersectionSpotStrings.contains(spotID)){
                 if(!repeatedGPSinSpot){
-                    gpsPlusQuery += "MERGE (waypoint1:Waypoint{waypointID:'"+String.valueOf(date.getTime())+username+"\'}) \n MERGE (GPS_Plus0)-[:WAYPOINT]-(waypoint1) \n";
-                    gpsPlusQuery += "MERGE(waypoint0:Waypoint{waypointID:\'" + String.valueOf(date.getTime()+1) + username + "\'})";
+                    String waypointID1 = String.valueOf(date.getTime())+String.valueOf(random.nextLong())+username;
+
+                    gpsPlusQuery += "MERGE (waypoint1:Waypoint{waypointID:'"+waypointID1+"\'}) \n MERGE (GPS_Plus0)-[:WAYPOINT]-(waypoint1) \n";
+                    gpsPlusQuery += "MERGE(waypoint0:Waypoint{waypointID:\'" + waypointID + "\'})";
                     gpsPlusQuery += "MERGE (waypoint0)-[:NEXT_WAYPOINT]->(waypoint1) \n ";
                     repeatedGPSinSpot = true;
-                    waypointNumber++;
+                    waypointID = waypointID1;
+
+                    System.out.println("WAYPOINT ERSTELLT!");
+                    System.out.println(waypointID1);
                 }
             }else{
                 repeatedGPSinSpot = false;
@@ -178,9 +181,6 @@ public class Neo4jGraphController implements DBController {
                 gpsPlusQuery += "MERGE (GPS_Plus0)-[:NEXT_GPS]->(GPS_Plus1) \n";
             }
             gpsPlusIDcheck = gpsPlusID;
-            //System.out.println(gpsPlusQuery);
-            //System.out.println();
-            //System.out.println();
             template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
 
         }
