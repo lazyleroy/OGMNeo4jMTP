@@ -175,7 +175,15 @@ public class Neo4jGraphController implements DBController {
             }else{
                 repeatedGPSinSpot = false;
             }
+            if(i == gpspoints.size()-1){
+                String waypointID2 = String.valueOf(date.getTime())+String.valueOf(random.nextLong())+username;
 
+                gpsPlusQuery += "MERGE (waypoint1:Waypoint{waypointID:'"+waypointID2+"\'}) \n MERGE (GPS_Plus0)-[:WAYPOINT]-(waypoint1) \n";
+                gpsPlusQuery += "MERGE(waypoint0:Waypoint{waypointID:\'" + waypointID + "\'})";
+                gpsPlusQuery += "MERGE (waypoint0)-[:NEXT_WAYPOINT]->(waypoint1) \n ";
+
+                System.out.println("ROUTEN ENDE");
+            }
             if(i >0){
                 gpsPlusQuery += "MERGE (GPS_Plus1:GPS_Plus{gpsPlusID:\'"+gpsPlusIDcheck+"\'})";
                 gpsPlusQuery += "MERGE (GPS_Plus0)-[:NEXT_GPS]->(GPS_Plus1) \n";
