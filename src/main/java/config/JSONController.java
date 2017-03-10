@@ -133,6 +133,7 @@ public class JSONController {
 
     @RequestMapping(value="/post/singleRoute", method = RequestMethod.POST)
     public String getRouteInJSON(@RequestBody String jsonRoute) {
+        long startTime = System.currentTimeMillis();
 
         ObjectMapper mapper = new ObjectMapper();
         Route route = null;
@@ -140,6 +141,7 @@ public class JSONController {
             route = mapper.readValue(jsonRoute, Route.class);
         } catch (Exception e) {
             e.printStackTrace();
+            return "Route konnte nicht gelesen werden";
         }
 
         // map into spots
@@ -157,8 +159,10 @@ public class JSONController {
         }
         //SystemData.getAbstractedBySpots().add(abstractedBySpots);
 
-
         //SystemData.getAbstractedByNodes().add(abstractedByNodes);
+        long stopTime = System.currentTimeMillis();
+        long elapsedTime = stopTime - startTime;
+        System.out.println(elapsedTime);
         return "Route processed";
     }
     /**

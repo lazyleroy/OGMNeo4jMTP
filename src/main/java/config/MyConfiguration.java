@@ -4,15 +4,20 @@ package config;
  * Created by Felix Hambrecht on 05.07.2016.
  */
 
+
+import org.neo4j.ogm.config.*;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.neo4j.config.Neo4jConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.neo4j.ogm.session.SessionFactory;
+
+
 
 
 /**
@@ -36,10 +41,17 @@ public class MyConfiguration extends Neo4jConfiguration {
         org.neo4j.ogm.config.Configuration config = new org.neo4j.ogm.config.Configuration();
         config
                 .driverConfiguration()
+
                 //.setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
+                //.setURI("http://neo4j:mtp123456@localhost:7474");
+                //.setURI("bolt://neo4j:password@localhost")
+                //.setEncryptionLevel("NONE")
+                //.setTrustStrategy("TRUST_ON_FIRST_USE")
+                //.setTrustCertFile("/tmp/cert")
                 .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver")
-                //.setURI("http://neo4j:mtp123456@134.155.48.48:7474");
-                .setURI("file:/home/mtp/neo4j-community-3.0.3/data/databases/graph.db");
+                .setURI("file:/home/ines/neo4j-community-3.1.1/data/databases/routes.db")
+                ;
+
 
         return config;
     }
@@ -48,6 +60,8 @@ public class MyConfiguration extends Neo4jConfiguration {
     public SessionFactory getSessionFactory(){
         return new SessionFactory(getConfiguration(), "entities");
     }
+
+
 
     @Bean
     protected EmbeddedServletContainerFactory servletContainer() {

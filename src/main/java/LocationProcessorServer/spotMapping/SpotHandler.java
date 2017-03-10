@@ -56,6 +56,7 @@ public class SpotHandler {
 	 *         point
 	 */
 	private Route initialSpotMapping(Route route) {
+		System.out.println(neo4j.getDatabaseConnections());
 		// increment calculation-level & mark route as processed
 		calculationLevel++;
 		route.setSpotProcessed(true);
@@ -131,7 +132,7 @@ public class SpotHandler {
 			lastSpot = sp;
 		}
 		lastSpot = null;
-
+		System.out.println(neo4j.getDatabaseConnections());
 		return route;
 	}
 
@@ -144,7 +145,8 @@ public class SpotHandler {
 	 *         point
 	 */
 	private Route extendSpotStructure(Route route) {
-		ArrayList<String> spotIDs = new ArrayList<>();
+        System.out.println(neo4j.getDatabaseConnections());
+        ArrayList<String> spotIDs = new ArrayList<>();
 		calculationLevel++;
 		route.setSpotProcessed(true);
 		// counts the points that are in the range of the same (already
@@ -296,7 +298,9 @@ public class SpotHandler {
 		}
 		//neo4j.setIntersections(spotIDs);
 		neo4j.addGPSPoints(route.getTrajectory(), route.getUser(),spotIDs);
-		return route;
+        System.out.println(neo4j.getDatabaseConnections());
+
+        return route;
 	}
 
     /**

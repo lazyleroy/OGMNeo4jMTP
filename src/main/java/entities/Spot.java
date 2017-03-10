@@ -64,7 +64,7 @@ public class Spot extends BaseModel {
     public Spot() {
         // Default
         Random random = new Random();
-        char[] c = new char[20];
+        char[] c = new char[25];
         for(int i = 0; i < c.length; i++){
             int rv = random.nextInt(75)+'0';
             if((rv>=58 && rv<=64)||(rv>=91 && rv<=96)){

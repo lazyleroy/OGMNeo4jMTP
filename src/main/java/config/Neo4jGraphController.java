@@ -18,6 +18,7 @@ import java.util.*;
 public class Neo4jGraphController implements DBController {
 
     private static Main main = new Main();
+    private int databaseConnections = 0;
 
     @Override
     public void addSpot(Spot spot) {
@@ -25,7 +26,7 @@ public class Neo4jGraphController implements DBController {
 
         String spotID = spot.getSpotID();
         ArrayList<Spot> neighbors = spot.getNeighbors();
-        String spotNeighborsQuery = "MERGE (n:Spot{spotID:\'"+spotID+"\', longitude:"+spot.getLongitude()+", latitude:"+spot.getLatitude()+", " +
+        String spotNeighborsQuery = "CREATE (n:Spot{spotID:\'"+spotID+"\', longitude:"+spot.getLongitude()+", latitude:"+spot.getLatitude()+", " +
                 "spotHeading:"+spot.getSpotHeading()+", intersection:"+spot.isIntersection()+", numberCenterCalcPoints:"+spot.getNumberCenterCalcPoints()+", " +
                 "headSum:"+spot.getHeadSum()+", headCalcPoints:"+spot.getHeadCalcPoints()+", latitudeSum:"+spot.getLatitudeSum()+", " +
                 "longitudeSum:"+spot.getLongitudeSum()+", numberOfNeighbours:"+spot.getNeighbors().size()+"}) ";
@@ -34,10 +35,10 @@ public class Neo4jGraphController implements DBController {
             spotNeighborsQuery+= "MERGE (t"+i+":Spot{spotID:\'"+neighborID+"\'})";
         }
         for(int i = 0; i < neighbors.size(); i++){
-            spotNeighborsQuery+= "MERGE (n)-[:CONNECTED_WITH]-(t"+i+") ";
+            spotNeighborsQuery+= "CREATE (n)-[:CONNECTED_WITH]-(t"+i+") ";
         }
         template.query(spotNeighborsQuery, Collections.EMPTY_MAP, false);
-        //System.out.println("addSpot: "+ spotNeighborsQuery);
+        databaseConnections++;
 
     }
 
@@ -81,6 +82,7 @@ public class Neo4jGraphController implements DBController {
         Neo4jTemplate template = main.createNeo4JTemplate();
 
         Result r = template.query("match(n:Spot) where distance(point(n),point({latitude:"+latitude+", longitude:"+longitude+"}))<50 return n", Collections.EMPTY_MAP, false);
+        databaseConnections++;
         Iterator<Map<String, Object>> result = r.iterator();
         ArrayList<Spot> spots = new ArrayList<>();
         while(result.hasNext()){
@@ -94,7 +96,6 @@ public class Neo4jGraphController implements DBController {
         if(spots.isEmpty()){
             return null;
         }
-        //System.out.println("getSpots: match(n:Spot) where distance(point(n),point({latitude:"+latitude+", longitude:"+longitude+"}))<50 return n");
         return spots;
     }
 
@@ -118,7 +119,7 @@ public class Neo4jGraphController implements DBController {
 
         String finalizeQuery = "MATCH (p:Spot)-[:CONNECTED_WITH]-(c:Spot) WITH p,count(c) as rels WHERE rels > 2 AND "+inList+" set p.intersection = true return p";
         Result result = template.query(finalizeQuery, Collections.EMPTY_MAP, false);
-
+        databaseConnections++;
         Iterator<Map<String, Object>> iterator = result.iterator();
         while(iterator.hasNext()){
             Map<String, Object> map = iterator.next();
@@ -190,7 +191,7 @@ public class Neo4jGraphController implements DBController {
             }
             gpsPlusIDcheck = gpsPlusID;
             template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
-
+            databaseConnections++;
         }
 
 
@@ -202,10 +203,9 @@ public class Neo4jGraphController implements DBController {
     public void addNeighbour(String spotID, String updatedSpotID, boolean intersectionCheck, boolean updatedIntersectionCheck){
         Neo4jTemplate template = main.createNeo4JTemplate();
         String addQuery = "MATCH (n:Spot{spotID:\'"+spotID+"\'}) MATCH (r:Spot{spotID:\'" +updatedSpotID +"\'}) MERGE (n)-[:CONNECTED_WITH]-(r)";
-            //System.out.println("spotID: " +spotID +" updatedSpotID: "+ updatedSpotID);
 
         template.query(addQuery, Collections.EMPTY_MAP, false);
-        //System.out.println("addNeighbour: "+addQuery);
+        databaseConnections++;
 
     }
 
@@ -226,7 +226,8 @@ public class Neo4jGraphController implements DBController {
 
         String finalizeQuery = "MATCH (p:Spot)-[:CONNECTED_WITH]-(c:Spot) WITH p,count(c) as rels WHERE rels > 2 AND "+inList+" set p.intersection = true return p";
         Result result = template.query(finalizeQuery, Collections.EMPTY_MAP, false);
-        //System.out.println("setIntersections: "+finalizeQuery);
+        databaseConnections++;
+
 
 
     }
@@ -235,6 +236,17 @@ public class Neo4jGraphController implements DBController {
     public Result sendQuery(String query) {
         Neo4jTemplate template = main.createNeo4JTemplate();
         Result r = template.query(query, Collections.EMPTY_MAP, false);
+        databaseConnections++;
+
         return r;
     }
+
+    public int getDatabaseConnections() {
+        return databaseConnections;
+    }
+
+    public void setDatabaseConnections(int databaseConnections) {
+        this.databaseConnections = databaseConnections;
+    }
+
 }
