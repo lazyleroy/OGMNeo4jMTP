@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gpx creator="" version="1.1" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+ <trk>
+  <name>Route von Bismarckstraße 12, 68161 Mannheim, Deutschland nach Bismarckstraße 1, 68161 Mannheim, Deutschland</name>
+  <trkseg>
+   <trkpt lat="8.460370" lon="49.484590">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.460800" lon="49.484430">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.461000" lon="49.484360">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.461020" lon="49.484380">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.461060" lon="49.484450">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.461070" lon="49.484460">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.461080" lon="49.484470">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.461270" lon="49.484700">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.461330" lon="49.484670">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.461350" lon="49.484740">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.461520" lon="49.484940">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.462240" lon="49.484650">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.462780" lon="49.484440">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.462980" lon="49.484360">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.463060" lon="49.484320">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.463870" lon="49.484010">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.463960" lon="49.483970">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.464900" lon="49.483610">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.465640" lon="49.483300">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.465750" lon="49.483250">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.466290" lon="49.483040">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.466470" lon="49.482970">
+    <ele>0.0</ele>
+   </trkpt>
+  </trkseg>
+ </trk>
+ <wpt lat="49.484585" lon="8.460371">
+  <name>Bismarckstraße 12, 68161 Mannheim, Deutschland</name>
+  <ele>0.0</ele>
+ </wpt>
+ <wpt lat="49.482970" lon="8.466474">
+  <name>Bismarckstraße 1, 68161 Mannheim, Deutschland</name>
+  <ele>0.0</ele>
+ </wpt>
+</gpx>

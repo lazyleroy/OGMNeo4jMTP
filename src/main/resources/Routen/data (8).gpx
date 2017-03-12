@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gpx creator="" version="1.1" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+ <trk>
+  <name>Route von Siemensstraße 8, 69207 Sandhausen, Deutschland nach Bruchhausen 14, 69207 Sandhausen, Deutschland</name>
+  <trkseg>
+   <trkpt lat="8.654680" lon="49.349040">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.655060" lon="49.348700">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.654770" lon="49.348560">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.653950" lon="49.348190">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.653940" lon="49.348410">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.653880" lon="49.348630">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.653820" lon="49.348800">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.653720" lon="49.348960">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.653620" lon="49.349160">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.653530" lon="49.349280">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.653410" lon="49.349380">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.653270" lon="49.349470">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.653120" lon="49.349570">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.652970" lon="49.349650">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.652770" lon="49.349750">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.652090" lon="49.350010">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.651900" lon="49.350080">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.651670" lon="49.350200">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.651330" lon="49.350330">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.651060" lon="49.350430">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.651060" lon="49.350450">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.651060" lon="49.350460">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.651060" lon="49.350470">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.651050" lon="49.350480">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.651050" lon="49.350490">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.651040" lon="49.350510">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.651020" lon="49.350520">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.651000" lon="49.350530">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.650990" lon="49.350540">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.650980" lon="49.350540">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.650970" lon="49.350550">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.650950" lon="49.350550">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.650930" lon="49.350550">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.650910" lon="49.350560">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.650890" lon="49.350560">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.650870" lon="49.350550">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.650850" lon="49.350550">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.650830" lon="49.350550">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.650810" lon="49.350540">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.650800" lon="49.350540">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.650710" lon="49.350590">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.650200" lon="49.350840">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.650130" lon="49.350880">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.649890" lon="49.351050">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.649680" lon="49.351190">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.649420" lon="49.351400">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.649230" lon="49.351570">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.648010" lon="49.352640">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.647730" lon="49.352890">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.646980" lon="49.353510">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.646540" lon="49.353870">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.646280" lon="49.354110">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.646120" lon="49.354290">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.645990" lon="49.354440">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.645850" lon="49.354620">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.645740" lon="49.354780">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.645680" lon="49.354870">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.645620" lon="49.354970">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.645510" lon="49.355190">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.645410" lon="49.355460">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.645350" lon="49.355670">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.645210" lon="49.356380">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.645200" lon="49.356470">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.645180" lon="49.356570">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.645090" lon="49.357100">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.644930" lon="49.358080">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.644710" lon="49.359120">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.644700" lon="49.359240">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.644670" lon="49.359520">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.644660" lon="49.359590">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.644580" lon="49.359590">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.644290" lon="49.359590">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.644130" lon="49.359590">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.644040" lon="49.359590">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.643860" lon="49.359600">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.643690" lon="49.359600">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.643650" lon="49.359600">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.643580" lon="49.359570">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.643460" lon="49.359580">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.643170" lon="49.359600">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.642870" lon="49.359630">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.642510" lon="49.359690">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.642220" lon="49.359760">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.641880" lon="49.359880">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.641860" lon="49.360160">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.642180" lon="49.360510">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.642650" lon="49.361000">
+    <ele>0.0</ele>
+   </trkpt>
+   <trkpt lat="8.643030" lon="49.361390">
+    <ele>0.0</ele>
+   </trkpt>
+  </trkseg>
+ </trk>
+ <wpt lat="49.349036" lon="8.654682">
+  <name>Siemensstraße 8, 69207 Sandhausen, Deutschland</name>
+  <ele>0.0</ele>
+ </wpt>
+ <wpt lat="49.361393" lon="8.643025">
+  <name>Bruchhausen 14, 69207 Sandhausen, Deutschland</name>
+  <ele>0.0</ele>
+ </wpt>
+</gpx>
