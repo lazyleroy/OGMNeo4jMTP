@@ -11,6 +11,7 @@ import ch.qos.logback.core.CoreConstants;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import config.MyConfiguration;
+import config.Neo4jGraphController;
 import entities.GPS_plus;
 import entities.Spot;
 import org.neo4j.ogm.session.SessionFactory;
@@ -35,6 +36,7 @@ import java.util.List;
 public class Test {
 	public static SessionFactory sessionFactory = new MyConfiguration().getSessionFactory();
 	static SpotHandler spotHandler = new SpotHandler();
+	static Neo4jGraphController neo4jGraphController = new Neo4jGraphController();
 	/**
 	 * Main method to test the program
 	 * 
@@ -48,6 +50,10 @@ public class Test {
 		Grid.setMaxLat(52);
 		Grid.setMinLong(6);
 		Grid.setMaxLong(11);
+
+		neo4jGraphController.sendQuery("CREATE INDEX ON :Spot(spotID)");
+		neo4jGraphController.sendQuery("CREATE INDEX ON :GPS_Plus(gpsPlusID)");
+		neo4jGraphController.sendQuery("CREATE INDEX ON :Waypoint(waypointID)");
 
 		// read data sets
 		/*
@@ -64,7 +70,8 @@ public class Test {
 		//routes.addAll(GPSDataProcessor.splitTrajectoryByRoutes(traTestData));
 
 		// record time for performance
-		Date start_time = new Date();
+
+			Date start_time = new Date();
 
 		for (int i = 0; i < routes.size(); i++) {
 			Route route = routes.get(i);
@@ -128,10 +135,10 @@ public class Test {
 
 	public static ArrayList<Route> getTestRoutesSimon(){
 		ArrayList<Route> routes = new ArrayList<>();
-		for(int j = 1; j <= 6; j++) {
+		for(int j = 1; j <= 16; j++) {
 
 			ArrayList<GPS_plus> gps_points = new ArrayList<GPS_plus>();
-			gps_points.addAll(GPXHandler.readGPXFile("src\\main\\resources\\GPXfiles\\track ("+j+").gpx"));
+			gps_points.addAll(GPXHandler.readGPXFile("src\\main\\resources\\Routen\\data ("+j+").gpx"));
 			for (int i = 0; i < gps_points.size(); i++) {
 				gps_points.get(i).setUserID("007");
 			}
