@@ -1,5 +1,7 @@
 package LocationProcessorServer.spotMapping;
 
+import entities.Spot;
+
 /**
  * This class represents a auxiliary class for the spot mapping algorithm
  * 
@@ -24,6 +26,8 @@ public class InfoBundle {
 	 */
 	double minDistance_spotCenterlat;
 	double minDistance_spotCenterlong;
+
+	Spot spot;
 
 	/**
 	 * InfoBundle Constructor
@@ -70,5 +74,13 @@ public class InfoBundle {
 
 	public void setDistance(double distance) {
 		this.distance = distance;
+	}
+
+	public Spot getSpot() {
+		return spot;
+	}
+
+	public void setSpot(Spot spot) {
+		this.spot = spot;
 	}
 }

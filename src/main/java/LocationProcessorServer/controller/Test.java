@@ -7,6 +7,7 @@ import LocationProcessorServer.spotMapping.Grid;
 import LocationProcessorServer.spotMapping.SpotHandler;
 import LocationProcessorServer.trajectoryPreparation.GPSDataProcessor;
 
+import ch.qos.logback.core.CoreConstants;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import config.MyConfiguration;
@@ -42,9 +43,6 @@ public class Test {
 	public static void main(String[] args) {
 
 		SpringApplication.run(Test.class, args);
-		// record time for performance
-		Date start_time = new Date();
-
 
 		Grid.setMinLat(48);
 		Grid.setMaxLat(52);
@@ -52,53 +50,44 @@ public class Test {
 		Grid.setMaxLong(11);
 
 		// read data sets
+		/*
 		ArrayList<GPS_plus> testData = new ArrayList<GPS_plus>();
 		Test.getTestdata(testData);
 		Trajectory traTestData = new Trajectory("007");
 		traTestData.setTrajectory(testData);
+		ArrayList<GPS_plus> evaluationData = new ArrayList<>();
+		evaluationData.addAll(testData);*/
 
 		// clean data and search for routes in the input trajectories
-		ArrayList<Route> routes = new ArrayList<Route>();
+		ArrayList<Route> routes = getTestRoutesSimon();
 
+		//routes.addAll(GPSDataProcessor.splitTrajectoryByRoutes(traTestData));
 
-		routes.addAll(GPSDataProcessor.splitTrajectoryByRoutes(traTestData));
-
-
-		//System.out.println(routes.size());
+		// record time for performance
+		Date start_time = new Date();
 
 		for (int i = 0; i < routes.size(); i++) {
 			Route route = routes.get(i);
-
             try {
                 ObjectMapper mapper = new ObjectMapper();
                 System.out.println(mapper.writeValueAsString(route));
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
-
-			// map into spots
 			route = spotHandler.learningSpotStructure(route);
-			// abstract routes by spots
-			Route abstractedBySpots = new Route(new ArrayList<GPS_plus>(), route.getUser());
-
-			Spot lastSpot = null;
-			for (int j = 0; j < route.size(); j++) {
-				Spot spot = route.getTrajectory().get(j).getSpot();
-				if (spot != lastSpot && spot != null) {
-					abstractedBySpots.getTrajectory().add(route.getTrajectory().get(j));
-					lastSpot = spot;
-				}
-			}
-
 		}
-
-
-
 
         // measure time for performance
 		Date stop_time = new Date();
 		double time = stop_time.getTime() - start_time.getTime();
 		time = time / 1000;
+
+		System.out.println("-- Evaluation --");
+		System.out.println("# of Testroutes: "+routes.size());
+		for (int i = 0; i < routes.size(); i++) {
+			Route route = routes.get(i);
+			System.out.println("Route "+(i+1)+": "+route.size()+" points");
+		}
 		System.out.println("Processing-Time: " + time + " seconds");
 	}
 
@@ -114,9 +103,42 @@ public class Test {
 		gps_points.addAll(GPXHandler.readGPXFile("src\\main\\resources\\GPXfiles\\track1.gpx"));
 		gps_points.addAll(GPXHandler.readGPXFile("src\\main\\resources\\GPXfiles\\track2.gpx"));
 		gps_points.addAll(GPXHandler.readGPXFile("src\\main\\resources\\GPXfiles\\track3.gpx"));
+
 		for (int i = 0; i < gps_points.size(); i++) {
 			gps_points.get(i).setUserID("007");
 			gps_list.add(gps_points.get(i));
 		}
+	}
+
+	public static ArrayList<Route> getTestRoutes(){
+		ArrayList<Route> routes = new ArrayList<>();
+		for(int j = 1; j <= 10; j++) {
+
+			ArrayList<GPS_plus> gps_points = new ArrayList<GPS_plus>();
+			gps_points.addAll(GPXHandler.readGPXFile("src\\main\\resources\\Routen\\data ("+j+").gpx"));
+			for (int i = 0; i < gps_points.size(); i++) {
+				gps_points.get(i).setUserID("007");
+			}
+			Route route = new Route(gps_points, "007");
+			routes.add(route);
+		}
+
+		return routes;
+	}
+
+	public static ArrayList<Route> getTestRoutesSimon(){
+		ArrayList<Route> routes = new ArrayList<>();
+		for(int j = 1; j <= 6; j++) {
+
+			ArrayList<GPS_plus> gps_points = new ArrayList<GPS_plus>();
+			gps_points.addAll(GPXHandler.readGPXFile("src\\main\\resources\\GPXfiles\\track ("+j+").gpx"));
+			for (int i = 0; i < gps_points.size(); i++) {
+				gps_points.get(i).setUserID("007");
+			}
+			Route route = new Route(gps_points, "007");
+			routes.add(route);
+		}
+
+		return routes;
 	}
 }

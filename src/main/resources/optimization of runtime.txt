@@ -1,0 +1,38 @@
++++++++++++++++++++++Before Algorithm update+++++++++++++++++++++++++
+
+-- Evaluation --
+# of Testroutes: 6
+Route 1: 186 points
+Route 2: 99 points
+Route 3: 99 points
+Route 4: 74 points
+Route 5: 186 points
+Route 6: 74 points
+Processing-Time: 19.89 seconds
+
+-- Evaluation --
+# of Testroutes: 6
+Route 1: 186 points
+Route 2: 99 points
+Route 3: 99 points
+Route 4: 74 points
+Route 5: 186 points
+Route 6: 74 points
+Processing-Time: 19.996 seconds
+
+
+++++++++++++++++++++++1st Optimization+++++++++++++++++++++++++++++++++++
+-- Evaluation --
+# of Testroutes: 6
+Route 1: 186 points
+Route 2: 99 points
+Route 3: 99 points
+Route 4: 74 points
+Route 5: 186 points
+Route 6: 74 points
+Processing-Time: 14.536 seconds
+
+
+
+
+

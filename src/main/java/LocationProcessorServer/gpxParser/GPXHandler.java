@@ -25,6 +25,10 @@ public class GPXHandler {
 		gpxParser.parse();
 		List<CartoGpxParser.TrackSegment> tracks = gpxParser.getTracks();
 
+		//System.out.println("Tracks: "+gpxParser.getTracks().size());
+		//System.out.println("Waypoints: "+gpxParser.getWayPoints().size());
+		//System.out.println("Routes: "+gpxParser.getRoutes().size());
+
 		ArrayList<GPS_plus> trajectory = new ArrayList<GPS_plus>();
 		for (int i = 0; i < tracks.size(); i++) {
 			List<TrackPoint> points = tracks.get(i).getPoints();

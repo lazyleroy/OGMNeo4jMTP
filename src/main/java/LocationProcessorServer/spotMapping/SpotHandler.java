@@ -41,7 +41,7 @@ public class SpotHandler {
 			if (calculationLevel == 0) {
 				route = initialSpotMapping(route);
 			} else {
-				route = extendSpotStructure(route);
+				route = extendSpotStructureSpeedUp(route);
 			}
 		}
 		return route;
@@ -303,6 +303,173 @@ public class SpotHandler {
         return route;
 	}
 
+	/**
+	 * Extends the spot structure
+	 *
+	 * @param route
+	 *            :Route that is going to be mapped into Spots
+	 * @return Route with information about the assigned Spot at each trajectory
+	 *         point
+	 */
+	private Route extendSpotStructureSpeedUp(Route route) {
+		System.out.println(neo4j.getDatabaseConnections());
+		ArrayList<Integer> notMapped = new ArrayList<>();
+		ArrayList<String> spotIDs = new ArrayList<>();
+		calculationLevel++;
+		route.setSpotProcessed(true);
+		// counts the points that are in the range of the same (already
+		// existing) spot
+		int inRangeCounter = 0;
+		// indicates if the last point was in the range of an existing spot
+		boolean lastPointInSpot = false;
+		// ID of the last Spot a trajectory point was in range of
+		// default = 0
+		String lastInRangeID = "";
+		// indicates if trajectory was in the last run in the range of a spot
+		// and now is immediately in the range of another spot
+		boolean changedSpotInRange = false;
+
+		//lastSpot
+		Spot lastSpot = null;
+
+		// iterate through the trajectory
+		for (int j = 0; j < route.getTrajectory().size(); j++) {
+			// search the closest spot
+			InfoBundle infobundle = searchClosestSpot(route.getTrajectory().get(j));
+			route.getTrajectory().get(j).setClosestSpotInfo(infobundle);
+
+			// variables
+			int tempCounter = inRangeCounter;
+			Spot spot = null;
+
+			// check if the current point is... in range / outside / able to
+			// create a new spot
+			if (infobundle == null || infobundle.distance >= (Spot.stdRadius * 2)) {
+				// update counter
+				inRangeCounter = 0;
+				lastPointInSpot = false;
+				// generate spot
+				spot = generateSpot(route, j);
+				route.getTrajectory().get(j).setSpot(spot);
+				route.getTrajectory().get(j).setMappedToSpot(true);
+				neo4j.addSpot(spot);
+				//Grid.add(spot);
+			} else if (!infobundle.inRange && infobundle.distance < (Spot.stdRadius * 2)) {
+				// update counter
+				inRangeCounter = 0;
+				lastPointInSpot = false;
+				notMapped.add(j);
+			} else if (infobundle.inRange) {
+				// point in range
+				spot = infobundle.getSpot();
+				//spot = Grid.getSpot(infobundle.minDistance_spotID, (float)infobundle.minDistance_spotCenterlat,(float)infobundle.minDistance_spotCenterlong);
+				route.getTrajectory().get(j).setSpot(spot);
+				route.getTrajectory().get(j).setMappedToSpot(true);
+				// check if the last point was in the same spot
+				if (lastPointInSpot) {
+					if (!infobundle.minDistance_spotID.equals(lastInRangeID)) {
+						inRangeCounter = 0;
+						changedSpotInRange = true;
+					} else {
+						inRangeCounter++;
+					}
+				} else {
+					inRangeCounter++;
+				}
+				lastInRangeID = infobundle.minDistance_spotID;
+				lastPointInSpot = true;
+			}
+
+			// Get closest point in range if there was more points in the range
+			// of one spot to update the spot
+			if (tempCounter > inRangeCounter) {
+				// default = 100 - no meaning
+				double minDistance = 100;
+				int minIndex = 0;
+				for (int n = 1; n <= tempCounter; n++) {
+					double dist = route.getTrajectory().get(j - n).getClosestSpotInfo().distance;
+					if (dist < minDistance) {
+						minDistance = dist;
+						minIndex = (j - n);
+					}
+				}
+				InfoBundle nearestClusterInfo = route.getTrajectory().get(minIndex).getClosestSpotInfo();
+				Spot sp = nearestClusterInfo.getSpot();
+				// this function will update the spot
+				sp.updateSpot(route.getTrajectory().get(minIndex));
+				neo4j.updateSpot(sp);
+				//Grid.add(sp);
+			}
+
+			// if the spot in range was changed related to spot of the point
+			// before
+			if (changedSpotInRange) {
+				inRangeCounter = 1;
+				changedSpotInRange = false;
+			}
+
+			if(j==0){
+				if(spot != null) {
+					spotIDs.add(spot.getSpotID());
+				}
+			}
+			if (spot != null && lastSpot != null) {
+				if (!spot.getSpotID().equals(lastSpot.getSpotID())) {
+					addNeighbor(lastSpot,spot);
+					//neo4j.addNeighbour(lastSpot.getSpotID(),spot.getSpotID(),lastSpot.isIntersection(),spot.isIntersection());
+					spotIDs.add(spot.getSpotID());
+				}
+			}
+			if(spot != null){
+				lastSpot = spot;
+			}
+		}
+		lastSpot = null;
+
+		// complete spot mapping and set neighbors of the created spots
+		lastSpot = null;
+		for (int k = 0; k < notMapped.size(); k++) {
+			// check for the points that wasn't able to build an own spot or
+			// wasn't in the range of a spot
+			GPS_plus currentPoint = route.getTrajectory().get(notMapped.get(k));
+
+			Spot closestSpot = null;
+			Spot currentclosestSpot = route.getTrajectory().get(notMapped.get(k)).getClosestSpotInfo().getSpot();
+			for (int temp = notMapped.get(k) + 1; temp < route.size(); temp++) {
+				if (route.getTrajectory().get(temp).isMappedToSpot()) {
+					Spot nextSpot = route.getTrajectory().get(temp).getSpot();
+					double distance = GPSDataProcessor.calcDistance(nextSpot.getLatitude(), nextSpot.getLongitude(),
+							route.getTrajectory().get(temp).getLatitude(), route.getTrajectory().get(temp).getLongitude());
+					if (distance < route.getTrajectory().get(notMapped.get(k)).getClosestSpotInfo().minDistance_spotCenterlat) {
+						closestSpot = nextSpot;
+					} else {
+						closestSpot = currentclosestSpot;
+					}
+					break;
+				} else {
+					closestSpot = currentclosestSpot;
+				}
+			}
+			route.getTrajectory().get(notMapped.get(k)).setSpot(closestSpot);
+			route.getTrajectory().get(notMapped.get(k)).setMappedToSpot(true);
+		}
+
+		Collections.sort(spotIDs);
+
+		String lastValue = null;
+		for(Iterator<String> i = spotIDs.iterator(); i.hasNext();) {
+			String currentValue = i.next();
+			if(lastValue != null && currentValue.equals(lastValue)) {
+				i.remove();
+			}
+			lastValue = currentValue;
+		}
+
+		neo4j.addGPSPoints(route.getTrajectory(), route.getUser(), spotIDs);
+
+		return route;
+	}
+
     /**
      * Adds a new neighbor Spot to the Spot
      *
@@ -354,39 +521,40 @@ public class SpotHandler {
 		// now the closest spot of the found spots must be identified
 		double distance;
 		double minDistance;
+		String minDistance_spotID;
+
 		// Center GPS_plus object of the closest spot
-		GPS_plus minDistance_centerGPSdata;
 		double minDistance_centerGPSdatalat;
 		double minDistance_centerGPSdatalong;
-		// ID of the closest spot
-		String minDistance_spotID;
+
 		// indicates if the closest spot is in the range of the input GPS_plus
 		// object
 		boolean inRange = false;
-
 
 		if (spots != null && spots.size() != 0) {
 			distance = GPSDataProcessor.calcDistance(spots.get(0).getLatitude(),spots.get(0).getLongitude(), point.getLatitude(), point.getLongitude());
 			minDistance = distance;
 			minDistance_centerGPSdatalat = spots.get(0).getLatitude();
 			minDistance_centerGPSdatalong = spots.get(0).getLongitude();
+			int spotArrayPosition = 0;
 
 			minDistance_spotID = spots.get(0).getSpotID();
 			for (int i = 1; i < spots.size(); i++) {
 				distance = GPSDataProcessor.calcDistance(spots.get(i).getLatitude(),spots.get(i).getLongitude(), point.getLatitude(),point.getLongitude());
-
 				if (distance < minDistance) {
 					minDistance = distance;
 					minDistance_centerGPSdatalat = spots.get(i).getLatitude();
 					minDistance_centerGPSdatalong = spots.get(i).getLongitude();
-
 					minDistance_spotID = spots.get(i).getSpotID();
+					spotArrayPosition = i;
 				}
 			}
 			if (minDistance < Spot.stdRadius) {
 				inRange = true;
 			}
-			return new InfoBundle(minDistance_spotID, minDistance_centerGPSdatalat, minDistance_centerGPSdatalong, inRange, minDistance);
+			InfoBundle bundle = new InfoBundle(minDistance_spotID, minDistance_centerGPSdatalat, minDistance_centerGPSdatalong, inRange, minDistance);
+			bundle.setSpot(spots.get(spotArrayPosition));
+			return bundle;
 		} else {
 			// if there was no spot within the search
 			return null;
