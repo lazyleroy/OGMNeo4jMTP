@@ -2,6 +2,7 @@ package LocationProcessorServer.spotMapping;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 
 import LocationProcessorServer.datastructures.*;
@@ -36,6 +37,8 @@ public class SpotHandler {
 	 *         point
 	 */
 	public Route learningSpotStructure(Route route) {
+		Date start = new Date();
+		System.out.println("START LEARNING SPOT STRUCTURE" + start.getTime());
 		if (route == null || route.isSpotProcessed()) {
 		} else {
 			if (calculationLevel == 0) {
@@ -44,6 +47,8 @@ public class SpotHandler {
 				route = extendSpotStructureSpeedUp(route);
 			}
 		}
+		Date stop = new Date();
+		System.out.println("FINISHED LEARNING SPOT STRUCTURE" + stop.getTime());
 		return route;
 	}
 
@@ -327,6 +332,8 @@ public class SpotHandler {
 		//lastSpot
 		Spot lastSpot = null;
 
+		Date start,stop;
+
 		// iterate through the trajectory
 		for (int j = 0; j < route.getTrajectory().size(); j++) {
 			// search the closest spot
@@ -337,6 +344,7 @@ public class SpotHandler {
 			int tempCounter = inRangeCounter;
 			Spot spot = null;
 
+			start = new Date();
 			// check if the current point is... in range / outside / able to
 			// create a new spot
 			if (infobundle == null || infobundle.distance >= (Spot.stdRadius * 2)) {
@@ -349,11 +357,17 @@ public class SpotHandler {
 				route.getTrajectory().get(j).setMappedToSpot(true);
 				neo4j.addSpot(spot);
 				//Grid.add(spot);
+
+				stop = new Date();
+				System.out.println("Time: new Spot: "+(stop.getTime()-start.getTime()));
 			} else if (!infobundle.inRange && infobundle.distance < (Spot.stdRadius * 2)) {
 				// update counter
 				inRangeCounter = 0;
 				lastPointInSpot = false;
 				notMapped.add(j);
+
+				stop = new Date();
+				System.out.println("Time: not in range, no new Spot: "+(stop.getTime()-start.getTime()));
 			} else if (infobundle.inRange) {
 				// point in range
 				spot = infobundle.getSpot();
@@ -373,8 +387,12 @@ public class SpotHandler {
 				}
 				lastInRangeID = infobundle.minDistance_spotID;
 				lastPointInSpot = true;
+
+				stop = new Date();
+				System.out.println("Time: in range: "+(stop.getTime()-start.getTime()));
 			}
 
+			start = new Date();
 			// Get closest point in range if there was more points in the range
 			// of one spot to update the spot
 			if (tempCounter > inRangeCounter) {
@@ -395,6 +413,8 @@ public class SpotHandler {
 				neo4j.updateSpot(sp);
 				//Grid.add(sp);
 			}
+			stop = new Date();
+			System.out.println("Time: update spot: "+(stop.getTime()-start.getTime()));
 
 			// if the spot in range was changed related to spot of the point
 			// before
@@ -408,6 +428,7 @@ public class SpotHandler {
 					spotIDs.add(spot.getSpotID());
 				}
 			}
+			start = new Date();
 			if (spot != null && lastSpot != null) {
 				if (!spot.getSpotID().equals(lastSpot.getSpotID())) {
 					addNeighbor(lastSpot,spot);
@@ -415,14 +436,16 @@ public class SpotHandler {
 					spotIDs.add(spot.getSpotID());
 				}
 			}
+			stop = new Date();
+			System.out.println("Time: add Neighbor: "+(stop.getTime()-start.getTime()));
 			if(spot != null){
 				lastSpot = spot;
 			}
 		}
 		lastSpot = null;
 
-		// complete spot mapping and set neighbors of the created spots
-		lastSpot = null;
+		start = new Date();
+		// complete spot mapping
 		for (int k = 0; k < notMapped.size(); k++) {
 			// check for the points that wasn't able to build an own spot or
 			// wasn't in the range of a spot
@@ -448,6 +471,9 @@ public class SpotHandler {
 			route.getTrajectory().get(notMapped.get(k)).setSpot(closestSpot);
 			route.getTrajectory().get(notMapped.get(k)).setMappedToSpot(true);
 		}
+		stop = new Date();
+		System.out.println("Time: map unmapped points "+(stop.getTime()-start.getTime()));
+		start = new Date();
 
 		Collections.sort(spotIDs);
 
@@ -461,6 +487,9 @@ public class SpotHandler {
 		}
 
 		neo4j.addGPSPoints(route.getTrajectory(), route.getUser(), spotIDs);
+
+		stop = new Date();
+		System.out.println("Time: finish: "+(stop.getTime()-start.getTime()));
 
 		return route;
 	}
