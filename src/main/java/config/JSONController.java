@@ -19,6 +19,8 @@ import requestAnswers.LoginAnswer;
 import requestAnswers.RegisterAnswer;
 import requestAnswers.SimpleAnswer;
 
+import java.io.CharArrayWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -140,8 +142,14 @@ public class JSONController {
         try {
             route = mapper.readValue(jsonRoute, Route.class);
         } catch (Exception e) {
-            e.printStackTrace();
-            return "Route konnte nicht gelesen werden";
+
+            CharArrayWriter cw = new CharArrayWriter();
+            PrintWriter w = new PrintWriter(cw);
+            e.printStackTrace(w);
+            w.close();
+            return cw.toString();
+            //e.printStackTrace();
+            //return "Route konnte nicht gelesen werden";
         }
 
         // map into spots

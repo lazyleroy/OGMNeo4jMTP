@@ -142,11 +142,11 @@ public class Neo4jGraphController implements DBController {
             String gpsPlusQuery = "MERGE (n:User{username:\'"+username+"\'}) \n";
 
             if(gpspoints.get(i) == null){
-                //System.out.println("Kein GPS Punkt vorhanden");
+                System.out.println("Kein GPS Punkt vorhanden");
                 continue;
             }
             if(gpspoints.get(i).getSpot() == null){
-                //System.out.println("Kein Spot vorhanden");
+                System.out.println("Kein Spot vorhanden");
                 continue;
             }
 
@@ -161,6 +161,7 @@ public class Neo4jGraphController implements DBController {
                 gpsPlusQuery += "MERGE (spot:Spot{spotID:\'" + spotID + "\'}) \n";
 
             gpsPlusQuery += "MERGE (GPS_Plus0)-[:MAPPED_TO_SPOT]->(spot)";
+
             if(i==0){
                 waypointID =  String.valueOf(date.getTime())+String.valueOf(random.nextLong())+username;
                 gpsPlusQuery += "MERGE (n)-[:STARTING_POINT]->(GPS_Plus0) \n";
@@ -198,6 +199,8 @@ public class Neo4jGraphController implements DBController {
                 gpsPlusQuery += "MERGE (GPS_Plus0)-[:NEXT_GPS]->(GPS_Plus1) \n";
             }
             gpsPlusIDcheck = gpsPlusID;
+            System.out.println(gpsPlusQuery);
+
             template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
         }
 
