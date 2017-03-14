@@ -37,8 +37,6 @@ public class SpotHandler {
 	 *         point
 	 */
 	public Route learningSpotStructure(Route route) {
-		Date start = new Date();
-		System.out.println("START LEARNING SPOT STRUCTURE" + start.getTime());
 		if (route == null || route.isSpotProcessed()) {
 		} else {
 			if (calculationLevel == 0) {
@@ -47,8 +45,6 @@ public class SpotHandler {
 				route = extendSpotStructureSpeedUp(route);
 			}
 		}
-		Date stop = new Date();
-		System.out.println("FINISHED LEARNING SPOT STRUCTURE" + stop.getTime());
 		return route;
 	}
 
@@ -61,6 +57,8 @@ public class SpotHandler {
 	 *         point
 	 */
 	private Route initialSpotMapping(Route route) {
+		Date start_time = new Date();
+
 		// increment calculation-level & mark route as processed
 		calculationLevel++;
 		route.setSpotProcessed(true);
@@ -136,6 +134,11 @@ public class SpotHandler {
 			lastSpot = sp;
 		}
 		lastSpot = null;
+
+		Date stop_time = new Date();
+		double time = stop_time.getTime() - start_time.getTime();
+		time = time / 1000;
+		System.out.println("SPOT FINDING: " + time + " seconds");
 		return route;
 	}
 
@@ -148,7 +151,9 @@ public class SpotHandler {
 	 *         point
 	 */
 	private Route extendSpotStructure(Route route) {
-        ArrayList<String> spotIDs = new ArrayList<>();
+		Date start_time = new Date();
+
+		ArrayList<String> spotIDs = new ArrayList<>();
 		calculationLevel++;
 		route.setSpotProcessed(true);
 		// counts the points that are in the range of the same (already
@@ -300,6 +305,10 @@ public class SpotHandler {
 		}
 		//neo4j.setIntersections(spotIDs);
 		neo4j.addGPSPoints(route.getTrajectory(), route.getUser(),spotIDs);
+		Date stop_time = new Date();
+		double time = stop_time.getTime() - start_time.getTime();
+		time = time / 1000;
+		System.out.println("SPOT FINDING: " + time + " seconds");
 
         return route;
 	}
@@ -313,6 +322,7 @@ public class SpotHandler {
 	 *         point
 	 */
 	private Route extendSpotStructureSpeedUp(Route route) {
+		Date start_time = new Date();
 		ArrayList<Integer> notMapped = new ArrayList<>();
 		ArrayList<String> spotIDs = new ArrayList<>();
 		calculationLevel++;
@@ -539,7 +549,9 @@ public class SpotHandler {
 	 */
 	private InfoBundle searchClosestSpot(GPS_plus point) {
 
+
 		ArrayList<Spot> spots =  neo4j.getSpots(point.getLatitude(),point.getLongitude());
+
 
 		// the search finished
 		// now the closest spot of the found spots must be identified
