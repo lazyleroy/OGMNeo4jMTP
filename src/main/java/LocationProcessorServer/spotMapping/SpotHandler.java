@@ -2,6 +2,7 @@ package LocationProcessorServer.spotMapping;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 
 import LocationProcessorServer.datastructures.*;
@@ -56,6 +57,8 @@ public class SpotHandler {
 	 *         point
 	 */
 	private Route initialSpotMapping(Route route) {
+		Date start_time = new Date();
+
 		// increment calculation-level & mark route as processed
 		calculationLevel++;
 		route.setSpotProcessed(true);
@@ -131,6 +134,11 @@ public class SpotHandler {
 			lastSpot = sp;
 		}
 		lastSpot = null;
+
+		Date stop_time = new Date();
+		double time = stop_time.getTime() - start_time.getTime();
+		time = time / 1000;
+		System.out.println("SPOT FINDING: " + time + " seconds");
 		return route;
 	}
 
@@ -143,7 +151,9 @@ public class SpotHandler {
 	 *         point
 	 */
 	private Route extendSpotStructure(Route route) {
-        ArrayList<String> spotIDs = new ArrayList<>();
+		Date start_time = new Date();
+
+		ArrayList<String> spotIDs = new ArrayList<>();
 		calculationLevel++;
 		route.setSpotProcessed(true);
 		// counts the points that are in the range of the same (already
@@ -295,6 +305,10 @@ public class SpotHandler {
 		}
 		//neo4j.setIntersections(spotIDs);
 		neo4j.addGPSPoints(route.getTrajectory(), route.getUser(),spotIDs);
+		Date stop_time = new Date();
+		double time = stop_time.getTime() - start_time.getTime();
+		time = time / 1000;
+		System.out.println("SPOT FINDING: " + time + " seconds");
 
         return route;
 	}
@@ -308,6 +322,7 @@ public class SpotHandler {
 	 *         point
 	 */
 	private Route extendSpotStructureSpeedUp(Route route) {
+		Date start_time = new Date();
 		ArrayList<Integer> notMapped = new ArrayList<>();
 		ArrayList<String> spotIDs = new ArrayList<>();
 		calculationLevel++;
@@ -462,6 +477,10 @@ public class SpotHandler {
 
 		neo4j.addGPSPoints(route.getTrajectory(), route.getUser(), spotIDs);
 
+		Date stop_time = new Date();
+		double time = stop_time.getTime() - start_time.getTime();
+		time = time / 1000;
+		System.out.println("SPOT FINDING: " + time + " seconds");
 		return route;
 	}
 
@@ -510,7 +529,9 @@ public class SpotHandler {
 	 */
 	private InfoBundle searchClosestSpot(GPS_plus point) {
 
+
 		ArrayList<Spot> spots =  neo4j.getSpots(point.getLatitude(),point.getLongitude());
+
 
 		// the search finished
 		// now the closest spot of the found spots must be identified

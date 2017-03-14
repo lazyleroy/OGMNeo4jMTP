@@ -52,6 +52,9 @@ public class Test {
 		Grid.setMaxLong(11);
 
 		neo4jGraphController.sendQuery("CREATE INDEX ON :Spot(spotID)");
+		neo4jGraphController.sendQuery("CREATE INDEX ON :Spot(longitude)");
+		neo4jGraphController.sendQuery("CREATE INDEX ON :Spot(latitude)");
+
 		neo4jGraphController.sendQuery("CREATE INDEX ON :GPS_Plus(gpsPlusID)");
 		neo4jGraphController.sendQuery("CREATE INDEX ON :Waypoint(waypointID)");
 
@@ -138,7 +141,7 @@ public class Test {
 		for(int j = 1; j <= 16; j++) {
 
 			ArrayList<GPS_plus> gps_points = new ArrayList<GPS_plus>();
-			gps_points.addAll(GPXHandler.readGPXFile("src\\main\\resources\\GPXfiles\\track ("+j+").gpx"));
+			gps_points.addAll(GPXHandler.readGPXFile("src\\main\\resources\\Routen\\data ("+j+").gpx"));
 			for (int i = 0; i < gps_points.size(); i++) {
 				gps_points.get(i).setUserID("007");
 			}
