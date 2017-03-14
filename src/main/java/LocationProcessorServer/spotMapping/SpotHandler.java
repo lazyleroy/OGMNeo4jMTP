@@ -343,6 +343,7 @@ public class SpotHandler {
 		Spot lastSpot = null;
 
 		Date start,stop;
+        start = new Date();
 
 		// iterate through the trajectory
 		for (int j = 0; j < route.getTrajectory().size(); j++) {
@@ -354,7 +355,7 @@ public class SpotHandler {
 			int tempCounter = inRangeCounter;
 			Spot spot = null;
 
-			start = new Date();
+
 			// check if the current point is... in range / outside / able to
 			// create a new spot
 			if (infobundle == null || infobundle.distance >= (Spot.stdRadius * 2)) {
@@ -368,16 +369,12 @@ public class SpotHandler {
 				neo4j.addSpot(spot);
 				//Grid.add(spot);
 
-				stop = new Date();
-				System.out.println("Time: new Spot: "+(stop.getTime()-start.getTime()));
 			} else if (!infobundle.inRange && infobundle.distance < (Spot.stdRadius * 2)) {
 				// update counter
 				inRangeCounter = 0;
 				lastPointInSpot = false;
 				notMapped.add(j);
 
-				stop = new Date();
-				System.out.println("Time: not in range, no new Spot: "+(stop.getTime()-start.getTime()));
 			} else if (infobundle.inRange) {
 				// point in range
 				spot = infobundle.getSpot();
@@ -398,11 +395,9 @@ public class SpotHandler {
 				lastInRangeID = infobundle.minDistance_spotID;
 				lastPointInSpot = true;
 
-				stop = new Date();
-				System.out.println("Time: in range: "+(stop.getTime()-start.getTime()));
+
 			}
 
-			start = new Date();
 			// Get closest point in range if there was more points in the range
 			// of one spot to update the spot
 			if (tempCounter > inRangeCounter) {
@@ -423,8 +418,6 @@ public class SpotHandler {
 				neo4j.updateSpot(sp);
 				//Grid.add(sp);
 			}
-			stop = new Date();
-			System.out.println("Time: update spot: "+(stop.getTime()-start.getTime()));
 
 			// if the spot in range was changed related to spot of the point
 			// before
@@ -438,7 +431,6 @@ public class SpotHandler {
 					spotIDs.add(spot.getSpotID());
 				}
 			}
-			start = new Date();
 			if (spot != null && lastSpot != null) {
 				if (!spot.getSpotID().equals(lastSpot.getSpotID())) {
 					addNeighbor(lastSpot,spot);
@@ -446,13 +438,13 @@ public class SpotHandler {
 					spotIDs.add(spot.getSpotID());
 				}
 			}
-			stop = new Date();
-			System.out.println("Time: add Neighbor: "+(stop.getTime()-start.getTime()));
 			if(spot != null){
 				lastSpot = spot;
 			}
 		}
 		lastSpot = null;
+        stop = new Date();
+        System.out.println("Time: 1st map run: "+(stop.getTime()-start.getTime()));
 
 		start = new Date();
 		// complete spot mapping
