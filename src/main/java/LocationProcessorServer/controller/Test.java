@@ -5,24 +5,16 @@ import LocationProcessorServer.datastructures.Trajectory;
 import LocationProcessorServer.gpxParser.GPXHandler;
 import LocationProcessorServer.spotMapping.Grid;
 import LocationProcessorServer.spotMapping.SpotHandler;
-import LocationProcessorServer.trajectoryPreparation.GPSDataProcessor;
-
-import ch.qos.logback.core.CoreConstants;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import config.MyConfiguration;
 import config.Neo4jGraphController;
 import entities.GPS_plus;
-import entities.Spot;
-import org.neo4j.ogm.session.SessionFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
-
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -34,15 +26,18 @@ import java.util.List;
  */
 @SpringBootApplication
 public class Test {
-	public static SessionFactory sessionFactory = new MyConfiguration().getSessionFactory();
+
+
 	static SpotHandler spotHandler = new SpotHandler();
 	static Neo4jGraphController neo4jGraphController = new Neo4jGraphController();
-	/**
+
+    /**
 	 * Main method to test the program
 	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
+
 
 		SpringApplication.run(Test.class, args);
 
@@ -54,7 +49,6 @@ public class Test {
 		neo4jGraphController.sendQuery("CREATE INDEX ON :Spot(spotID)");
 		neo4jGraphController.sendQuery("CREATE INDEX ON :Spot(longitude)");
 		neo4jGraphController.sendQuery("CREATE INDEX ON :Spot(latitude)");
-
 		neo4jGraphController.sendQuery("CREATE INDEX ON :GPS_Plus(gpsPlusID)");
 		neo4jGraphController.sendQuery("CREATE INDEX ON :Waypoint(waypointID)");
 

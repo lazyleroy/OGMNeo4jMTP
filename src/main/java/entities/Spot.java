@@ -6,8 +6,10 @@ import LocationProcessorServer.trajectoryPreparation.GPSDataProcessor;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import config.Neo4jGraphController;
+import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+import org.springframework.data.annotation.Id;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -33,7 +35,6 @@ public class Spot extends BaseModel {
     public static int stdRadius = 25;
     private static double headDiffThreshold = 30;
     private static double distThreshold = 8;
-
     private String spotID; //!
     private float longitude; //!
     private float latitude; //!

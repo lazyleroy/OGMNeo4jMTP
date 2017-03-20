@@ -1,13 +1,21 @@
 package config;
 
 import Interfaces.DBController;
+import com.vividsolutions.jts.geom.Coordinate;
 import entities.*;
+import org.neo4j.gis.spatial.SimplePointLayer;
+import org.neo4j.gis.spatial.SpatialDatabaseRecord;
+import org.neo4j.gis.spatial.SpatialDatabaseService;
+import org.neo4j.gis.spatial.pipes.GeoPipeFlow;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.exception.NotFoundException;
 import org.neo4j.ogm.model.Result;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
-import org.springframework.data.neo4j.config.Neo4jConfiguration;
-import org.springframework.data.neo4j.template.Neo4jTemplate;
-import java.lang.reflect.Array;
+import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
+
 import java.util.*;
 
 /**
@@ -17,12 +25,15 @@ import java.util.*;
  */
 public class Neo4jGraphController implements DBController {
 
-    private static Main main = new Main();
-    private int databaseConnections = 0;
+    //private static Main main = new Main();
+    private static SessionFactory sessionFactory = new MyConfiguration().getSessionFactory();
+    public Session createNeo4JTemplate(){
+        return sessionFactory.openSession();
+    }
 
     @Override
     public void addSpot(Spot spot) {
-        Neo4jTemplate template = main.createNeo4JTemplate();
+        Session template = this.createNeo4JTemplate();
 
         String spotID = spot.getSpotID();
         ArrayList<Spot> neighbors = spot.getNeighbors();
@@ -35,17 +46,18 @@ public class Neo4jGraphController implements DBController {
             spotNeighborsQuery+= "MERGE (t"+i+":Spot{spotID:\'"+neighborID+"\'})";
         }
         for(int i = 0; i < neighbors.size(); i++){
-            spotNeighborsQuery+= "CREATE (n)-[:CONNECTED_WITH]-(t"+i+") ";
+            spotNeighborsQuery+= "MERGE (n)-[:CONNECTED_WITH]-(t"+i+") ";
         }
         template.query(spotNeighborsQuery, Collections.EMPTY_MAP, false);
-        databaseConnections++;
 
     }
 
     @Override
     public void updateSpot(Spot spot) {
-        Neo4jTemplate template = main.createNeo4JTemplate();
-        Spot s = template.loadByProperty(Spot.class, "spotID", spot.getSpotID());
+        Session template = this.createNeo4JTemplate();
+        Collection<Spot> spots = template.loadAll(Spot.class, new Filter("spotID", spot.getSpotID()));
+        Spot s = spots.iterator().next();
+        System.out.println(s.getSpotID());
         ArrayList<Spot> neighbors = s.getNeighbors();
         s.setNeighbors(null);
         s.setLatitude(spot.getLatitude());
@@ -64,9 +76,9 @@ public class Neo4jGraphController implements DBController {
 
     @Override
     public Spot getSpot(String spotID) {
-        Neo4jTemplate template = main.createNeo4JTemplate();
+        Session template = this.createNeo4JTemplate();
         try{
-            Spot spot = template.loadByProperty(Spot.class, "spotID", spotID);
+            Spot spot = template.load(Spot.class, spotID);
             if(spot.getNeighbors() == null){
                 spot.setNeighbors(new ArrayList<Spot>());
             }
@@ -79,10 +91,24 @@ public class Neo4jGraphController implements DBController {
 
     @Override
     public ArrayList<Spot> getSpots(float latitude, float longitude) {
-        Neo4jTemplate template = main.createNeo4JTemplate();
+        Session template = this.createNeo4JTemplate();
+
+        /*EmbeddedDriver embeddedDriver = (EmbeddedDriver) Components.driver();
+        GraphDatabaseService databaseService = embeddedDriver.getGraphDatabaseService();
+
+        SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(databaseService);
+
+        SimplePointLayer layer = (SimplePointLayer) spatialDatabaseService.getLayer("test-layer");
+        System.out.println(layer);
+        List<GeoPipeFlow> results = layer.findClosestPointsTo(new Coordinate(longitude, latitude), 0.05);
+        for(int i = 0; i < results.size(); i++){
+            System.out.println(results.get(i).getGeomNode());
+        }*/
 
         Result r = template.query("match(n:Spot) where distance(point(n),point({latitude:"+latitude+", longitude:"+longitude+"}))<50 return n", Collections.EMPTY_MAP, false);
-        databaseConnections++;
+        //sendQuery("CALL spatial.withinDistance('test-layer',{longitude:"+longitude+",latitude:"+latitude+"},0.05)");
+        //Result r = template.query("CALL spatial.withinDistance('spot-layer',{longitude:"+longitude+",latitude:"+latitude+"},0.05)", Collections.EMPTY_MAP, false);
+        //Result r = template.query("CALL spatial.procedures", Collections.EMPTY_MAP, false);
         Iterator<Map<String, Object>> result = r.iterator();
         ArrayList<Spot> spots = new ArrayList<>();
         while(result.hasNext()){
@@ -103,9 +129,8 @@ public class Neo4jGraphController implements DBController {
 
     @Override
     public void addGPSPoints(ArrayList<GPS_plus> gpspoints, String username, ArrayList<String> intersectionSpots) {
-        Date start_time = new Date();
 
-        Neo4jTemplate template = main.createNeo4JTemplate();
+        Session template = this.createNeo4JTemplate();
         HashSet<String> intersectionSpotStrings = new HashSet<>();
         Date date = new Date();
 
@@ -145,11 +170,10 @@ public class Neo4jGraphController implements DBController {
             String gpsPlusQuery = "MERGE (n:User{username:\'"+username+"\'}) \n";
 
             if(gpspoints.get(i) == null){
-                System.out.println("Kein GPS Punkt vorhanden");
                 continue;
             }
             if(gpspoints.get(i).getSpot() == null){
-                System.out.println("Kein Spot vorhanden");
+                System.out.println("FEHLENDER SPOT");
                 continue;
             }
 
@@ -161,7 +185,8 @@ public class Neo4jGraphController implements DBController {
                     tempGPS.getTimediffToNextPoint()+", distanceToNextPoint:"+tempGPS.getTimediffToNextPoint()+", dataID:"+tempGPS.getDataID()+"}) \n";
 
 
-                gpsPlusQuery += "MERGE (spot:Spot{spotID:\'" + spotID + "\'}) \n";
+            gpsPlusQuery += "MERGE (spot:Spot{spotID:\'" + spotID + "\'}) \n";
+            //gpsPlusQuery += "call spatial.addNode(\"spot-layer\", spot) YIELD node \n";
 
             gpsPlusQuery += "CREATE (GPS_Plus0)-[:MAPPED_TO_SPOT]->(spot)";
 
@@ -211,27 +236,22 @@ public class Neo4jGraphController implements DBController {
 
         }
 
-        Date stop_time = new Date();
-        double time = stop_time.getTime() - start_time.getTime();
-        time = time / 1000;
-        System.out.println("MERGE QUERY: " + time + " seconds");
 
 
     }
 
     @Override
     public void addNeighbour(String spotID, String updatedSpotID, boolean intersectionCheck, boolean updatedIntersectionCheck){
-        Neo4jTemplate template = main.createNeo4JTemplate();
+        Session template = this.createNeo4JTemplate();
         String addQuery = "MATCH (n:Spot{spotID:\'"+spotID+"\'}) MATCH (r:Spot{spotID:\'" +updatedSpotID +"\'}) MERGE (n)-[:CONNECTED_WITH]-(r)";
 
         template.query(addQuery, Collections.EMPTY_MAP, false);
-        databaseConnections++;
 
     }
 
     @Override
     public void setIntersections(ArrayList<String> spots){
-        Neo4jTemplate template = main.createNeo4JTemplate();
+        Session template = this.createNeo4JTemplate();
 
         String inList = "p.spotID IN [";
         for(int i = 0; i < spots.size(); i++){
@@ -246,7 +266,6 @@ public class Neo4jGraphController implements DBController {
 
         String finalizeQuery = "MATCH (p:Spot)-[:CONNECTED_WITH]-(c:Spot) WITH p,count(c) as rels WHERE rels > 2 AND "+inList+" set p.intersection = true return p";
         Result result = template.query(finalizeQuery, Collections.EMPTY_MAP, false);
-        databaseConnections++;
 
 
 
@@ -254,19 +273,10 @@ public class Neo4jGraphController implements DBController {
 
     @Override
     public Result sendQuery(String query) {
-        Neo4jTemplate template = main.createNeo4JTemplate();
+        Session template = this.createNeo4JTemplate();
         Result r = template.query(query, Collections.EMPTY_MAP, false);
-        databaseConnections++;
 
         return r;
-    }
-
-    public int getDatabaseConnections() {
-        return databaseConnections;
-    }
-
-    public void setDatabaseConnections(int databaseConnections) {
-        this.databaseConnections = databaseConnections;
     }
 
 }

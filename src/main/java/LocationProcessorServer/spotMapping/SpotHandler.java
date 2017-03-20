@@ -668,7 +668,7 @@ public class SpotHandler {
 			route.getTrajectory().get(notMapped.get(k)).setMappedToSpot(true);
 		}
 		stop = new Date();
-		System.out.println("Time: map unmapped points: "+(stop.getTime()-start.getTime()));
+		//System.out.println("Time: map unmapped points: "+(stop.getTime()-start.getTime()));
 		start = new Date();
 
 		Collections.sort(spotIDs);

@@ -5,14 +5,13 @@ package config;
  */
 
 
-import org.neo4j.ogm.config.*;
+
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.*;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.neo4j.config.Neo4jConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.neo4j.ogm.session.SessionFactory;
@@ -33,7 +32,7 @@ import org.neo4j.ogm.session.SessionFactory;
 @EnableTransactionManagement
 @PropertySources(value = {@PropertySource(value = "classpath:application.properties")})
 @SpringBootApplication
-public class MyConfiguration extends Neo4jConfiguration {
+public class MyConfiguration {
 
 
     @Bean
@@ -51,7 +50,6 @@ public class MyConfiguration extends Neo4jConfiguration {
                 .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver")
                 .setURI("file:/home/ines/neo4j-community-3.1.1/data/databases/routes.db")
                 ;
-
 
         return config;
     }

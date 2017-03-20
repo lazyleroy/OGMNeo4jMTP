@@ -12,6 +12,8 @@ import org.neo4j.ogm.exception.NotFoundException;
 import org.neo4j.ogm.json.JSONException;
 import org.neo4j.ogm.json.JSONObject;
 import org.neo4j.ogm.model.Result;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.data.neo4j.template.Neo4jTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import requestAnswers.LoginAnswer;
@@ -55,6 +57,11 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
      */
     private static final String CLIENTSECRET = "ab02ndls82md9ak";
 
+    private static SessionFactory sessionFactory = new MyConfiguration().getSessionFactory();
+    public Session createNeo4JTemplate(){
+        return sessionFactory.openSession();
+    }
+
     /**
      * Method to register a user on the database. Returns false + reason if the chosen email is already bound to
      * another user on the database.
@@ -65,18 +72,18 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
      * succeeds the RegisterAnswer will consist of true, refreshToken, accessToken + their expiry dates.
      */
     public RegisterAnswer register(User user, String emailAddress, String firebaseToken) {
-        Neo4jTemplate template = main.createNeo4JTemplate();
+        Session template = this.createNeo4JTemplate();
         if(user.getUserName().equals("")|| emailAddress.equals("")){
             return new RegisterAnswer(false, "Empty username or email");
         }
         try {
-            User t = template.loadByProperty(User.class, "emailAddress", emailAddress);
+            User t = template.load(User.class, emailAddress);
             return new RegisterAnswer(false, "Emailadress already exists");
         } catch (NotFoundException nfe) {
             try {
                 //noinspection InfiniteLoopStatement
                 while (true) {
-                    User t = template.loadByProperty(User.class, "userID", user.getUserID());
+                    User t = template.load(User.class, user.getUserID());
                     user.changeID();
                 }
             } catch (NotFoundException e) {
@@ -84,7 +91,7 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
                 Cookie c = new Cookie(user);
                 if (firebaseToken != null) {
                     try{
-                        FirebaseToken token = template.loadByProperty(FirebaseToken.class, "token", firebaseToken);
+                        FirebaseToken token = template.load(FirebaseToken.class, firebaseToken);
                         token.setUser(c);
                         template.save(user);
                         template.save(token);
@@ -115,10 +122,10 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
      */
     @SuppressWarnings("WeakerAccess")
     public SimpleAnswer checkAccessToken(String accesstoken) {
-        Neo4jTemplate template = main.createNeo4JTemplate();
+        Session template = this.createNeo4JTemplate();
         long timestamp = new Date().getTime();
         try {
-            UserSession u = template.loadByProperty(UserSession.class, "accessToken", accesstoken);
+            UserSession u = template.load(UserSession.class, accesstoken);
             if (u.getExpiresAt() >= timestamp) {
                 return new SimpleAnswer(true);
             } else {
@@ -143,9 +150,9 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
      */
 
     public LoginAnswer emailLogin(String email, String password, String firebaseToken) {
-        Neo4jTemplate template = main.createNeo4JTemplate();
+        Session template = this.createNeo4JTemplate();
         try {
-            User u = template.loadByProperty(User.class, "emailAddress", email);
+            User u = template.load(User.class, email);
             if(u.getLoginCounter() >= 10){
                 return new LoginAnswer(false, "Entered invalid password too often");
             }
@@ -155,7 +162,7 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
             if (hash.equals(u.getPassword())) {
                 if (firebaseToken != null) {
                     try{
-                        FirebaseToken fT0 = template.loadByProperty(FirebaseToken.class, "token", firebaseToken);
+                        FirebaseToken fT0 = template.load(FirebaseToken.class, firebaseToken);
                         fT0.setUser(c);
                         template.save(fT0);
                     }catch(NotFoundException nfe){
@@ -191,10 +198,10 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
         if (clientID != CLIENTID || !(clientSecret.equals(CLIENTSECRET))) {
             return new RegisterAnswer(false, "Client - Credentials wrong.");
         }
-        Neo4jTemplate template = main.createNeo4JTemplate();
+        Session template = this.createNeo4JTemplate();
         long timestamp = new Date().getTime();
         try {
-            Cookie c = template.loadByProperty(Cookie.class, "refreshToken", refreshToken);
+            Cookie c = template.load(Cookie.class, refreshToken);
             if (c.getExpiresAt() >= timestamp) {
                 UserSession uS = new UserSession(c.getUser());
                 template.save(uS);
@@ -220,11 +227,11 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
     public SimpleAnswer updateProfile(String userName, String email, String accessToken) {
         String name = "No changes";
         String mail = "No changes";
-        Neo4jTemplate template = main.createNeo4JTemplate();
+        Session template = this.createNeo4JTemplate();
 
             if (checkAccessToken(accessToken).getSuccess()) {
                 try {
-                    UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
+                    UserSession uS = template.load(UserSession.class, accessToken);
                     User u = uS.getUser();
                     if (userName != null && !userName.equals("")&& !u.getUserName().equals(userName)) {
                         u.setUserName(userName);
@@ -232,7 +239,7 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
                     }
                     if (email != null && !email.equals("")&& !u.getEmailAddress().equals(email)) {
                             try{
-                                User user = template.loadByProperty(User.class, "emailAddress", email);
+                                User user = template.load(User.class, email);
                                 return new SimpleAnswer(false, "Email already exists. Choose another one");
                             }catch(NotFoundException nfe){
                                 u.setEmailAddress(email);
@@ -264,10 +271,10 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
     public SimpleAnswer uploadGoodybag(String title, String status, String description,
                                               double tip, long deliverTime, GeoLocation deliverLocation,
                                               GeoLocation shopLocation, int checkOne, int checkTwo, String accessToken) {
-        Neo4jTemplate template = main.createNeo4JTemplate();
+        Session template = this.createNeo4JTemplate();
         if (checkAccessToken(accessToken).getSuccess()) {
             try {
-                UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
+                UserSession uS = template.load(UserSession.class, accessToken);
                 Date d = new Date();
                 if (title == null) {
                     title = "Goodybag";
@@ -282,7 +289,7 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
                     Goodybag gB = new Goodybag(title, "Not Accepted", description, tip, deliverTime, deliverLocation, shopLocation, uS.getUser(), checkOne, checkTwo);
                     gB.changeID();
                     try {
-                        Goodybag goodyBag = template.loadByProperty(Goodybag.class, "goodyBagID", gB.getGoodybagID());
+                        Goodybag goodyBag = template.load(Goodybag.class, gB.getGoodybagID());
                     } catch (NotFoundException nfe) {
 
                         uS.getUser().getGoodybags().add(gB);
@@ -307,14 +314,14 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
      * The returned SimpleAnswer holds wrong and a reason if something went wrong.
      */
     public SimpleAnswer uploadProfilePicture(MultipartFile file, String accessToken) {
-        Neo4jTemplate template = main.createNeo4JTemplate();
+        Session template = this.createNeo4JTemplate();
         if (checkAccessToken(accessToken).getSuccess()) {
             if (!file.isEmpty()) {
                 try {
                     Date d = new Date();
                     long timestamp = d.getTime();
 
-                    UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
+                    UserSession uS = template.load(UserSession.class, accessToken);
                     User u = uS.getUser();
                     Files.deleteIfExists(Paths.get(ROOT, u.getProfilePicture()));
                     String[] extension = file.getOriginalFilename().split("\\.");
@@ -356,10 +363,10 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
      * @return returns a SimpleAnswer with true or a SimpleAnswer holding false + a reason in case of an invalid refreshToken
      */
     public SimpleAnswer changePassword(String oldPassword, String newPassword, String accessToken) {
-        Neo4jTemplate template = main.createNeo4JTemplate();
+        Session template = this.createNeo4JTemplate();
         if (checkAccessToken(accessToken).getSuccess()) {
             try {
-                UserSession uS = template.loadByProperty(UserSession.class, "accessToken", accessToken);
+                UserSession uS = template.load(UserSession.class, accessToken);
                 User u = uS.getUser();
                 if(u.getLoginCounter() >= 10){
                     return new SimpleAnswer(false, "Entered invalid password too often");
@@ -389,11 +396,11 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
      * A SimpleAnwer holding true if everything worked.
      */
     public SimpleAnswer storeFirebaseToken(String refreshToken, String fireBaseToken){
-            Neo4jTemplate template = main.createNeo4JTemplate();
+            Session template = this.createNeo4JTemplate();
                 try{
-                    Cookie c = template.loadByProperty(Cookie.class, "refreshToken", refreshToken);
+                    Cookie c = template.load(Cookie.class, refreshToken);
                     try{
-                        FirebaseToken token = template.loadByProperty(FirebaseToken.class, "token", fireBaseToken);
+                        FirebaseToken token = template.load(FirebaseToken.class, fireBaseToken);
                         token.setUser(c);
                         template.save(token);
                         return new SimpleAnswer(true);
@@ -419,7 +426,7 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
      */
     public ArrayList<Goodybag> myGoodybags(String accessToken) {
         if(checkAccessToken(accessToken).getSuccess()) {
-            Neo4jTemplate template = main.createNeo4JTemplate();
+            Session template = this.createNeo4JTemplate();
             Date d = new Date();
             //Timestamp to check for expired Goodybags
             long timestamp = d.getTime();
@@ -466,9 +473,9 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
      */
     public int getNumberOfFinishedGoodybags(String accessToken){
         if(checkAccessToken(accessToken).getSuccess()){
-            Neo4jTemplate template = main.createNeo4JTemplate();
+            Session template = this.createNeo4JTemplate();
             int counter = 0;
-            ArrayList<Goodybag> gBs = template.loadByProperty(UserSession.class,"accessToken", accessToken, 3).getUser().getGoodybags();
+            ArrayList<Goodybag> gBs = template.load(UserSession.class, accessToken, 3).getUser().getGoodybags();
             for (int i = 0; i < gBs.size();i++){
                 if (gBs.get(i).getStatus().equals("Done")){
                     counter++;
@@ -489,7 +496,7 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
      */
     public SimpleAnswer finishGoodybag(String goodybagID, int rating, boolean creatorRates, String accessToken) {
         if (checkAccessToken(accessToken).getSuccess()) {
-            Neo4jTemplate template = main.createNeo4JTemplate();
+            Session template = this.createNeo4JTemplate();
             Result result;
             double userRating = 0;
             int cumulatedRating = 0;
@@ -566,7 +573,7 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
      * @return returns a single Goodybag identified by its ID.
      */
     public Goodybag getGoodybagbyID(String goodybagID, String accessToken){
-        Neo4jTemplate template = main.createNeo4JTemplate();
+        Session template = this.createNeo4JTemplate();
         Goodybag gB = new Goodybag();
         long userID = 0;
         if (checkAccessToken(accessToken).getSuccess()){
@@ -608,7 +615,7 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
      * @return returns all Goodybags that are matched to the verified user.
      */
     public ArrayList<Goodybag> matchedGoodybags(String accessToken) {
-        Neo4jTemplate template = main.createNeo4JTemplate();
+        Session template = this.createNeo4JTemplate();
         Date d = new Date();
         long timestamp = d.getTime();
         Result result = template.query("MATCH(n:UserSession{accessToken:\'" + accessToken + "\'})-[:USER]-(m:User)-[:MATCHED_TO]-(t:Goodybag)-[:OWNS]-(q:User) where t.status in [\'Accepted\',\'Not Accepted\']" +
@@ -660,7 +667,7 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
      */
     public SimpleAnswer acceptGoodybag(String goodybagID, String accessToken){
         if(checkAccessToken(accessToken).getSuccess()){
-            Neo4jTemplate template = main.createNeo4JTemplate();
+            Session template = this.createNeo4JTemplate();
             Goodybag gB = new Goodybag();
             long userID = 0;
 
@@ -731,13 +738,13 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
      * @param goodybagID the ID of the matched goodybag
      */
     public void matching(ArrayList<String> userIDs, String goodybagID){
-        Neo4jTemplate template = main.createNeo4JTemplate();
+        Session template = this.createNeo4JTemplate();
         String query = "";
         int counter = 0;
         HashSet<Long> tempSet = new HashSet<>();
         Goodybag gB;
         try{
-            gB = template.loadByProperty(Goodybag.class, "goodybagID", goodybagID);
+            gB = template.load(Goodybag.class, goodybagID);
 
         }catch(NotFoundException nfe){
             System.out.println("Goodybag not found. Wrong ID or its deliverTime might have expired during the matching process");
@@ -812,9 +819,9 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
     public SimpleAnswer test(ArrayList<Waypoint> uploadedWaypoints, String accessToken) {
         long startTime = System.nanoTime();
         if (checkAccessToken(accessToken).getSuccess()) {
-            Neo4jTemplate template = main.createNeo4JTemplate();
+            Session template = this.createNeo4JTemplate();
             try {
-                User u = template.loadByProperty(UserSession.class, "accessToken", accessToken).getUser();
+                User u = template.load(UserSession.class,  accessToken).getUser();
 
                 String query = "";
                 query += "MERGE(U:User{userID:"+u.getUserID()+"})";
@@ -843,13 +850,13 @@ public class DatabaseOperations implements DeliveppDatabaseOperations {
     }
 
     public void dummyMatching(String goodybagID){
-        Neo4jTemplate template = main.createNeo4JTemplate();
+        Session template = this.createNeo4JTemplate();
         template.query("match(m:User)-[:OWNS]-(g:Goodybag) where g.goodybagID = \'"+goodybagID+"\' match(r:User) where not r = m merge (g)-[p:MATCHED_TO]->(r)", Collections.EMPTY_MAP, false);
 
     }
 
     public void saveDataEntity(String userName, double longitude, double latitude, double acceleration, double volume, long track, long time){
-        Neo4jTemplate template = main.createNeo4JTemplate();
+        Session template = this.createNeo4JTemplate();
         Result result = template.query("match(m:DataEntity{track:"+track+", user:\""+userName+"\"})return m", Collections.EMPTY_MAP, true);
         Iterator<Map<String, Object>> iterator = result.iterator();
         ArrayList<Long> nodes = new ArrayList<Long>();
