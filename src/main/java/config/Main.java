@@ -4,21 +4,7 @@ package config;
  * Created by Felix Hambrecht on 05.07.2016.
  */
 
-import LocationProcessorServer.datastructures.Route;
-import LocationProcessorServer.gpxParser.GPXHandler;
-import LocationProcessorServer.spotMapping.SpotHandler;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import entities.GPS_plus;
-import entities.Spot;
-import entities.Waypoint;
-import org.neo4j.gis.spatial.SpatialDatabaseService;
-import org.neo4j.graphdb.GraphDatabaseService;
 
-import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
-import org.neo4j.ogm.service.Components;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -41,6 +27,15 @@ public class Main {
 
     private static Neo4jGraphController neo4jGraphController = new Neo4jGraphController();
 
+    public long getDatabaseTime() {
+        return databaseTime;
+    }
+
+    public void setDatabaseTime(long databaseTime) {
+        this.databaseTime = databaseTime;
+    }
+
+    private long databaseTime = 0;
 
 
 

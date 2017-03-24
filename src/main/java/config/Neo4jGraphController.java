@@ -25,7 +25,11 @@ import java.util.*;
  */
 public class Neo4jGraphController implements DBController {
 
-    //private static Main main = new Main();
+    public static Main getMain() {
+        return main;
+    }
+
+    private static Main main = new Main();
     private static SessionFactory sessionFactory = new MyConfiguration().getSessionFactory();
     public Session createNeo4JTemplate(){
         return sessionFactory.openSession();
@@ -33,6 +37,7 @@ public class Neo4jGraphController implements DBController {
 
     @Override
     public void addSpot(Spot spot) {
+        Date start_time = new Date();
         Session template = this.createNeo4JTemplate();
 
         String spotID = spot.getSpotID();
@@ -49,15 +54,17 @@ public class Neo4jGraphController implements DBController {
             spotNeighborsQuery+= "MERGE (n)-[:CONNECTED_WITH]-(t"+i+") ";
         }
         template.query(spotNeighborsQuery, Collections.EMPTY_MAP, false);
-
+        Date stop_time = new Date();
+        long time = stop_time.getTime() - start_time.getTime();
+        main.setDatabaseTime(main.getDatabaseTime()+time);
     }
 
     @Override
     public void updateSpot(Spot spot) {
+        Date start_time = new Date();
         Session template = this.createNeo4JTemplate();
         Collection<Spot> spots = template.loadAll(Spot.class, new Filter("spotID", spot.getSpotID()));
         Spot s = spots.iterator().next();
-        System.out.println(s.getSpotID());
         ArrayList<Spot> neighbors = s.getNeighbors();
         s.setNeighbors(null);
         s.setLatitude(spot.getLatitude());
@@ -72,10 +79,15 @@ public class Neo4jGraphController implements DBController {
         s.setNumberOfNeighbours(spot.getNumberOfNeighbours());
         template.save(s);
         s.setNeighbors(neighbors);
+        Date stop_time = new Date();
+        long time = stop_time.getTime() - start_time.getTime();
+        main.setDatabaseTime(main.getDatabaseTime()+(time));
+
     }
 
     @Override
     public Spot getSpot(String spotID) {
+        Date start_time = new Date();
         Session template = this.createNeo4JTemplate();
         try{
             Spot spot = template.load(Spot.class, spotID);
@@ -83,8 +95,14 @@ public class Neo4jGraphController implements DBController {
                 spot.setNeighbors(new ArrayList<Spot>());
             }
            // System.out.println("getSpot QUERY");
+            Date stop_time = new Date();
+            long time = stop_time.getTime() - start_time.getTime();
+            main.setDatabaseTime(main.getDatabaseTime()+time);
             return spot;
         }catch(NotFoundException nfe){
+            Date stop_time = new Date();
+            long time = stop_time.getTime() - start_time.getTime();
+            main.setDatabaseTime(main.getDatabaseTime()+time);
             return null;
         }
     }
@@ -92,6 +110,7 @@ public class Neo4jGraphController implements DBController {
     @Override
     public ArrayList<Spot> getSpots(float latitude, float longitude) {
         Session template = this.createNeo4JTemplate();
+        Date start_time = new Date();
 
         /*EmbeddedDriver embeddedDriver = (EmbeddedDriver) Components.driver();
         GraphDatabaseService databaseService = embeddedDriver.getGraphDatabaseService();
@@ -120,9 +139,15 @@ public class Neo4jGraphController implements DBController {
             }
         }
         if(spots.isEmpty()){
+            Date stop_time = new Date();
+            long time = stop_time.getTime() - start_time.getTime();
+            main.setDatabaseTime(main.getDatabaseTime()+time);
             return null;
         }
 
+        Date stop_time = new Date();
+        long time = stop_time.getTime() - start_time.getTime();
+        main.setDatabaseTime(main.getDatabaseTime()+time);
 
         return spots;
     }
@@ -130,6 +155,7 @@ public class Neo4jGraphController implements DBController {
     @Override
     public void addGPSPoints(ArrayList<GPS_plus> gpspoints, String username, ArrayList<String> intersectionSpots) {
 
+        Date start_time = new Date();
         Session template = this.createNeo4JTemplate();
         HashSet<String> intersectionSpotStrings = new HashSet<>();
         Date date = new Date();
@@ -230,7 +256,9 @@ public class Neo4jGraphController implements DBController {
             //System.out.println(gpsPlusQuery);
 
             template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
-
+            Date stop_time = new Date();
+            long time = stop_time.getTime() - start_time.getTime();
+            main.setDatabaseTime(main.getDatabaseTime()+time);
 
 
 
@@ -242,15 +270,20 @@ public class Neo4jGraphController implements DBController {
 
     @Override
     public void addNeighbour(String spotID, String updatedSpotID, boolean intersectionCheck, boolean updatedIntersectionCheck){
+        Date start_time = new Date();
         Session template = this.createNeo4JTemplate();
         String addQuery = "MATCH (n:Spot{spotID:\'"+spotID+"\'}) MATCH (r:Spot{spotID:\'" +updatedSpotID +"\'}) MERGE (n)-[:CONNECTED_WITH]-(r)";
 
         template.query(addQuery, Collections.EMPTY_MAP, false);
 
+        Date stop_time = new Date();
+        long time = stop_time.getTime() - start_time.getTime();
+        main.setDatabaseTime(main.getDatabaseTime()+time);
     }
 
     @Override
     public void setIntersections(ArrayList<String> spots){
+        Date start_time = new Date();
         Session template = this.createNeo4JTemplate();
 
         String inList = "p.spotID IN [";
@@ -267,15 +300,20 @@ public class Neo4jGraphController implements DBController {
         String finalizeQuery = "MATCH (p:Spot)-[:CONNECTED_WITH]-(c:Spot) WITH p,count(c) as rels WHERE rels > 2 AND "+inList+" set p.intersection = true return p";
         Result result = template.query(finalizeQuery, Collections.EMPTY_MAP, false);
 
-
+        Date stop_time = new Date();
+        long time = stop_time.getTime() - start_time.getTime();
+        main.setDatabaseTime(main.getDatabaseTime()+time);
 
     }
 
     @Override
     public Result sendQuery(String query) {
+        Date start_time = new Date();
         Session template = this.createNeo4JTemplate();
         Result r = template.query(query, Collections.EMPTY_MAP, false);
-
+        Date stop_time = new Date();
+        long time = stop_time.getTime() - start_time.getTime();
+        main.setDatabaseTime(main.getDatabaseTime()+time);
         return r;
     }
 

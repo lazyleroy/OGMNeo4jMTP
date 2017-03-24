@@ -151,6 +151,7 @@ public class SpotHandler {
 	 *         point
 	 */
 	private Route extendSpotStructure(Route route) {
+		neo4j.getMain().setDatabaseTime(0);
 		Date start_time = new Date();
 
 		ArrayList<String> spotIDs = new ArrayList<>();
@@ -505,6 +506,7 @@ public class SpotHandler {
 	 *         point
 	 */
 	private Route extendSpotStructureSpeedUp_v2(Route route) {
+		neo4j.getMain().setDatabaseTime(0);
 		ArrayList<Integer> notMapped = new ArrayList<>();
 		ArrayList<String> spotIDs = new ArrayList<>();
 		calculationLevel++;
@@ -685,6 +687,7 @@ public class SpotHandler {
 		neo4j.addGPSPoints(route.getTrajectory(), route.getUser(), spotIDs);
 
 		stop = new Date();
+		System.out.println("DATABASE TIME: " + neo4j.getMain().getDatabaseTime() + " seconds");
 		System.out.println("Time: add GPS points to neo4j: "+(stop.getTime()-start.getTime()));
 
 		return route;
