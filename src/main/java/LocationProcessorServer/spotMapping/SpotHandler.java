@@ -13,7 +13,7 @@ import entities.*;
 /**
  * The SpotHandler is responsible for the main tasks of mapping routes into
  * spots
- * 
+ *
  * @author simon_000
  */
 public class SpotHandler {
@@ -30,7 +30,7 @@ public class SpotHandler {
 
 	/**
 	 * Generates and extends the spot structure
-	 * 
+	 *
 	 * @param route
 	 *            :Route that is going to be mapped into Spots
 	 * @return Route with information about the assigned Spot at each trajectory
@@ -50,7 +50,7 @@ public class SpotHandler {
 
 	/**
 	 * Does the initial spot mapping
-	 * 
+	 *
 	 * @param route
 	 *            :Route that is going to be mapped into Spots
 	 * @return Route with information about the assigned Spot at each trajectory
@@ -125,7 +125,7 @@ public class SpotHandler {
 			Spot sp = route.getTrajectory().get(j).getSpot();
 			if (sp != null && lastSpot != null) {
 				if (!sp.getSpotID().equals(lastSpot.getSpotID())) {
-                    addNeighbor(lastSpot,spot);
+					addNeighbor(lastSpot,spot);
 					//sp.addNeighbor(lastSpot);
 					//lastSpot.addNeighbor(sp);
 					neo4j.addNeighbour(lastSpot.getSpotID(),sp.getSpotID(),lastSpot.isIntersection(),sp.isIntersection());
@@ -144,14 +144,13 @@ public class SpotHandler {
 
 	/**
 	 * Extends the spot structure
-	 * 
+	 *
 	 * @param route
 	 *            :Route that is going to be mapped into Spots
 	 * @return Route with information about the assigned Spot at each trajectory
 	 *         point
 	 */
 	private Route extendSpotStructure(Route route) {
-		neo4j.getMain().setDatabaseTime(0);
 		Date start_time = new Date();
 
 		ArrayList<String> spotIDs = new ArrayList<>();
@@ -228,7 +227,7 @@ public class SpotHandler {
 				InfoBundle nearestClusterInfo = route.getTrajectory().get(minIndex).getClosestSpotInfo();
 				Spot sp = neo4j.getSpot(infobundle.minDistance_spotID);
 				//Spot sp = Grid.getSpot(nearestClusterInfo.minDistance_spotID,
-						//(float)infobundle.minDistance_spotCenterlat,(float)infobundle.minDistance_spotCenterlong);
+				//(float)infobundle.minDistance_spotCenterlat,(float)infobundle.minDistance_spotCenterlong);
 				//Grid.remove(sp);
 				// this function will update the spot
 				sp.updateSpot(route.getTrajectory().get(minIndex));
@@ -285,7 +284,7 @@ public class SpotHandler {
 				if (!spot.getSpotID().equals(lastSpot.getSpotID())) {
 					addNeighbor(lastSpot,spot);
 					spotIDs.add(spot.getSpotID());
-                    //spot.addNeighbor(lastSpot);
+					//spot.addNeighbor(lastSpot);
 					//lastSpot.addNeighbor(spot);
 					neo4j.addNeighbour(lastSpot.getSpotID(),spot.getSpotID(),lastSpot.isIntersection(),spot.isIntersection());
 				}
@@ -311,7 +310,7 @@ public class SpotHandler {
 		time = time / 1000;
 		System.out.println("SPOT FINDING: " + time + " seconds");
 
-        return route;
+		return route;
 	}
 
 	/**
@@ -344,7 +343,7 @@ public class SpotHandler {
 		Spot lastSpot = null;
 
 		Date start,stop;
-        start = new Date();
+		start = new Date();
 
 		// iterate through the trajectory
 		for (int j = 0; j < route.getTrajectory().size(); j++) {
@@ -444,8 +443,8 @@ public class SpotHandler {
 			}
 		}
 		lastSpot = null;
-        stop = new Date();
-        System.out.println("Time: 1st map run: "+(stop.getTime()-start.getTime()));
+		stop = new Date();
+		System.out.println("Time: 1st map run: "+(stop.getTime()-start.getTime()));
 
 		start = new Date();
 		// complete spot mapping
@@ -506,7 +505,6 @@ public class SpotHandler {
 	 *         point
 	 */
 	private Route extendSpotStructureSpeedUp_v2(Route route) {
-		neo4j.getMain().setDatabaseTime(0);
 		ArrayList<Integer> notMapped = new ArrayList<>();
 		ArrayList<String> spotIDs = new ArrayList<>();
 		calculationLevel++;
@@ -687,34 +685,48 @@ public class SpotHandler {
 		neo4j.addGPSPoints(route.getTrajectory(), route.getUser(), spotIDs);
 
 		stop = new Date();
-		System.out.println("DATABASE TIME: " + neo4j.getMain().getDatabaseTime() + " seconds");
-		System.out.println("Time: add GPS points to neo4j: "+(stop.getTime()-start.getTime()));
+		//System.out.println("Time: add GPS points to neo4j: "+(stop.getTime()-start.getTime()));
+		System.out.println("ADDSPO - TIME: "+neo4j.addSpotTime);
+		System.out.println("UPDATESPOT - TIME: "+neo4j.updateSpotTime);
+		System.out.println("GETSPOTS - TIME: "+neo4j.getSpotsTime);
+		System.out.println("ADDGPSPOINTS - TIME: "+neo4j.addGPSPointsTime);
+		System.out.println("ADDGPSPOINTS - TIME: "+neo4j.addGPSPointsTime1);
+		System.out.println("ADDNEIGHBOUR - TIME: "+neo4j.addNeighbourTime);
+
+		long neo4jtime = neo4j.addSpotTime+neo4j.updateSpotTime+ neo4j.getSpotsTime+neo4j.addGPSPointsTime+neo4j.addNeighbourTime;
+		System.out.println("OVERALL NEO4J TIME: "+ neo4jtime);
+		neo4j.addSpotTime = 0;
+		neo4j.updateSpotTime = 0;
+		neo4j.getSpotsTime = 0;
+		neo4j.addGPSPointsTime = 0;
+		neo4j.addNeighbourTime = 0;
+		neo4j.addGPSPointsTime1 = 0;
 
 		return route;
 	}
 
-    /**
-     * Adds a new neighbor Spot to the Spot
-     *
-     * @param spot :Spot to add as neighbor
-     */
-    public void addNeighbor(Spot spot, Spot spot2) {
-        if (spot != null) {
-            double distance = GPSDataProcessor.calcDistance(spot.getLatitude(), spot.getLongitude(), spot2.getLatitude(), spot2.getLongitude());
-            if (distance >= 25 && distance <= 150) {
-                if (!spot.getSpotID().equals(spot2.getSpotID())) {
-                    if(spot.addNeighborAlternative(spot2) & spot2.addNeighborAlternative(spot)){
-                        neo4j.addNeighbour(spot.getSpotID(),spot2.getSpotID(),spot.isIntersection(),spot2.isIntersection());
-                    }
-                }
-            }
-        }
-    }
+	/**
+	 * Adds a new neighbor Spot to the Spot
+	 *
+	 * @param spot :Spot to add as neighbor
+	 */
+	public void addNeighbor(Spot spot, Spot spot2) {
+		if (spot != null) {
+			double distance = GPSDataProcessor.calcDistance(spot.getLatitude(), spot.getLongitude(), spot2.getLatitude(), spot2.getLongitude());
+			if (distance >= 25 && distance <= 150) {
+				if (!spot.getSpotID().equals(spot2.getSpotID())) {
+					if(spot.addNeighborAlternative(spot2) & spot2.addNeighborAlternative(spot)){
+						neo4j.addNeighbour(spot.getSpotID(),spot2.getSpotID(),spot.isIntersection(),spot2.isIntersection());
+					}
+				}
+			}
+		}
+	}
 
 	/**
 	 * Generates a new spot out of a point(GPS_plus object) with given index in
 	 * a specific route
-	 * 
+	 *
 	 * @param route
 	 *            :Route that contains the GPS_plus object
 	 * @param indexGPSpoint
@@ -730,7 +742,7 @@ public class SpotHandler {
 
 	/**
 	 * Calculates the closest spot of a GPS point (GPS_plus object)
-	 * 
+	 *
 	 * @param point
 	 *            :GPS_plus point
 	 * @return InfoBundle, gives information about the closest Spot (see

@@ -6,12 +6,12 @@ package config;
 
 
 
+import org.neo4j.ogm.config.Configuration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
-import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
-import org.springframework.context.annotation.*;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.neo4j.ogm.session.SessionFactory;
@@ -26,13 +26,12 @@ import org.neo4j.ogm.session.SessionFactory;
  *
  */
 
-@Configuration
 @EnableWebMvc
 @EnableAutoConfiguration
 @EnableTransactionManagement
 @PropertySources(value = {@PropertySource(value = "classpath:application.properties")})
 @SpringBootApplication
-public class MyConfiguration {
+public class MyConfiguration{
 
 
     @Bean
@@ -41,7 +40,7 @@ public class MyConfiguration {
         config
                 .driverConfiguration()
 
-                //.setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
+                  //.setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
                 //.setURI("http://neo4j:mtp123456@localhost:7474");
                 //.setURI("bolt://neo4j:password@localhost")
                 //.setEncryptionLevel("NONE")
@@ -56,16 +55,17 @@ public class MyConfiguration {
 
     @Bean
     public SessionFactory getSessionFactory(){
+        //return new SessionFactory("entities");
         return new SessionFactory(getConfiguration(), "entities");
     }
 
 
-
+/*
     @Bean
     protected EmbeddedServletContainerFactory servletContainer() {
         TomcatEmbeddedServletContainerFactory factory =
                 new TomcatEmbeddedServletContainerFactory();
         return factory;
-    }
+    }*/
 
 }

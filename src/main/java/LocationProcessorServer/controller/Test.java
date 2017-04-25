@@ -11,19 +11,25 @@ import config.MyConfiguration;
 import config.Neo4jGraphController;
 import entities.GPS_plus;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.core.env.SystemEnvironmentPropertySource;
 
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Test class to start and test the program.
  * 
  * @author simon_000
  */
+@EnableAutoConfiguration
 @SpringBootApplication
 public class Test {
 
@@ -37,7 +43,6 @@ public class Test {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
 
 		SpringApplication.run(Test.class, args);
 
@@ -132,7 +137,7 @@ public class Test {
 
 	public static ArrayList<Route> getTestRoutesSimon(){
 		ArrayList<Route> routes = new ArrayList<>();
-		for(int j = 1; j <= 6; j++) {
+		for(int j = 1; j <= 1; j++) {
 
 			ArrayList<GPS_plus> gps_points = new ArrayList<GPS_plus>();
 			gps_points.addAll(GPXHandler.readGPXFile("src\\main\\resources\\GPXfiles\\track ("+j+").gpx"));

@@ -1,18 +1,11 @@
 package config;
 
 import Interfaces.DBController;
-import com.vividsolutions.jts.geom.Coordinate;
 import entities.*;
-import org.neo4j.gis.spatial.SimplePointLayer;
-import org.neo4j.gis.spatial.SpatialDatabaseRecord;
-import org.neo4j.gis.spatial.SpatialDatabaseService;
-import org.neo4j.gis.spatial.pipes.GeoPipeFlow;
-import org.neo4j.graphdb.GraphDatabaseService;
+//import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.exception.NotFoundException;
 import org.neo4j.ogm.model.Result;
-import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 
@@ -24,6 +17,15 @@ import java.util.*;
  * Project: OGMNeo4jMTP
  */
 public class Neo4jGraphController implements DBController {
+
+    public long addSpotTime = 0;
+    public long updateSpotTime = 0;
+    public long getSpotTime = 0;
+    public long getSpotsTime = 0;
+    public long addGPSPointsTime = 0;
+    public long addNeighbourTime = 0;
+    public long addGPSPointsTime1 = 0;
+    public long setIntersectionsTime = 0;
 
     public static Main getMain() {
         return main;
@@ -63,7 +65,7 @@ public class Neo4jGraphController implements DBController {
     public void updateSpot(Spot spot) {
         Date start_time = new Date();
         Session template = this.createNeo4JTemplate();
-        Collection<Spot> spots = template.loadAll(Spot.class, new Filter("spotID", spot.getSpotID()));
+        Collection<Spot> spots = template.loadAll(Spot.class, new Filter("spotID",spot.getSpotID()));
         Spot s = spots.iterator().next();
         ArrayList<Spot> neighbors = s.getNeighbors();
         s.setNeighbors(null);
@@ -90,7 +92,7 @@ public class Neo4jGraphController implements DBController {
         Date start_time = new Date();
         Session template = this.createNeo4JTemplate();
         try{
-            Spot spot = template.load(Spot.class, spotID);
+            Spot spot = template.load(Spot.class,spotID);
             if(spot.getNeighbors() == null){
                 spot.setNeighbors(new ArrayList<Spot>());
             }
@@ -189,82 +191,148 @@ public class Neo4jGraphController implements DBController {
         Random random = new Random();
 
         String waypointID ="";
+        String gpsPlusQuery = "";
 
-        for(int i = 0; i < gpspoints.size(); i++){
+
+        System.out.println("GRÖSSE: "+gpspoints.size());
+        for(int i = 0; i < gpspoints.size(); i++) {
             GPS_plus tempGPS = gpspoints.get(i);
-            gpsPlusID = username+tempGPS.getTime()+tempGPS.getLatitude()+tempGPS.getLongitude();
-            String gpsPlusQuery = "MERGE (n:User{username:\'"+username+"\'}) \n";
+            gpsPlusID = username + tempGPS.getTime() + tempGPS.getLatitude() + tempGPS.getLongitude();
 
-            if(gpspoints.get(i) == null){
+
+            if (gpspoints.get(i) == null) {
                 continue;
             }
-            if(gpspoints.get(i).getSpot() == null){
+            if (gpspoints.get(i).getSpot() == null) {
                 System.out.println("FEHLENDER SPOT");
                 continue;
             }
 
-            String spotID = gpspoints.get(i).getSpot().getSpotID();
-            gpsPlusQuery +=  "CREATE (GPS_Plus0:GPS_Plus{date:\'"+tempGPS.getTime()+"\', latitude:"+tempGPS.getLatitude()
-                    +", longitude:"+tempGPS.getLongitude()+", head:"+tempGPS.getHead()+", gpsPlusID:\'"+gpsPlusID+"\', " +
-                    //"speed:"+tempGPS.getSpeed()+"," +
+            /*String spotID = gpspoints.get(i).getSpot().getSpotID();
+            gpsPlusQuery += "CREATE (GPS_Plus0:GPS_Plus" + "{date:\'" + tempGPS.getTime() + "\', latitude:" + tempGPS.getLatitude()
+                    + ", longitude:" + tempGPS.getLongitude() + ", head:" + tempGPS.getHead() + ", gpsPlusID:\'" + gpsPlusID + "\', " +
                     " timeDiffToNextPoint:" +
-                    tempGPS.getTimediffToNextPoint()+", distanceToNextPoint:"+tempGPS.getTimediffToNextPoint()+", dataID:"+tempGPS.getDataID()+"}) \n";
-
+                    tempGPS.getTimediffToNextPoint() + ", distanceToNextPoint:" + tempGPS.getTimediffToNextPoint() + ", dataID:" + tempGPS.getDataID() + "}) \n";
 
             gpsPlusQuery += "MERGE (spot:Spot{spotID:\'" + spotID + "\'}) \n";
-            //gpsPlusQuery += "call spatial.addNode(\"spot-layer\", spot) YIELD node \n";
 
-            gpsPlusQuery += "CREATE (GPS_Plus0)-[:MAPPED_TO_SPOT]->(spot)";
+            gpsPlusQuery += "CREATE (GPS_Plus0)-[:MAPPED_TO_SPOT]->(spot) ";
 
-            if(i==0){
-                waypointID =  String.valueOf(date.getTime())+String.valueOf(random.nextLong())+username;
+            if (i == 0) {
+                waypointID = String.valueOf(date.getTime()) + String.valueOf(random.nextLong()) + username;
+                gpsPlusQuery += "MERGE (n:User{username:\'" + username + "\'}) \n";
                 gpsPlusQuery += "CREATE (n)-[:STARTING_POINT]->(GPS_Plus0) \n";
-                gpsPlusQuery += "CREATE (waypoint:Waypoint{waypointID:\'"+waypointID+"\'}) \n CREATE (n)-[:ROUTE_START]->(waypoint) \n";
+                gpsPlusQuery += "CREATE (waypoint:Waypoint{waypointID:\'" + waypointID + "\'}) \n CREATE (n)-[:ROUTE_START]->(waypoint) \n";
                 gpsPlusQuery += "CREATE (GPS_Plus0)-[:WAYPOINT]->(waypoint) \n";
-                //System.out.println("START - WAYPOINT ERSTELLT!");
-            }
-            else if(intersectionSpotStrings.contains(spotID)){
-                if(!repeatedGPSinSpot){
-                    String waypointID1 = String.valueOf(date.getTime())+String.valueOf(random.nextLong())+username;
+            } else if (intersectionSpotStrings.contains(spotID)) {
+                if (!repeatedGPSinSpot) {
+                    String waypointID1 = String.valueOf(date.getTime()) + String.valueOf(random.nextLong()) + username;
 
-                    gpsPlusQuery += "MERGE (waypoint1:Waypoint{waypointID:'"+waypointID1+"\'}) \n CREATE (GPS_Plus0)-[:WAYPOINT]->(waypoint1) \n";
+                    gpsPlusQuery += "MERGE (waypoint1:Waypoint{waypointID:'" + waypointID1 + "\'}) \n CREATE (GPS_Plus0)-[:WAYPOINT]->(waypoint1) \n";
                     gpsPlusQuery += "MERGE(waypoint0:Waypoint{waypointID:\'" + waypointID + "\'})";
                     gpsPlusQuery += "CREATE (waypoint0)-[:NEXT_WAYPOINT]->(waypoint1) \n ";
                     repeatedGPSinSpot = true;
                     waypointID = waypointID1;
 
-                    //System.out.println("WAYPOINT ERSTELLT!");
-                    //System.out.println(waypointID1);
                 }
-            }else{
+            } else {
                 repeatedGPSinSpot = false;
             }
-            if(i == gpspoints.size()-1){
-                String waypointID2 = String.valueOf(date.getTime())+String.valueOf(random.nextLong())+username;
+            if (i == gpspoints.size() - 1) {
+                String waypointID2 = String.valueOf(date.getTime()) + String.valueOf(random.nextLong()) + username;
 
-                gpsPlusQuery += "MERGE (waypoint1:Waypoint{waypointID:'"+waypointID2+"\'}) \n CREATE (GPS_Plus0)-[:WAYPOINT]->(waypoint1) \n";
+                gpsPlusQuery += "MERGE (waypoint1:Waypoint{waypointID:'" + waypointID2 + "\'}) \n CREATE (GPS_Plus0)-[:WAYPOINT]->(waypoint1) \n";
                 gpsPlusQuery += "MERGE(waypoint0:Waypoint{waypointID:\'" + waypointID + "\'})";
                 gpsPlusQuery += "CREATE (waypoint0)-[:NEXT_WAYPOINT]->(waypoint1) \n ";
 
-                //System.out.println("ROUTEN ENDE");
             }
-            if(i >0){
-                gpsPlusQuery += "MERGE (GPS_Plus1:GPS_Plus{gpsPlusID:\'"+gpsPlusIDcheck+"\'})";
+            if (i > 0) {
+                gpsPlusQuery += "MERGE (GPS_Plus1:GPS_Plus{gpsPlusID:\'" + gpsPlusIDcheck + "\'})";
                 gpsPlusQuery += "CREATE (GPS_Plus0)-[:NEXT_GPS]->(GPS_Plus1) \n";
             }
+            gpsPlusIDcheck = gpsPlusID;*/
+
+
+
+
+            String spotID = gpspoints.get(i).getSpot().getSpotID();
+            gpsPlusQuery += "CREATE (GPS_Plus"+i+":GPS_Plus" + "{date:\'" + tempGPS.getTime() + "\', latitude:" + tempGPS.getLatitude()
+                    + ", longitude:" + tempGPS.getLongitude() + ", head:" + tempGPS.getHead() + ", gpsPlusID:\'" + gpsPlusID + "\', " +
+                    " timeDiffToNextPoint:" +
+                    tempGPS.getTimediffToNextPoint() + ", distanceToNextPoint:" + tempGPS.getTimediffToNextPoint() + ", dataID:" + tempGPS.getDataID() + "}) \n";
+
+            gpsPlusQuery += "MERGE (spot"+i+":Spot{spotID:\'" + spotID + "\'}) \n";
+
+            gpsPlusQuery += "CREATE (GPS_Plus"+i+")-[:MAPPED_TO_SPOT]->(spot"+i+") ";
+
+            if (i == 0) {
+                waypointID = String.valueOf(date.getTime()) + String.valueOf(random.nextLong()) + username;
+                gpsPlusQuery += "MERGE (n:User{username:\'" + username + "\'}) \n";
+                gpsPlusQuery += "CREATE (n)-[:STARTING_POINT]->(GPS_Plus"+i+") \n";
+                gpsPlusQuery += "CREATE (waypoint"+i+":Waypoint{waypointID:\'" + waypointID + "\'}) \n CREATE (n)-[:ROUTE_START]->(waypoint"+i+") \n";
+                gpsPlusQuery += "CREATE (GPS_Plus"+i+")-[:WAYPOINT]->(waypoint"+i+") \n";
+            } else if (intersectionSpotStrings.contains(spotID)) {
+                if (!repeatedGPSinSpot) {
+                    String waypointID1 = String.valueOf(date.getTime()) + String.valueOf(random.nextLong()) + username;
+
+                    gpsPlusQuery += "MERGE (waypoint"+i+gpspoints.size()+1+":Waypoint{waypointID:'" + waypointID1 + "\'}) \n CREATE (GPS_Plus"+i+")-[:WAYPOINT]->(waypoint"+i+gpspoints.size()+1+") \n";
+                    gpsPlusQuery += "MERGE(waypoint"+i+gpspoints.size()+"0:Waypoint{waypointID:\'" + waypointID + "\'})";
+                    gpsPlusQuery += "CREATE (waypoint"+i+gpspoints.size()+")-[:NEXT_WAYPOINT]->(waypoint"+i+gpspoints.size()+1+") \n ";
+                    repeatedGPSinSpot = true;
+                    waypointID = waypointID1;
+
+                }
+            } else {
+                repeatedGPSinSpot = false;
+            }
+            if (i == gpspoints.size() - 1) {
+                String waypointID2 = String.valueOf(date.getTime()) + String.valueOf(random.nextLong()) + username;
+
+                gpsPlusQuery += "MERGE (waypoint"+i+gpspoints.size()+1+":Waypoint{waypointID:'" + waypointID2 + "\'}) \n CREATE (GPS_Plus"+i+")-[:WAYPOINT]->(waypoint"+i+gpspoints.size()+1+") \n";
+                gpsPlusQuery += "MERGE(waypoint"+i+gpspoints.size()+":Waypoint{waypointID:\'" + waypointID + "\'})";
+                gpsPlusQuery += "CREATE (waypoint"+i+gpspoints.size()+")-[:NEXT_WAYPOINT]->(waypoint"+i+gpspoints.size()+1+") \n ";
+
+            }
+            if (i > 0) {
+                gpsPlusQuery += "MERGE (GPS_Plus"+i+gpspoints.size()+":GPS_Plus{gpsPlusID:\'" + gpsPlusIDcheck + "\'})";
+                gpsPlusQuery += "CREATE (GPS_Plus"+i+gpspoints.size()+")-[:NEXT_GPS]->(GPS_Plus"+i+") \n";
+            }
             gpsPlusIDcheck = gpsPlusID;
+
+            if(i % 1 == 0 && i > 1){
+                Date start_time1 = new Date();
+
+                template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
+                System.out.println(gpsPlusQuery);
+
+                Date stop_time = new Date();
+                System.out.println(stop_time.getTime() - start_time1.getTime());
+                gpsPlusQuery ="";
+
+            }
+            if(i% 1 != 0 && i == gpspoints.size()){
+                Date start_time1 = new Date();
+
+                template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
+                Date stop_time = new Date();
+                System.out.println(stop_time.getTime() - start_time1.getTime());
+                gpsPlusQuery ="";
+                System.out.println("LETZTER PUNKT ERREICHT");
+            }
+
+
+            Date start_time1 = new Date();
+
+            //template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
             //System.out.println(gpsPlusQuery);
-
-            template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
+           // gpsPlusQuery = "";
             Date stop_time = new Date();
-            long time = stop_time.getTime() - start_time.getTime();
-            main.setDatabaseTime(main.getDatabaseTime()+time);
-
-
+            //System.out.println(stop_time.getTime() - start_time1.getTime());
+            addGPSPointsTime1 += stop_time.getTime() - start_time1.getTime();
 
         }
-
-
+        Date stop_time = new Date();
+        addGPSPointsTime += stop_time.getTime() - start_time.getTime();
 
     }
 

@@ -43,20 +43,22 @@ public class Main {
 
 
         SpringApplication.run(Main.class, args);
-        if(!Files.exists(Paths.get(FileUploadController.ROOT))){
-            try {
-                Files.createDirectory(Paths.get(FileUploadController.ROOT));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+
 
         neo4jGraphController.sendQuery("CREATE INDEX ON :Spot(spotID)");
         neo4jGraphController.sendQuery("CREATE INDEX ON :Spot(longitude)");
         neo4jGraphController.sendQuery("CREATE INDEX ON :Spot(latitude)");
         neo4jGraphController.sendQuery("CREATE INDEX ON :GPS_Plus(gpsPlusID)");
         neo4jGraphController.sendQuery("CREATE INDEX ON :Waypoint(waypointID)");
+        long start_time1 = new Date().getTime();
 
+        for(int i = 0; i < 1000; i++){
+            neo4jGraphController.sendQuery("CREATE (GPS_Plus0:GPS_Plus)");
+            System.out.println(i);
+        }
+        long stop_time = new Date().getTime();
+        double time = (double)(stop_time-start_time1);
+        System.out.println(time/1000);
 
 
     }
