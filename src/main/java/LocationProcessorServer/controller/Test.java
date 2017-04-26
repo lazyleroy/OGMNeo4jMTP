@@ -97,7 +97,15 @@ public class Test {
 			Route route = routes.get(i);
 			System.out.println("Route "+(i+1)+": "+route.size()+" points");
 		}
-		System.out.println("Processing-Time: " + time + " seconds");
+		System.out.println("Processing - Time: " + time + " seconds");
+		System.out.println("Neo4J Processing - Time" + SpotHandler.neo4jTimeOverall);
+
+		System.out.println("-- Neo4J Evaluation --");
+		System.out.println("AddSpot - Time: "+ SpotHandler.addSpotTimeOverall);
+		System.out.println("Update Spots - Time: "+ SpotHandler.updateSpotTimeOverall);
+		System.out.println("Get Spots - Time: "+SpotHandler.getSpotsTimeOverall);
+		System.out.println("Add GPS Points - Time: "+SpotHandler.addGPSPointsTimeOverall);
+		System.out.println("Add neighbours - Time: "+SpotHandler.addNeighbourTimeOverall);
 	}
 
 
@@ -137,7 +145,7 @@ public class Test {
 
 	public static ArrayList<Route> getTestRoutesSimon(){
 		ArrayList<Route> routes = new ArrayList<>();
-		for(int j = 1; j <= 1; j++) {
+		for(int j = 1; j <= 6; j++) {
 
 			ArrayList<GPS_plus> gps_points = new ArrayList<GPS_plus>();
 			gps_points.addAll(GPXHandler.readGPXFile("src\\main\\resources\\GPXfiles\\track ("+j+").gpx"));

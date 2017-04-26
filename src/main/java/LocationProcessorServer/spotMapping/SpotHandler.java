@@ -28,6 +28,13 @@ public class SpotHandler {
 	 */
 	static private Spot lastSpot;
 
+	static public long neo4jTimeOverall = 0;
+	static public long addSpotTimeOverall = 0;
+	static public long updateSpotTimeOverall = 0;
+	static public long getSpotsTimeOverall = 0;
+	static public long addGPSPointsTimeOverall = 0;
+	static public long addNeighbourTimeOverall = 0;
+
 	/**
 	 * Generates and extends the spot structure
 	 *
@@ -696,6 +703,13 @@ public class SpotHandler {
 
 		long neo4jtime = neo4j.addSpotTime+neo4j.updateSpotTime+ neo4j.getSpotsTime+neo4j.addGPSPointsTime+neo4j.addNeighbourTime;
 		System.out.println("OVERALL NEO4J TIME: "+ neo4jtime);
+		neo4jTimeOverall = neo4jTimeOverall + neo4jtime;
+		addSpotTimeOverall = addSpotTimeOverall + neo4j.addSpotTime;
+		addGPSPointsTimeOverall = addGPSPointsTimeOverall + neo4j.addGPSPointsTime;
+		addNeighbourTimeOverall = addNeighbourTimeOverall + neo4j.addNeighbourTime;
+		updateSpotTimeOverall = updateSpotTimeOverall + neo4j.updateSpotTime;
+		getSpotsTimeOverall = getSpotsTimeOverall + neo4j.getSpotsTime;
+
 		System.out.println("OVERALL TIME: "+((double)(stop.getTime() -overallTime.getTime())/1000)+" sec");
 		neo4j.addSpotTime = 0;
 		neo4j.updateSpotTime = 0;
