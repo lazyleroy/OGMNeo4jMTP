@@ -562,7 +562,6 @@ public class SpotHandler {
 				route.getTrajectory().get(j).setMappedToSpot(true);
 				neo4j.addSpot(spot);
 				//Grid.add(spot);
-
 			} else if (!infobundle.inRange && infobundle.distance < (Spot.stdRadius * 2)) {
 				// update counter
 				inRangeCounter = 0;
@@ -588,8 +587,6 @@ public class SpotHandler {
 				}
 				lastInRangeID = infobundle.minDistance_spotID;
 				lastPointInSpot = true;
-
-
 			}
 
 			// Get closest point in range if there was more points in the range
@@ -662,6 +659,9 @@ public class SpotHandler {
 					break;
 				} else {
 					closestSpot = currentclosestSpot;
+				}
+				if(temp > notMapped.get(k) + 5){
+					break;
 				}
 			}
 			route.getTrajectory().get(notMapped.get(k)).setSpot(closestSpot);
