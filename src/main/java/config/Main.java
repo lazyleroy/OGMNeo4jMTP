@@ -52,13 +52,22 @@ public class Main {
         neo4jGraphController.sendQuery("CREATE INDEX ON :Waypoint(waypointID)");
         long start_time1 = new Date().getTime();
 
-        for(int i = 0; i < 1000; i++){
+        for(int i = 0; i < 1000000; i++){
             neo4jGraphController.sendQuery("CREATE (GPS_Plus0:GPS_Plus)");
-            System.out.println(i);
         }
         long stop_time = new Date().getTime();
         double time = (double)(stop_time-start_time1);
-        System.out.println(time/1000);
+        System.out.println("Durchschnittliche Zeit pro kleinem Knoten: "+time/1000000);
+
+        start_time1 = new Date().getTime();
+
+        for(int i = 0; i < 1000000; i++){
+            neo4jGraphController.sendQuery("CREATE (GPS_Plus"+i+":GPS_Plus" + "{date:\'" + new Date().getTime() + "\', latitude:1234.45, longitude:5678.98, head:\'zahl\', gpsPlusID:\'" +i+ "\', " +
+                    " timeDiffToNextPoint:13, distanceToNextPoint:\'blah\', dataID:99})");
+        }
+        stop_time = new Date().getTime();
+        time = (double)(stop_time-start_time1);
+        System.out.println("Durchschnittliche Zeit pro großem Knoten: "+time/1000000);
 
 
     }
