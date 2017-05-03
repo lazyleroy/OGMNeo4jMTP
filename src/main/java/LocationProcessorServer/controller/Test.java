@@ -67,19 +67,19 @@ public class Test {
 		evaluationData.addAll(testData);*/
 
 		// clean data and search for routes in the input trajectories
-		ArrayList<Route> routes = getTestRoutesSimon();
+		ArrayList<Route> routes = getTestRoutes();
 
 		//routes.addAll(GPSDataProcessor.splitTrajectoryByRoutes(traTestData));
 
 		// record time for performance
-
-			Date start_time = new Date();
+		Date start_time = new Date();
 
 		for (int i = 0; i < routes.size(); i++) {
 			Route route = routes.get(i);
             try {
                 ObjectMapper mapper = new ObjectMapper();
-                System.out.println(mapper.writeValueAsString(route));
+				String json = mapper.writeValueAsString(route);
+                //System.out.println(json);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -89,7 +89,6 @@ public class Test {
         // measure time for performance
 		Date stop_time = new Date();
 		double time = stop_time.getTime() - start_time.getTime();
-		time = time / 1000;
 
 		System.out.println("-- Evaluation --");
 		System.out.println("# of Testroutes: "+routes.size());
@@ -97,15 +96,22 @@ public class Test {
 			Route route = routes.get(i);
 			System.out.println("Route "+(i+1)+": "+route.size()+" points");
 		}
-		System.out.println("Processing - Time: " + time + " seconds");
-		System.out.println("Neo4J Processing - Time" + SpotHandler.neo4jTimeOverall);
+		System.out.println("Processing - Time: " + time );
+		System.out.println("Neo4J Processing - Time " + SpotHandler.neo4jTimeOverall);
 
 		System.out.println("-- Neo4J Evaluation --");
-		System.out.println("AddSpot - Time: "+ SpotHandler.addSpotTimeOverall);
-		System.out.println("Update Spots - Time: "+ SpotHandler.updateSpotTimeOverall);
-		System.out.println("Get Spots - Time: "+SpotHandler.getSpotsTimeOverall);
-		System.out.println("Add GPS Points - Time: "+SpotHandler.addGPSPointsTimeOverall);
-		System.out.println("Add neighbours - Time: "+SpotHandler.addNeighbourTimeOverall);
+		System.out.println("\t AddSpot - Time: "+ SpotHandler.addSpotTimeOverall);
+		System.out.println("\t Update Spots - Time: "+ SpotHandler.updateSpotTimeOverall);
+		System.out.println("\t Get Spot - Time: "+SpotHandler.getSpotTimeOverall);
+		System.out.println("\t Get Spots - Time: "+SpotHandler.getSpotsTimeOverall);
+		System.out.println("\t Add GPS Points - Time: "+SpotHandler.addGPSPointsTimeOverall);
+		System.out.println("\t\t Add GPS Points1 - Time: "+SpotHandler.addGPSPoints1TimeOverall);
+		System.out.println("\t Add neighbours - Time: "+SpotHandler.addNeighbourTimeOverall);
+		System.out.println("\t Set intersection - Time: "+SpotHandler.setIntersectionTimeOverall);
+		System.out.println("-- Optimization Time --");
+		System.out.println(SpotHandler.optimizationTimeOverall);
+
+
 	}
 
 

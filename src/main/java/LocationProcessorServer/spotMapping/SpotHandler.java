@@ -32,8 +32,12 @@ public class SpotHandler {
 	static public long addSpotTimeOverall = 0;
 	static public long updateSpotTimeOverall = 0;
 	static public long getSpotsTimeOverall = 0;
+	static public long getSpotTimeOverall = 0;
 	static public long addGPSPointsTimeOverall = 0;
 	static public long addNeighbourTimeOverall = 0;
+	static public long setIntersectionTimeOverall = 0;
+	static public long optimizationTimeOverall = 0;
+	static public long addGPSPoints1TimeOverall = 0;
 
 	/**
 	 * Generates and extends the spot structure
@@ -512,7 +516,7 @@ public class SpotHandler {
 	 *         point
 	 */
 	private Route extendSpotStructureSpeedUp_v2(Route route) {
-		Date overallTime = new Date();
+		Date start = new Date();
 		ArrayList<Integer> notMapped = new ArrayList<>();
 		ArrayList<String> spotIDs = new ArrayList<>();
 		calculationLevel++;
@@ -531,9 +535,6 @@ public class SpotHandler {
 
 		//lastSpot
 		Spot lastSpot = null;
-
-		Date start,stop;
-		start = new Date();
 
 		// iterate through the trajectory
 		for (int j = 0; j < route.getTrajectory().size(); j++) {
@@ -642,10 +643,6 @@ public class SpotHandler {
 			}
 		}
 
-		stop = new Date();
-		System.out.println("Time: 1st map run: "+(stop.getTime()-start.getTime()));
-
-		start = new Date();
 		// complete spot mapping
 		for (int k = 0; k < notMapped.size(); k++) {
 			// check for the points that wasn't able to build an own spot or
@@ -675,12 +672,8 @@ public class SpotHandler {
 			route.getTrajectory().get(notMapped.get(k)).setSpot(closestSpot);
 			route.getTrajectory().get(notMapped.get(k)).setMappedToSpot(true);
 		}
-		stop = new Date();
-		//System.out.println("Time: map unmapped points: "+(stop.getTime()-start.getTime()));
-		start = new Date();
 
 		Collections.sort(spotIDs);
-
 		String lastValue = null;
 		for(Iterator<String> i = spotIDs.iterator(); i.hasNext();) {
 			String currentValue = i.next();
@@ -689,34 +682,54 @@ public class SpotHandler {
 			}
 			lastValue = currentValue;
 		}
-
 		neo4j.addGPSPoints(route.getTrajectory(), route.getUser(), spotIDs);
 
-		stop = new Date();
+		Date stop = new Date();
 
-		System.out.println("ADDSPO - TIME: "+neo4j.addSpotTime);
-		System.out.println("UPDATESPOT - TIME: "+neo4j.updateSpotTime);
-		System.out.println("GETSPOTS - TIME: "+neo4j.getSpotsTime);
-		System.out.println("ADDGPSPOINTS - TIME: "+neo4j.addGPSPointsTime);
-		System.out.println("ADDGPSPOINTS - TIME: "+neo4j.addGPSPointsTime1);
-		System.out.println("ADDNEIGHBOUR - TIME: "+neo4j.addNeighbourTime);
 
-		long neo4jtime = neo4j.addSpotTime+neo4j.updateSpotTime+ neo4j.getSpotsTime+neo4j.addGPSPointsTime+neo4j.addNeighbourTime;
-		System.out.println("OVERALL NEO4J TIME: "+ neo4jtime);
+
+
+		long overallTime = stop.getTime()-start.getTime();
+		System.out.println("OVERALL TIME: SINGLE ROUTE: "+ overallTime);
+
+		long neo4jtime = neo4j.addSpotTime
+						+neo4j.updateSpotTime
+						+neo4j.getSpotsTime
+						+neo4j.addGPSPointsTime
+						+neo4j.addNeighbourTime
+						+neo4j.getSpotTime
+						+neo4j.setIntersectionsTime;
+
+		System.out.println("\t NEO4J TIME: "+ neo4jtime);
+		System.out.println("\t\t ADD SPOTs - TIME: "+neo4j.addSpotTime);
+		System.out.println("\t\t UPDATE SPOTs - TIME: "+neo4j.updateSpotTime);
+		System.out.println("\t\t GET SPOT - TIME: "+neo4j.getSpotTime);
+		System.out.println("\t\t GET SPOTs - TIME: "+neo4j.getSpotsTime);
+		System.out.println("\t\t ADD GPSPOINTs - TIME: "+neo4j.addGPSPointsTime);
+		System.out.println("\t\t\t ADD GPSPOINTs1 - TIME: "+neo4j.addGPSPointsTime1);
+		System.out.println("\t\t ADD NEIGHBOURs - TIME: "+neo4j.addNeighbourTime);
+		System.out.println("\t\t SET INTERSECTION - TIME: "+neo4j.setIntersectionsTime);
+		System.out.println("\t OPTIMIZATION - TIME: "+(overallTime-neo4jtime));
+
 		neo4jTimeOverall = neo4jTimeOverall + neo4jtime;
 		addSpotTimeOverall = addSpotTimeOverall + neo4j.addSpotTime;
 		addGPSPointsTimeOverall = addGPSPointsTimeOverall + neo4j.addGPSPointsTime;
+		addGPSPoints1TimeOverall = addGPSPoints1TimeOverall + neo4j.addGPSPointsTime1;
 		addNeighbourTimeOverall = addNeighbourTimeOverall + neo4j.addNeighbourTime;
 		updateSpotTimeOverall = updateSpotTimeOverall + neo4j.updateSpotTime;
 		getSpotsTimeOverall = getSpotsTimeOverall + neo4j.getSpotsTime;
+		setIntersectionTimeOverall += neo4j.setIntersectionsTime;
+		getSpotTimeOverall += neo4j.getSpotTime;
+		optimizationTimeOverall += (overallTime-neo4jtime);
 
-		System.out.println("OVERALL TIME: "+((double)(stop.getTime() -overallTime.getTime())/1000)+" sec");
 		neo4j.addSpotTime = 0;
 		neo4j.updateSpotTime = 0;
-		neo4j.getSpotsTime = 0;
 		neo4j.addGPSPointsTime = 0;
-		neo4j.addNeighbourTime = 0;
 		neo4j.addGPSPointsTime1 = 0;
+		neo4j.addNeighbourTime = 0;
+		neo4j.setIntersectionsTime = 0;
+		neo4j.getSpotTime = 0;
+		neo4j.getSpotsTime = 0;
 
 		return route;
 	}

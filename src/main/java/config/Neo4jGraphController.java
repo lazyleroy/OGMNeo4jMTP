@@ -58,6 +58,7 @@ public class Neo4jGraphController implements DBController {
         template.query(spotNeighborsQuery, Collections.EMPTY_MAP, false);
         Date stop_time = new Date();
         long time = stop_time.getTime() - start_time.getTime();
+        addSpotTime += time;
         main.setDatabaseTime(main.getDatabaseTime()+time);
     }
 
@@ -83,6 +84,7 @@ public class Neo4jGraphController implements DBController {
         s.setNeighbors(neighbors);
         Date stop_time = new Date();
         long time = stop_time.getTime() - start_time.getTime();
+        updateSpotTime += time;
         main.setDatabaseTime(main.getDatabaseTime()+(time));
 
     }
@@ -104,6 +106,7 @@ public class Neo4jGraphController implements DBController {
         }catch(NotFoundException nfe){
             Date stop_time = new Date();
             long time = stop_time.getTime() - start_time.getTime();
+            getSpotTime += time;
             main.setDatabaseTime(main.getDatabaseTime()+time);
             return null;
         }
@@ -149,6 +152,7 @@ public class Neo4jGraphController implements DBController {
 
         Date stop_time = new Date();
         long time = stop_time.getTime() - start_time.getTime();
+        getSpotsTime += time;
         main.setDatabaseTime(main.getDatabaseTime()+time);
 
         return spots;
@@ -194,7 +198,7 @@ public class Neo4jGraphController implements DBController {
         String gpsPlusQuery = "";
 
 
-        System.out.println("GRÖSSE: "+gpspoints.size());
+        //System.out.println("GRÖSSE: "+gpspoints.size());
         for(int i = 0; i < gpspoints.size(); i++) {
             GPS_plus tempGPS = gpspoints.get(i);
             gpsPlusID = username + tempGPS.getTime() + tempGPS.getLatitude() + tempGPS.getLongitude();
@@ -208,59 +212,16 @@ public class Neo4jGraphController implements DBController {
                 continue;
             }
 
-            /*String spotID = gpspoints.get(i).getSpot().getSpotID();
-            gpsPlusQuery += "CREATE (GPS_Plus0:GPS_Plus" + "{date:\'" + tempGPS.getTime() + "\', latitude:" + tempGPS.getLatitude()
-                    + ", longitude:" + tempGPS.getLongitude() + ", head:" + tempGPS.getHead() + ", gpsPlusID:\'" + gpsPlusID + "\', " +
-                    " timeDiffToNextPoint:" +
-                    tempGPS.getTimediffToNextPoint() + ", distanceToNextPoint:" + tempGPS.getTimediffToNextPoint() + ", dataID:" + tempGPS.getDataID() + "}) \n";
-
-            gpsPlusQuery += "MERGE (spot:Spot{spotID:\'" + spotID + "\'}) \n";
-
-            gpsPlusQuery += "CREATE (GPS_Plus0)-[:MAPPED_TO_SPOT]->(spot) ";
-
-            if (i == 0) {
-                waypointID = String.valueOf(date.getTime()) + String.valueOf(random.nextLong()) + username;
-                gpsPlusQuery += "MERGE (n:User{username:\'" + username + "\'}) \n";
-                gpsPlusQuery += "CREATE (n)-[:STARTING_POINT]->(GPS_Plus0) \n";
-                gpsPlusQuery += "CREATE (waypoint:Waypoint{waypointID:\'" + waypointID + "\'}) \n CREATE (n)-[:ROUTE_START]->(waypoint) \n";
-                gpsPlusQuery += "CREATE (GPS_Plus0)-[:WAYPOINT]->(waypoint) \n";
-            } else if (intersectionSpotStrings.contains(spotID)) {
-                if (!repeatedGPSinSpot) {
-                    String waypointID1 = String.valueOf(date.getTime()) + String.valueOf(random.nextLong()) + username;
-
-                    gpsPlusQuery += "MERGE (waypoint1:Waypoint{waypointID:'" + waypointID1 + "\'}) \n CREATE (GPS_Plus0)-[:WAYPOINT]->(waypoint1) \n";
-                    gpsPlusQuery += "MERGE(waypoint0:Waypoint{waypointID:\'" + waypointID + "\'})";
-                    gpsPlusQuery += "CREATE (waypoint0)-[:NEXT_WAYPOINT]->(waypoint1) \n ";
-                    repeatedGPSinSpot = true;
-                    waypointID = waypointID1;
-
-                }
-            } else {
-                repeatedGPSinSpot = false;
-            }
-            if (i == gpspoints.size() - 1) {
-                String waypointID2 = String.valueOf(date.getTime()) + String.valueOf(random.nextLong()) + username;
-
-                gpsPlusQuery += "MERGE (waypoint1:Waypoint{waypointID:'" + waypointID2 + "\'}) \n CREATE (GPS_Plus0)-[:WAYPOINT]->(waypoint1) \n";
-                gpsPlusQuery += "MERGE(waypoint0:Waypoint{waypointID:\'" + waypointID + "\'})";
-                gpsPlusQuery += "CREATE (waypoint0)-[:NEXT_WAYPOINT]->(waypoint1) \n ";
-
-            }
-            if (i > 0) {
-                gpsPlusQuery += "MERGE (GPS_Plus1:GPS_Plus{gpsPlusID:\'" + gpsPlusIDcheck + "\'})";
-                gpsPlusQuery += "CREATE (GPS_Plus0)-[:NEXT_GPS]->(GPS_Plus1) \n";
-            }
-            gpsPlusIDcheck = gpsPlusID;*/
-
 
 
 
             String spotID = gpspoints.get(i).getSpot().getSpotID();
-            gpsPlusQuery += "CREATE (GPS_Plus"+i+":GPS_Plus" + "{date:\'" + tempGPS.getTime() + "\', latitude:" + tempGPS.getLatitude()
+            /*gpsPlusQuery += "CREATE (GPS_Plus"+i+":GPS_Plus" + "{date:\'" + tempGPS.getTime() + "\', latitude:" + tempGPS.getLatitude()
                     + ", longitude:" + tempGPS.getLongitude() + ", head:" + tempGPS.getHead() + ", gpsPlusID:\'" + gpsPlusID + "\', " +
                     " timeDiffToNextPoint:" +
                     tempGPS.getTimediffToNextPoint() + ", distanceToNextPoint:" + tempGPS.getTimediffToNextPoint() + ", dataID:" + tempGPS.getDataID() + "}) \n";
-
+*/
+            gpsPlusQuery += "CREATE (GPS_Plus"+i+":GPS_Plus{gpsPlusID:\'" + gpsPlusID+"\'})";
             gpsPlusQuery += "MERGE (spot"+i+":Spot{spotID:\'" + spotID + "\'}) \n";
 
             gpsPlusQuery += "CREATE (GPS_Plus"+i+")-[:MAPPED_TO_SPOT]->(spot"+i+") ";
@@ -299,33 +260,14 @@ public class Neo4jGraphController implements DBController {
             }
             gpsPlusIDcheck = gpsPlusID;
 
-            if(i % 1 == 0 && i > 1){
-                Date start_time1 = new Date();
 
-                template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
-                System.out.println(gpsPlusQuery);
 
-                Date stop_time = new Date();
-                System.out.println(stop_time.getTime() - start_time1.getTime());
-                gpsPlusQuery ="";
-
-            }
-            if(i% 1 != 0 && i == gpspoints.size()){
-                Date start_time1 = new Date();
-
-                template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
-                Date stop_time = new Date();
-                System.out.println(stop_time.getTime() - start_time1.getTime());
-                gpsPlusQuery ="";
-                System.out.println("LETZTER PUNKT ERREICHT");
-            }
 
 
             Date start_time1 = new Date();
-
-            //template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
+            template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
             //System.out.println(gpsPlusQuery);
-           // gpsPlusQuery = "";
+            gpsPlusQuery = "";
             Date stop_time = new Date();
             //System.out.println(stop_time.getTime() - start_time1.getTime());
             addGPSPointsTime1 += stop_time.getTime() - start_time1.getTime();
@@ -346,6 +288,7 @@ public class Neo4jGraphController implements DBController {
 
         Date stop_time = new Date();
         long time = stop_time.getTime() - start_time.getTime();
+        addNeighbourTime += time;
         main.setDatabaseTime(main.getDatabaseTime()+time);
     }
 
@@ -370,6 +313,7 @@ public class Neo4jGraphController implements DBController {
 
         Date stop_time = new Date();
         long time = stop_time.getTime() - start_time.getTime();
+        setIntersectionsTime += time;
         main.setDatabaseTime(main.getDatabaseTime()+time);
 
     }
