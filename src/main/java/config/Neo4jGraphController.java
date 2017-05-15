@@ -118,6 +118,7 @@ public class Neo4jGraphController implements DBController {
 
     @Override
     public ArrayList<Spot> getSpots(float latitude, float longitude) {
+        System.out.println("getSpots :)");
         Session template = this.createNeo4JTemplate();
         Date start_time = new Date();
 
@@ -151,6 +152,7 @@ public class Neo4jGraphController implements DBController {
         if(spots.isEmpty()){
             Date stop_time = new Date();
             long time = stop_time.getTime() - start_time.getTime();
+            getSpotsTime += time;
             main.setDatabaseTime(main.getDatabaseTime()+time);
             return null;
         }

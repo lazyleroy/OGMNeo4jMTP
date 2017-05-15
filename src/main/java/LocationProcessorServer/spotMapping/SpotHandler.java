@@ -780,7 +780,7 @@ public class SpotHandler {
 	 */
 	private InfoBundle searchClosestSpot(GPS_plus point) {
 
-
+		System.out.println("searchClosestSpot");
 		ArrayList<Spot> spots =  neo4j.getSpots(point.getLatitude(),point.getLongitude());
 
 
