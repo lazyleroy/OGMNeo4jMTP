@@ -56,7 +56,7 @@ public class Test {
 		neo4jGraphController.sendQuery("CREATE INDEX ON :Spot(latitude)");
 		neo4jGraphController.sendQuery("CREATE INDEX ON :GPS_Plus(gpsPlusID)");
 		neo4jGraphController.sendQuery("CREATE INDEX ON :Waypoint(waypointID)");
-        neo4jGraphController.sendQuery("CALL spatial.addWKTLayer(\'SpotIndex\', \'wkt\')");
+        //neo4jGraphController.sendQuery("CALL spatial.addWKTLayer(\'SpotIndex\', \'wkt\')");
 
 		// read data sets
 		/*
@@ -68,16 +68,16 @@ public class Test {
 		evaluationData.addAll(testData);*/
 
 		// clean data and search for routes in the input trajectories
-        File dir = new File("src\\main\\resources\\asiaRoutes");
+        File dir = new File("src\\main\\resources\\GPXfiles");
         File[] filesList = dir.listFiles();
 		//ArrayList<Route> routes = getAsiaRoutes();
 		//routes.addAll(GPSDataProcessor.splitTrajectoryByRoutes(traTestData));
         long counter = 0;
 		// record time for performance
 		Date start_time = new Date();
-        for(int x = 0; x<5000; x++ ) {
+        for(int x = 0; x< filesList.length; x++ ) {
                 ArrayList<GPS_plus> gps_points = new ArrayList<GPS_plus>();
-                gps_points.addAll(GPXHandler.readGPXFile("src\\main\\resources\\asiaRoutes\\"+filesList[x].getName()));
+                gps_points.addAll(GPXHandler.readGPXFile("src\\main\\resources\\GPXfiles\\"+filesList[x].getName()));
                 for (int r = 0; r < gps_points.size(); r++) {
                     gps_points.get(r).setUserID("007");
 

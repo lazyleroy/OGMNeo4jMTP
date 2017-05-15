@@ -102,8 +102,9 @@ public class Neo4jGraphController implements DBController {
            // System.out.println("getSpot QUERY");
             Date stop_time = new Date();
             long time = stop_time.getTime() - start_time.getTime();
+            getSpotTime += time;
             main.setDatabaseTime(main.getDatabaseTime()+time);
-            System.out.println("ZEIT SPOT: "+ time);
+            //System.out.println("ZEIT SPOT: "+ time);
 
             return spot;
         }catch(NotFoundException nfe){
@@ -118,7 +119,7 @@ public class Neo4jGraphController implements DBController {
 
     @Override
     public ArrayList<Spot> getSpots(float latitude, float longitude) {
-        System.out.println("getSpots :)");
+        //System.out.println("getSpots :)");
         Session template = this.createNeo4JTemplate();
         Date start_time = new Date();
 
