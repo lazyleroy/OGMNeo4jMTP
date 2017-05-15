@@ -43,6 +43,23 @@
 
 
         <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-spatial</artifactId>
+            <version>0.24-neo4j-3.1.1</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.neo4j/neo4j -->
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j</artifactId>
+            <version>3.1.1</version>
+        </dependency>
+
+
+
+
+
+        <dependency>
             <groupId>cern</groupId>
             <artifactId>colt</artifactId>
             <version>1.1</version>

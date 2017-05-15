@@ -49,7 +49,6 @@ public class MyConfiguration{
                 .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver")
                 .setURI("file:/home/ines/neo4j-community-3.1.1/data/databases/routes.db")
                 ;
-
         return config;
     }
 

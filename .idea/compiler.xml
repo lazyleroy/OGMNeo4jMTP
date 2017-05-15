@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
+    <option name="DEFAULT_COMPILER" value="Eclipse" />
     <resourceExtensions />
     <wildcardResourcePatterns>
       <entry name="!?*.java" />
@@ -28,9 +29,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="OGM Neo4J" target="1.8" />
       <module name="OGMNeo4J" target="1.8" />
-      <module name="TEST" target="1.5" />
     </bytecodeTargetLevel>
   </component>
 </project>

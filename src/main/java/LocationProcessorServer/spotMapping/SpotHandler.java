@@ -700,17 +700,18 @@ public class SpotHandler {
 						+neo4j.getSpotTime
 						+neo4j.setIntersectionsTime;
 
-		System.out.println("\t NEO4J TIME: "+ neo4jtime);
-		System.out.println("\t\t ADD SPOTs - TIME: "+neo4j.addSpotTime);
-		System.out.println("\t\t UPDATE SPOTs - TIME: "+neo4j.updateSpotTime);
-		System.out.println("\t\t GET SPOT - TIME: "+neo4j.getSpotTime);
-		System.out.println("\t\t GET SPOTs - TIME: "+neo4j.getSpotsTime);
-		System.out.println("\t\t ADD GPSPOINTs - TIME: "+neo4j.addGPSPointsTime);
-		System.out.println("\t\t\t ADD GPSPOINTs1 - TIME: "+neo4j.addGPSPointsTime1);
-		System.out.println("\t\t ADD NEIGHBOURs - TIME: "+neo4j.addNeighbourTime);
-		System.out.println("\t\t SET INTERSECTION - TIME: "+neo4j.setIntersectionsTime);
-		System.out.println("\t OPTIMIZATION - TIME: "+(overallTime-neo4jtime));
-
+		System.out.println("\t NEO4J TIME: "+ neo4jtime+ "\t\t\t\t AVERAGE NEO4J TIME PER NODE: "+ (double)neo4jtime/route.size());
+		System.out.println("\t\t ADD SPOTs - TIME: "+neo4j.addSpotTime+ "\t\t\t\t AVERAGE ADD SPOTs - TIME PER NODE: "+ (double)neo4j.addSpotTime/route.size());
+		System.out.println("\t\t UPDATE SPOTs - TIME: "+neo4j.updateSpotTime+ "\t\t\t\t AVERAGE UPDATE SPOTs - TIME PER NODE: "+ (double)neo4j.updateSpotTime/route.size());
+		System.out.println("\t\t GET SPOT - TIME: "+neo4j.getSpotTime+ "\t\t\t\t AVERAGE GET SPOT - TIME PER NODE: "+ (double)neo4j.getSpotTime/route.size());
+		System.out.println("\t\t GET SPOTs - TIME: "+neo4j.getSpotsTime+ "\t\t\t\t AVERAGE GET SPOTS - TIME PER NODE: "+ (double)neo4j.getSpotsTime/route.size());
+		System.out.println("\t\t ADD GPSPOINTs - TIME: "+neo4j.addGPSPointsTime+ "\t\t\t\t AVERAGE ADD GPSPOINTS - TIME PER NODE: "+ (double)neo4j.addGPSPointsTime/route.size());
+		System.out.println("\t\t\t ADD GPSPOINTs1 - TIME: "+neo4j.addGPSPointsTime1+ "\t\t\t\t AVERAGE ADD GPSPOINTS1 - TIME PER NODE: "+ (double)neo4j.addGPSPointsTime1/route.size());
+		System.out.println("\t\t ADD NEIGHBOURs - TIME: "+neo4j.addNeighbourTime+ "\t\t\t\t AVERAGE ADD NEIGHBOURS - TIME PER NODE: "+ (double)neo4j.addNeighbourTime/route.size());
+		System.out.println("\t\t SET INTERSECTION - TIME: "+neo4j.setIntersectionsTime+ "\t\t\t\t AVERAGE INTERSECTION - TIME PER NODE: "+ (double)neo4j.setIntersectionsTime/route.size());
+		System.out.println("\t OPTIMIZATION - TIME: "+(overallTime-neo4jtime)+ "\t\t\t\t AVERAGE OPTIMIZATION - TIME PER NODE: "+ (double)(overallTime-neo4jtime)/route.size());
+        System.out.println("-------------------------------------------------------------------------------------------------------------");
+        System.out.println();
 		neo4jTimeOverall = neo4jTimeOverall + neo4jtime;
 		addSpotTimeOverall = addSpotTimeOverall + neo4j.addSpotTime;
 		addGPSPointsTimeOverall = addGPSPointsTimeOverall + neo4j.addGPSPointsTime;

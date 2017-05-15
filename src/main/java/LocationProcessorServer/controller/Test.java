@@ -56,6 +56,7 @@ public class Test {
 		neo4jGraphController.sendQuery("CREATE INDEX ON :Spot(latitude)");
 		neo4jGraphController.sendQuery("CREATE INDEX ON :GPS_Plus(gpsPlusID)");
 		neo4jGraphController.sendQuery("CREATE INDEX ON :Waypoint(waypointID)");
+        neo4jGraphController.sendQuery("CALL spatial.addWKTLayer(\'SpotIndex\', \'wkt\')");
 
 		// read data sets
 		/*
@@ -67,37 +68,51 @@ public class Test {
 		evaluationData.addAll(testData);*/
 
 		// clean data and search for routes in the input trajectories
-		ArrayList<Route> routes = getTestRoutes();
-
+        File dir = new File("src\\main\\resources\\asiaRoutes");
+        File[] filesList = dir.listFiles();
+		//ArrayList<Route> routes = getAsiaRoutes();
 		//routes.addAll(GPSDataProcessor.splitTrajectoryByRoutes(traTestData));
-
+        long counter = 0;
 		// record time for performance
 		Date start_time = new Date();
+        for(int x = 0; x<5000; x++ ) {
+                ArrayList<GPS_plus> gps_points = new ArrayList<GPS_plus>();
+                gps_points.addAll(GPXHandler.readGPXFile("src\\main\\resources\\asiaRoutes\\"+filesList[x].getName()));
+                for (int r = 0; r < gps_points.size(); r++) {
+                    gps_points.get(r).setUserID("007");
 
-		for (int i = 0; i < routes.size(); i++) {
-			Route route = routes.get(i);
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-				String json = mapper.writeValueAsString(route);
-                //System.out.println(json);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-			route = spotHandler.learningSpotStructure(route);
-		}
+                }
+                Route route = new Route(gps_points, "007");
 
+
+                        // routes.get(i);
+                System.out.println("Route #:  " + x);
+                System.out.println("Route Size:  " + route.size());
+                counter += route.size();
+                try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    String json = mapper.writeValueAsString(route);
+                    //System.out.println(json);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+
+
+
+                route = spotHandler.learningSpotStructure(route);
+            //}
+        }
         // measure time for performance
 		Date stop_time = new Date();
 		double time = stop_time.getTime() - start_time.getTime();
 
 		System.out.println("-- Evaluation --");
-		System.out.println("# of Testroutes: "+routes.size());
-		for (int i = 0; i < routes.size(); i++) {
-			Route route = routes.get(i);
-			System.out.println("Route "+(i+1)+": "+route.size()+" points");
-		}
+
+
+        System.out.println("# OF ROUTES PROCESSED 5000"+/*+ routes.size()+ */", NODES PROCESSED: "+ counter);
 		System.out.println("Processing - Time: " + time );
 		System.out.println("Neo4J Processing - Time " + SpotHandler.neo4jTimeOverall);
+        System.out.println();
 
 		System.out.println("-- Neo4J Evaluation --");
 		System.out.println("\t AddSpot - Time: "+ SpotHandler.addSpotTimeOverall);
@@ -105,11 +120,24 @@ public class Test {
 		System.out.println("\t Get Spot - Time: "+SpotHandler.getSpotTimeOverall);
 		System.out.println("\t Get Spots - Time: "+SpotHandler.getSpotsTimeOverall);
 		System.out.println("\t Add GPS Points - Time: "+SpotHandler.addGPSPointsTimeOverall);
-		System.out.println("\t\t Add GPS Points1 - Time: "+SpotHandler.addGPSPoints1TimeOverall);
+		System.out.println("\t Add GPS Points1 - Time: "+SpotHandler.addGPSPoints1TimeOverall);
 		System.out.println("\t Add neighbours - Time: "+SpotHandler.addNeighbourTimeOverall);
 		System.out.println("\t Set intersection - Time: "+SpotHandler.setIntersectionTimeOverall);
-		System.out.println("-- Optimization Time --");
-		System.out.println(SpotHandler.optimizationTimeOverall);
+		System.out.println("\t Optimization Time :"+ SpotHandler.optimizationTimeOverall);
+		System.out.println();
+
+        System.out.println();
+        System.out.println("\t AVERGAE AddSpot - Time PER NODE: "+ (double)SpotHandler.addSpotTimeOverall/counter);
+        System.out.println("\t AVERGAE Update Spots - Time PER NODE: "+ (double)SpotHandler.updateSpotTimeOverall/counter);
+        System.out.println("\t AVERGAE Get Spot - Time PER NODE: "+(double)SpotHandler.getSpotTimeOverall/counter);
+        System.out.println("\t AVERGAE Get Spots - Time PER NODE: "+(double)SpotHandler.getSpotsTimeOverall/counter);
+        System.out.println("\t AVERGAE Add GPS Points - Time PER NODE: "+(double)SpotHandler.addGPSPointsTimeOverall/counter);
+        System.out.println("\t AVERGAE Add GPS Points1 - Time PER NODE: "+(double)SpotHandler.addGPSPoints1TimeOverall/counter);
+        System.out.println("\t AVERGAE Add neighbours - Time PER NODE: "+(double)SpotHandler.addNeighbourTimeOverall/counter);
+        System.out.println("\t AVERGAE Set intersection - Time PER NODE: "+(double)SpotHandler.setIntersectionTimeOverall/counter);
+        System.out.println("\t AVERGAE Optimization Time PER NODE: "+ (double)(SpotHandler.optimizationTimeOverall/counter));
+        System.out.println();
+
 
 
 	}
@@ -151,7 +179,7 @@ public class Test {
 
 	public static ArrayList<Route> getTestRoutesSimon(){
 		ArrayList<Route> routes = new ArrayList<>();
-		for(int j = 1; j <= 6; j++) {
+		for(int j = 1; j <= 3; j++) {
 
 			ArrayList<GPS_plus> gps_points = new ArrayList<GPS_plus>();
 			gps_points.addAll(GPXHandler.readGPXFile("src\\main\\resources\\GPXfiles\\track ("+j+").gpx"));
@@ -164,4 +192,27 @@ public class Test {
 
 		return routes;
 	}
+
+	public static ArrayList<Route> getAsiaRoutes(){
+
+        ArrayList<Route> routes = new ArrayList<>();
+
+
+        for(int i = 0; i < 5000; i++){
+            System.out.println(i);
+            File dir = new File("src\\main\\resources\\asiaRoutes");
+            File[] filesList = dir.listFiles();
+            ArrayList<GPS_plus> gps_points = new ArrayList<GPS_plus>();
+            gps_points.addAll(GPXHandler.readGPXFile("src\\main\\resources\\asiaRoutes\\"+filesList[i].getName()));
+            for (int r = 0; r < gps_points.size(); r++) {
+                gps_points.get(r).setUserID("007");
+
+            }
+            Route route = new Route(gps_points, "007");
+            routes.add(route);
+        }
+
+        return routes;
+    }
+
 }
