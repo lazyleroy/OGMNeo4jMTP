@@ -18,11 +18,9 @@ import org.springframework.core.env.SystemEnvironmentPropertySource;
 
 import java.io.File;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * Test class to start and test the program.
@@ -56,7 +54,7 @@ public class Test {
 		neo4jGraphController.sendQuery("CREATE INDEX ON :Spot(latitude)");
 		neo4jGraphController.sendQuery("CREATE INDEX ON :GPS_Plus(gpsPlusID)");
 		neo4jGraphController.sendQuery("CREATE INDEX ON :Waypoint(waypointID)");
-        neo4jGraphController.sendQuery("CALL spatial.addWKTLayer(\'SpotIndex\', \'wkt\')");
+        //neo4jGraphController.sendQuery("CALL spatial.addWKTLayer(\'SpotIndex\', \'wkt\')");
 
 		// read data sets
 		/*
@@ -75,14 +73,44 @@ public class Test {
         long counter = 0;
 		// record time for performance
 		Date start_time = new Date();
-        for(int x = 0; x<5000; x++ ) {
+
+		/*ArrayList<Float> lat = new ArrayList<>();
+		ArrayList<Float> lon = new ArrayList<>();
+		DecimalFormat df = new DecimalFormat("#.#");
+
+		for(int i = 18; i < 63; i++){
+			for(int j = 75; j < 130; j++){
+				String query = ("call spatial.addWKTLayer(\'Layer"+(i)+""+(j)+"\', 'wkt') yield node \n" +
+						"set node.wkt = \"POLYGON (("+(i)+" "+ (j)+", "+ (i+1)+" "+ j+", "+ (i+1)+" "+(j+1)+", "+ i+" "+(j+1)+", "+ i+" "+j+"))\"\n" +
+						"with node as n\n" +
+						"call spatial.addNode(\'SpotIndex\', n) yield node as t\n" +
+						"return t");
+				System.out.println(query);
+				neo4jGraphController.sendQuery(query);
+			for(float r = (float)i; r < i+1; r+= 0.1){
+				for(float t = (float)j; t < j+1; t+=0.1){
+					r = Float.parseFloat(df.format(r).replace(",","."));
+					t = Float.parseFloat(df.format(t).replace(",","."));
+
+				/*	String query2 = ("CREATE (n:Area{wkt:\"POLYGON (("+r+" "+t+ ", "+ Float.parseFloat(df.format(r+0.1).replace(",","."))+" "+ t+", "+ Float.parseFloat(df.format(r+0.1).replace(",","."))+" "+Float.parseFloat(df.format(t+0.1).replace(",","."))+", "+r+" "+Float.parseFloat(df.format(t+0.1).replace(",","."))+", "+ r+" "+t+"))\"})"+
+							" WITH n as n call spatial.addNode(\'Layer"+(i)+""+(j)+"\', n) yield node as t\n" +
+							"return t");
+					System.out.println(query2);
+					neo4jGraphController.sendQuery(query2);
+				}
+			}
+
+			}
+		}*/
+
+		for(int x = 0; x<5000; x++ ) {
                 ArrayList<GPS_plus> gps_points = new ArrayList<GPS_plus>();
                 gps_points.addAll(GPXHandler.readGPXFile("src\\main\\resources\\asiaRoutes\\"+filesList[x].getName()));
                 for (int r = 0; r < gps_points.size(); r++) {
                     gps_points.get(r).setUserID("007");
 
-                }
-                Route route = new Route(gps_points, "007");
+				}
+	            Route route = new Route(gps_points, "007");
 
 
                         // routes.get(i);
@@ -102,6 +130,24 @@ public class Test {
                 route = spotHandler.learningSpotStructure(route);
             //}
         }
+		/*int[] latCount = new int[67];
+		int[] lonCount = new int[150];
+
+		for(int j = 0; j < lat.size(); j++){
+			latCount[(lat.get(j).intValue())]+=1;
+		}
+        for(int i = 0; i < latCount.length; i++){
+			System.out.println("Lat Count "+ i+": "+ latCount[i]);
+		}
+
+		for(int j = 0; j < lon.size(); j++){
+			lonCount[(lon.get(j).intValue())]+=1;
+		}
+		for(int i = 0; i < lonCount.length; i++){
+			System.out.println("Lon Count "+ i+": "+ lonCount[i]);
+		}*/
+
+
         // measure time for performance
 		Date stop_time = new Date();
 		double time = stop_time.getTime() - start_time.getTime();

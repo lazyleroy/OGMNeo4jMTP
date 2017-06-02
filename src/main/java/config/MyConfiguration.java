@@ -31,6 +31,7 @@ import org.neo4j.ogm.session.SessionFactory;
 @EnableTransactionManagement
 @PropertySources(value = {@PropertySource(value = "classpath:application.properties")})
 @SpringBootApplication
+@org.springframework.context.annotation.Configuration
 public class MyConfiguration{
 
 

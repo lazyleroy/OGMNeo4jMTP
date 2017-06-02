@@ -8,7 +8,9 @@ import org.neo4j.ogm.exception.NotFoundException;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import Exceptions.*;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 /**
@@ -55,7 +57,7 @@ public class Neo4jGraphController implements DBController {
         for(int i = 0; i < neighbors.size(); i++){
             spotNeighborsQuery+= "MERGE (n)-[:CONNECTED_WITH]-(t"+i+") ";
         }
-        spotNeighborsQuery+= "WITH n \n CALL spatial.addNode(\'SpotIndex\',n) YIELD node RETURN node ";
+        spotNeighborsQuery+= "WITH n \n CALL spatial.addNode(\'Layer"+(int)spot.getLatitude()+""+(int)spot.getLongitude()+"\',n) YIELD node RETURN node ";
         template.query(spotNeighborsQuery, Collections.EMPTY_MAP, false);
         Date stop_time = new Date();
         long time = stop_time.getTime() - start_time.getTime();
@@ -103,7 +105,6 @@ public class Neo4jGraphController implements DBController {
             Date stop_time = new Date();
             long time = stop_time.getTime() - start_time.getTime();
             main.setDatabaseTime(main.getDatabaseTime()+time);
-            System.out.println("ZEIT SPOT: "+ time);
 
             return spot;
         }catch(NotFoundException nfe){
@@ -117,7 +118,7 @@ public class Neo4jGraphController implements DBController {
     }
 
     @Override
-    public ArrayList<Spot> getSpots(float latitude, float longitude) {
+    public ArrayList<Spot> getSpots(float longitude, float latitude)   {
         Session template = this.createNeo4JTemplate();
         Date start_time = new Date();
 
@@ -133,11 +134,54 @@ public class Neo4jGraphController implements DBController {
             System.out.println(results.get(i).getGeomNode());
         }*/
                                      //call spatial.withinDistance('geom3', {latitude: 60.0, longitude:15.0},0.05) YIELD node return node
-        Result res = template.query("CALL spatial.withinDistance(\'SpotIndex\', {latitude:"+latitude+", longitude:"+longitude+"},0.05) YIELD node return node", Collections.EMPTY_MAP, false);
-        //Result res= template.query("match(n:Spot) where distance(point(n),point({latitude:"+latitude+", longitude:"+longitude+"}))<50 return n", Collections.EMPTY_MAP, false);
-        //sendQuery("CALL spatial.withinDistance('test-layer',{longitude:"+longitude+",latitude:"+latitude+"},0.05)");
-        //Result r = template.query("CALL spatial.withinDistance('spot-layer',{longitude:"+longitude+",latitude:"+latitude+"},0.05)", Collections.EMPTY_MAP, false);
-        //Result r = template.query("CALL spatial.procedures", Collections.EMPTY_MAP, false);
+        try{
+            Result res = template.query("CALL spatial.withinDistance(\'Layer"+(int)longitude+""+(int)latitude+"\', {latitude:"+latitude+", longitude:"+longitude+"},0.05) YIELD node return node", Collections.EMPTY_MAP, false);
+            Iterator<Map<String, Object>> result = res.iterator();
+            ArrayList<Spot> spots = new ArrayList<>();
+            while(result.hasNext()){
+                Map<String, Object> map = result.next();
+                for(Map.Entry<String, Object> entry : map.entrySet()){
+                    if(entry.getValue() instanceof Spot){
+                        spots.add((Spot)entry.getValue());
+                    }
+                }
+            }
+            if(spots.isEmpty()){
+                Date stop_time = new Date();
+                long time = stop_time.getTime() - start_time.getTime();
+                main.setDatabaseTime(main.getDatabaseTime()+time);
+                return null;
+            }
+
+            Date stop_time = new Date();
+            long time = stop_time.getTime() - start_time.getTime();
+            getSpotsTime += time;
+            main.setDatabaseTime(main.getDatabaseTime()+time);
+            return spots;
+        }catch (Exception e){
+            e.printStackTrace();
+            DecimalFormat df = new DecimalFormat("#.#");
+            String query = ("call spatial.addWKTLayer(\'Layer"+(int)longitude+""+(int)latitude+"\', 'wkt') yield node \n" +
+                    "set node.wkt = \"POLYGON (("+(int)longitude+" "+ ((int)latitude)+", "+ ((int)longitude+1)+" "+ (int)latitude+", "+ ((int)longitude+1)+" "+((int)latitude+1)+", "+ (int)longitude+" "+((int)latitude+1)+", "+ (int)longitude+" "+(int)latitude+"))\"\n" +
+                    "with node as n\n" +
+                    "call spatial.addNode(\'SpotIndex\', n) yield node as t\n" +
+                    "return t");
+            System.out.println(query);
+            template.query(query, Collections.EMPTY_MAP, false);
+
+            for(float r = (float)(int)longitude; r < (int)longitude+1; r+= 0.1){
+                for(float t = (float)(int)latitude; t < (int)latitude+1; t+=0.1){
+                    r = Float.parseFloat(df.format(r).replace(",","."));
+                    t = Float.parseFloat(df.format(t).replace(",","."));
+                    String query2 = ("CREATE (n:Area{wkt:\"POLYGON (("+r+" "+t+ ", "+ Float.parseFloat(df.format(r+0.1).replace(",","."))+" "+ t+", "+ Float.parseFloat(df.format(r+0.1).replace(",","."))+" "+Float.parseFloat(df.format(t+0.1).replace(",","."))+", "+r+" "+Float.parseFloat(df.format(t+0.1).replace(",","."))+", "+ r+" "+t+"))\"})"+
+                            " WITH n as n call spatial.addNode(\'Layer"+(int)longitude+""+(int)latitude+"\', n) yield node as t\n" +
+                            "return t");
+                    template.query(query2, Collections.EMPTY_MAP, false);
+
+                }
+            }
+        }
+        Result res = template.query("CALL spatial.withinDistance(\'Layer"+(int)longitude+""+(int)latitude+"\', {latitude:"+latitude+", longitude:"+longitude+"},0.05) YIELD node return node", Collections.EMPTY_MAP, false);
         Iterator<Map<String, Object>> result = res.iterator();
         ArrayList<Spot> spots = new ArrayList<>();
         while(result.hasNext()){
@@ -159,9 +203,14 @@ public class Neo4jGraphController implements DBController {
         long time = stop_time.getTime() - start_time.getTime();
         getSpotsTime += time;
         main.setDatabaseTime(main.getDatabaseTime()+time);
-        System.out.println("ZEIT: "+ time);
         return spots;
+
     }
+        //Result res= template.query("match(n:Spot) where distance(point(n),point({latitude:"+latitude+", longitude:"+longitude+"}))<50 return n", Collections.EMPTY_MAP, false);
+        //sendQuery("CALL spatial.withinDistance('test-layer',{longitude:"+longitude+",latitude:"+latitude+"},0.05)");
+        //Result r = template.query("CALL spatial.withinDistance('spot-layer',{longitude:"+longitude+",latitude:"+latitude+"},0.05)", Collections.EMPTY_MAP, false);
+        //Result r = template.query("CALL spatial.procedures", Collections.EMPTY_MAP, false);
+
 
     @Override
     public void addGPSPoints(ArrayList<GPS_plus> gpspoints, String username, ArrayList<String> intersectionSpots) {
@@ -242,7 +291,7 @@ public class Neo4jGraphController implements DBController {
                     String waypointID1 = String.valueOf(date.getTime()) + String.valueOf(random.nextLong()) + username;
 
                     gpsPlusQuery += "MERGE (waypoint"+i+gpspoints.size()+1+":Waypoint{waypointID:'" + waypointID1 + "\'}) \n CREATE (GPS_Plus"+i+")-[:WAYPOINT]->(waypoint"+i+gpspoints.size()+1+") \n";
-                    gpsPlusQuery += "MERGE(waypoint"+i+gpspoints.size()+"0:Waypoint{waypointID:\'" + waypointID + "\'})";
+                    gpsPlusQuery += "MERGE(waypoint"+i+gpspoints.size()+":Waypoint{waypointID:\'" + waypointID + "\'})";
                     gpsPlusQuery += "CREATE (waypoint"+i+gpspoints.size()+")-[:NEXT_WAYPOINT]->(waypoint"+i+gpspoints.size()+1+") \n ";
                     repeatedGPSinSpot = true;
                     waypointID = waypointID1;
@@ -254,9 +303,9 @@ public class Neo4jGraphController implements DBController {
             if (i == gpspoints.size() - 1) {
                 String waypointID2 = String.valueOf(date.getTime()) + String.valueOf(random.nextLong()) + username;
 
-                gpsPlusQuery += "MERGE (waypoint"+i+gpspoints.size()+1+":Waypoint{waypointID:'" + waypointID2 + "\'}) \n CREATE (GPS_Plus"+i+")-[:WAYPOINT]->(waypoint"+i+gpspoints.size()+1+") \n";
-                gpsPlusQuery += "MERGE(waypoint"+i+gpspoints.size()+":Waypoint{waypointID:\'" + waypointID + "\'})";
-                gpsPlusQuery += "CREATE (waypoint"+i+gpspoints.size()+")-[:NEXT_WAYPOINT]->(waypoint"+i+gpspoints.size()+1+") \n ";
+                gpsPlusQuery += "MERGE (waypoint"+i+gpspoints.size()+2+":Waypoint{waypointID:'" + waypointID2 + "\'}) \n CREATE (GPS_Plus"+i+")-[:WAYPOINT]->(waypoint"+i+gpspoints.size()+2+") \n";
+                gpsPlusQuery += "MERGE(waypoint"+i+gpspoints.size()+3+":Waypoint{waypointID:\'" + waypointID + "\'})";
+                gpsPlusQuery += "CREATE (waypoint"+i+gpspoints.size()+3+")-[:NEXT_WAYPOINT]->(waypoint"+i+gpspoints.size()+2+") \n ";
 
             }
             if (i > 0) {
@@ -270,8 +319,9 @@ public class Neo4jGraphController implements DBController {
 
 
             Date start_time1 = new Date();
+;
             template.query(gpsPlusQuery, Collections.EMPTY_MAP, false);
-            //System.out.println(gpsPlusQuery);
+
             gpsPlusQuery = "";
             Date stop_time = new Date();
             //System.out.println(stop_time.getTime() - start_time1.getTime());
